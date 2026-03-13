@@ -10,7 +10,6 @@ struct ProtocolDetailView: View {
     @State private var showEditProtocol = false
     @State private var showReconCalc = false
     @State private var showRestockInventory = false
-    @State private var doseTime: Date = Date()
     
     var activeLevelData: [ActiveLevelDataPoint] {
         PharmacokineticsEngine.activeLevel(
@@ -105,17 +104,6 @@ struct ProtocolDetailView: View {
         .sheet(isPresented: $showRestockInventory) {
             RestockInventorySheet(protocol_: protocol_)
         }
-        .onAppear {
-            let fallback = Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
-            doseTime = protocol_.schedule.timesOfDay.first ?? fallback
-        }
-        .onChange(of: doseTime) { _, newTime in
-            var sched = protocol_.schedule
-            sched.timesOfDay = [newTime]
-            protocol_.schedule = sched
-            try? context.save()
-            Task { await NotificationService.shared.scheduleReminders(for: protocol_) }
-        }
     }
     
     // MARK: - Hero Section
@@ -158,23 +146,10 @@ struct ProtocolDetailView: View {
             VStack(alignment: .leading, spacing: 4) {
                 InfoRow(label: "Dose", value: "\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
                 InfoRow(label: "Half-life", value: "\(protocol_.halfLifeValue.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.halfLifeUnit.rawValue)")
+                InfoRow(label: "Time", value: protocol_.schedule.timesOfDay.first.map { $0.formatted(date: .omitted, time: .shortened) } ?? "—")
                 if let end = protocol_.endDate {
                     InfoRow(label: "End date", value: end.formatted(.dateTime.month(.abbreviated).day().year()))
                 }
-            }
-
-            AscendancyDivider()
-
-            HStack {
-                Text("Dose Time")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.white.opacity(0.4))
-                Spacer()
-                DatePicker("", selection: $doseTime, displayedComponents: .hourAndMinute)
-                    .labelsHidden()
-                    .datePickerStyle(.compact)
-                    .tint(.white)
-                    .colorScheme(.dark)
             }
         }
         .glassCardFilling(cornerRadius: 16, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))

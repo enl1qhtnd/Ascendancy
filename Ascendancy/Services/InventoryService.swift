@@ -9,6 +9,10 @@ class InventoryService {
     @discardableResult
     func decrementInventory(for protocol_: CompoundProtocol, dose: DoseLog) -> InventoryWarning? {
         let form = protocol_.administrationForm
+        
+        // Vials are restocked manually; do not auto-decrement on dose log.
+        guard form != .vial else { return nil }
+        
         let doseAmount = dose.actualDoseAmount
         
         if protocol_.formDosage > 0 {

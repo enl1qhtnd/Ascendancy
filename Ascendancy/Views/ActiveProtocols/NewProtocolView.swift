@@ -231,17 +231,17 @@ struct NewProtocolView: View {
         name = p.name
         category = p.category
         administrationForm = p.administrationForm
-        doseAmount = p.doseAmount.formatted(.number.precision(.fractionLength(0...4)))
+        doseAmount = p.doseAmount.formatted(.number.precision(.fractionLength(0...4)).grouping(.never))
         doseUnit = p.doseUnit
-        halfLifeValue = p.halfLifeValue.formatted(.number.precision(.fractionLength(0...4)))
+        halfLifeValue = p.halfLifeValue.formatted(.number.precision(.fractionLength(0...4)).grouping(.never))
         halfLifeUnit = p.halfLifeUnit
         startDate = p.startDate
         endDate = p.endDate
         hasEndDate = p.endDate != nil
         notes = p.notes
-        inventoryCount = p.inventoryCount.formatted(.number.precision(.fractionLength(0...2)))
-        formDosage = p.formDosage > 0 ? p.formDosage.formatted(.number.precision(.fractionLength(0...2))) : ""
-        inventoryThreshold = p.inventoryLowThreshold.formatted(.number.precision(.fractionLength(0...2)))
+        inventoryCount = p.inventoryCount.formatted(.number.precision(.fractionLength(0...2)).grouping(.never))
+        formDosage = p.formDosage > 0 ? p.formDosage.formatted(.number.precision(.fractionLength(0...2)).grouping(.never)) : ""
+        inventoryThreshold = p.inventoryLowThreshold.formatted(.number.precision(.fractionLength(0...2)).grouping(.never))
         remindersEnabled = p.remindersEnabled
         // Schedule
         let sched = p.schedule
