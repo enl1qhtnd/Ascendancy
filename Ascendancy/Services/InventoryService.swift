@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 class InventoryService {
     
     static let shared = InventoryService()
