@@ -36,10 +36,6 @@ Ascendancy is a comprehensive iOS health and compound tracking application built
 3. Open `Ascendancy.xcodeproj` in Xcode.
 4. Select your simulator or device and hit **Run** (`Cmd + R`).
 
-### Building an IPA (No Developer Account)
+## 
 
-If you wish to build an `.ipa` for sideloading (e.g., via AltStore) without a paid Apple Developer account, you can find the terminal instructions in [BUILD.md](BUILD.md).
-
-## License
-
-This project is licensed under the MIT License.
+Made with ❤️ by @enl1qhtnd
