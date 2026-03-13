@@ -16,16 +16,6 @@ struct HomeView: View {
     
     @AppStorage("profileImageData") private var profileImageData: Data?
     
-    var nextDoseProtocol: CompoundProtocol? {
-        activeProtocols
-            .compactMap { p -> (CompoundProtocol, Date)? in
-                guard let next = p.nextDoseDate() else { return nil }
-                return (p, next)
-            }
-            .sorted { $0.1 < $1.1 }
-            .first?.0
-    }
-    
     var combinedLevelData: [ActiveLevelDataPoint] {
         let pairs = activeProtocols.map { p in (p, p.doseLogs) }
         return PharmacokineticsEngine.combinedActiveLevel(
@@ -49,7 +39,7 @@ struct HomeView: View {
                         
                         // 2. Next Dose + Bodyweight side-by-side
                         HStack(spacing: 12) {
-                            CompactNextDoseTile(protocol_: nextDoseProtocol)
+                            CompactNextDoseTile(protocols: activeProtocols)
                             CompactBodyweightTile(healthKit: healthKit)
                         }
                         
@@ -315,51 +305,190 @@ struct BodyweightTile: View {
 // MARK: - Compact Next Dose Tile (half width)
 
 struct CompactNextDoseTile: View {
-    let protocol_: CompoundProtocol?
-    
+    let protocols: [CompoundProtocol]
+    @State private var showDaySchedule = false
+
+    private var nextDoseProtocol: CompoundProtocol? {
+        protocols
+            .compactMap { p -> (CompoundProtocol, Date)? in
+                guard let next = p.nextDoseDate() else { return nil }
+                return (p, next)
+            }
+            .sorted { $0.1 < $1.1 }
+            .first?.0
+    }
+
+    private var nextDoseDay: Date? {
+        nextDoseProtocol.flatMap { $0.nextDoseDate() }
+            .map { Calendar.current.startOfDay(for: $0) }
+    }
+
+    private var dosesToday: [(CompoundProtocol, Date)] {
+        guard let day = nextDoseDay else { return [] }
+        return protocols
+            .compactMap { p -> (CompoundProtocol, Date)? in
+                guard let next = p.nextDoseDate(),
+                      Calendar.current.startOfDay(for: next) == day else { return nil }
+                return (p, next)
+            }
+            .sorted { $0.1 < $1.1 }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            TileHeader(icon: "clock.arrow.circlepath", title: "Next Dose")
-            
-            if let p = protocol_, let nextDate = p.nextDoseDate() {
-                HStack(spacing: 8) {
-                    CategoryIcon(category: p.category, size: 28)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(p.name.components(separatedBy: " ").first ?? p.name)
-                            .font(.system(size: 13, weight: .semibold))
+        Button { showDaySchedule = true } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    TileHeader(icon: "clock.arrow.circlepath", title: "Next Dose")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.3))
+                }
+
+                if let p = nextDoseProtocol, let nextDate = p.nextDoseDate() {
+                    HStack(spacing: 8) {
+                        CategoryIcon(category: p.category, size: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(p.name.components(separatedBy: " ").first ?? p.name)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue)")
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.5))
+                        }
+                    }
+
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text(nextDate, format: .dateTime.hour().minute())
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                            .lineLimit(1)
-                        Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue)")
-                            .font(.system(size: 11, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.5))
+                        Text(Calendar.current.isDateInToday(nextDate) ? "today" : "tmrw")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.4))
+                        if dosesToday.count > 1 {
+                            Text("(+\(dosesToday.count - 1) more)")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.white.opacity(0.35))
+                        }
+                    }
+                } else {
+                    Text("–")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.25))
+                    Text("No upcoming dose")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.3))
+                }
+
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard(padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showDaySchedule) {
+            DayScheduleSheet(doses: dosesToday)
+        }
+    }
+}
+
+// MARK: - Day Schedule Sheet
+
+struct DayScheduleSheet: View {
+    let doses: [(CompoundProtocol, Date)]
+    @Environment(\.dismiss) private var dismiss
+
+    private var dayLabel: String {
+        guard let date = doses.first?.1 else { return "Schedule" }
+        if Calendar.current.isDateInToday(date) { return "Today" }
+        if Calendar.current.isDateInTomorrow(date) { return "Tomorrow" }
+        return date.formatted(.dateTime.weekday(.wide).month(.wide).day())
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Handle
+                Capsule()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 36, height: 4)
+                    .padding(.top, 12)
+                    .padding(.bottom, 20)
+
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Dose Schedule")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+                        Text(dayLabel)
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.white.opacity(0.35))
+                            .symbolRenderingMode(.hierarchical)
                     }
                 }
-                
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(nextDate, format: .dateTime.hour().minute())
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                    Text(isToday(nextDate) ? "today" : "tmrw")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.white.opacity(0.4))
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+
+                if doses.isEmpty {
+                    Spacer()
+                    Text("No doses scheduled")
+                        .font(.system(size: 15))
+                        .foregroundStyle(.white.opacity(0.35))
+                    Spacer()
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) {
+                            ForEach(Array(doses.enumerated()), id: \.offset) { _, pair in
+                                let (p, date) = pair
+                                HStack(spacing: 14) {
+                                    CategoryIcon(category: p.category, size: 38)
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(p.name)
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundStyle(.white)
+                                        Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(p.doseUnit.rawValue)")
+                                            .font(.system(size: 12, design: .rounded))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                    }
+
+                                    Spacer()
+
+                                    Text(date, format: .dateTime.hour().minute())
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 14)
+                                .background(Color.white.opacity(0.06))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                                )
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 32)
+                    }
                 }
-            } else {
-                Text("–")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.25))
-                Text("No upcoming dose")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.white.opacity(0.3))
             }
-            
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard(padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
-    }
-    
-    private func isToday(_ date: Date) -> Bool {
-        Calendar.current.isDateInToday(date)
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(Color.black)
     }
 }
 
