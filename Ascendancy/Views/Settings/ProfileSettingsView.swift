@@ -115,9 +115,9 @@ struct ProfileSettingsView: View {
                         // App info
                         settingsSection("About") {
                             VStack(spacing: 10) {
-                                infoRow(label: "Version", value: "1.0.0")
+                                infoRow(label: "Version", value: "1.2.0")
                                 AscendancyDivider()
-                                infoRow(label: "Build", value: "1")
+                                infoRow(label: "Build", value: "3")
                                 AscendancyDivider()
                                 infoRow(label: "Data", value: "Stored locally on device")
                             }

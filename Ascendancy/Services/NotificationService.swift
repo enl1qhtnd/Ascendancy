@@ -54,7 +54,11 @@ class NotificationService {
             let id = "\(protocol_.id.uuidString)-dose-\(index)"
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             
-            try? await center.add(request)
+            do {
+                try await center.add(request)
+            } catch {
+                print("[NotificationService] Failed to schedule reminder \(id): \(error)")
+            }
         }
     }
     
@@ -82,6 +86,10 @@ class NotificationService {
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let id = "\(protocol_.id.uuidString)-low-inventory"
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        try? await center.add(request)
+        do {
+            try await center.add(request)
+        } catch {
+            print("[NotificationService] Failed to send low inventory alert: \(error)")
+        }
     }
 }

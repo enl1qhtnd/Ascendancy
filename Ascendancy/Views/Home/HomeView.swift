@@ -16,9 +16,12 @@ struct HomeView: View {
     
     @AppStorage("profileImageData") private var profileImageData: Data?
     
-    var combinedLevelData: [ActiveLevelDataPoint] {
+    // Cached PK calculation
+    @State private var combinedLevelData: [ActiveLevelDataPoint] = []
+    
+    private func recalculateCombinedLevels() {
         let pairs = activeProtocols.map { p in (p, p.doseLogs) }
-        return PharmacokineticsEngine.combinedActiveLevel(
+        combinedLevelData = PharmacokineticsEngine.combinedActiveLevel(
             protocols: pairs,
             startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
             endDate: Date()
@@ -70,6 +73,13 @@ struct HomeView: View {
             if healthKit.bodyWeightSamples.isEmpty {
                 healthKit.loadMockData()
             }
+            recalculateCombinedLevels()
+        }
+        .onChange(of: activeProtocols.count) {
+            recalculateCombinedLevels()
+        }
+        .onChange(of: allLogs.count) {
+            recalculateCombinedLevels()
         }
     }
     

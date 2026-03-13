@@ -44,10 +44,13 @@ struct MetricsView: View {
         Array(healthKit.bmiSamples.suffix(periodDays))
     }
     
-    var combinedLevelData: [ActiveLevelDataPoint] {
+    // Cached PK calculation
+    @State private var combinedLevelData: [ActiveLevelDataPoint] = []
+    
+    private func recalculateCombinedLevels() {
         let startDate = Calendar.current.date(byAdding: .day, value: -periodDays, to: Date())
         let pairs = activeProtocols.map { ($0, $0.doseLogs) }
-        return PharmacokineticsEngine.combinedActiveLevel(protocols: pairs, startDate: startDate)
+        combinedLevelData = PharmacokineticsEngine.combinedActiveLevel(protocols: pairs, startDate: startDate)
     }
     
     var avgSteps: Double {
@@ -261,6 +264,13 @@ struct MetricsView: View {
             if !healthKit.isAuthorized {
                 healthKit.loadMockData()
             }
+            recalculateCombinedLevels()
+        }
+        .onChange(of: selectedPeriod) {
+            recalculateCombinedLevels()
+        }
+        .onChange(of: activeProtocols.count) {
+            recalculateCombinedLevels()
         }
     }
     

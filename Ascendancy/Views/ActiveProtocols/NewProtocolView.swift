@@ -293,7 +293,11 @@ struct NewProtocolView: View {
             formDosage: NumericInputParser.parse(formDosage) ?? 0
         )
         context.insert(p)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[NewProtocolView] Failed to save new protocol: \(error)")
+        }
         if remindersEnabled {
             Task { await NotificationService.shared.scheduleReminders(for: p) }
         }
@@ -317,7 +321,11 @@ struct NewProtocolView: View {
         p.remindersEnabled = remindersEnabled
         p.formDosage = NumericInputParser.parse(formDosage) ?? p.formDosage
         p.refreshInventoryUnitLabel()
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[NewProtocolView] Failed to save protocol update: \(error)")
+        }
         // Re-schedule reminders with updated timing
         Task {
             await NotificationService.shared.cancelReminders(for: p)
