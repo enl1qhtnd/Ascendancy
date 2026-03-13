@@ -135,7 +135,7 @@ struct LogDoseSheet: View {
         let log = DoseLog(protocol_: protocol_, actualDoseAmount: amount, doseUnit: doseUnit, timestamp: timestamp, notes: notes)
         context.insert(log)
         
-        // Decrement inventory
+        // Decrement inventory (safe: already on MainActor)
         let warning = InventoryService.shared.decrementInventory(for: protocol_, dose: log)
         
         do {
@@ -144,10 +144,12 @@ struct LogDoseSheet: View {
             print("[LogDoseSheet] Failed to save dose log: \(error)")
         }
         
-        // Low inventory notification
+        // Low inventory notification (fire-and-forget on MainActor)
         if case .some(let w) = warning {
             if case .low = w {
-                Task { await NotificationService.shared.sendLowInventoryAlert(for: protocol_) }
+                Task { @MainActor in
+                    await NotificationService.shared.sendLowInventoryAlert(for: protocol_)
+                }
             }
         }
         
