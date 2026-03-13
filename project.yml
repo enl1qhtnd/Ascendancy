@@ -14,7 +14,7 @@ settings:
     INFOPLIST_FILE: Ascendancy/Info.plist
     PRODUCT_BUNDLE_IDENTIFIER: de.enl1qhtnd.asce
     MARKETING_VERSION: "1.2"
-    CURRENT_PROJECT_VERSION: "2"
+    CURRENT_PROJECT_VERSION: "3"
     ENABLE_PREVIEWS: YES
 
 targets:

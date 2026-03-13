@@ -278,7 +278,12 @@ final class CompoundProtocol {
         self.inventoryUnitLabel = administrationForm.inventoryPluralLabel
         self.remindersEnabled = remindersEnabled
         self.formDosage = formDosage
-        self.scheduleData = try? JSONEncoder().encode(schedule)
+        do {
+            self.scheduleData = try JSONEncoder().encode(schedule)
+        } catch {
+            print("[CompoundProtocol] Failed to encode schedule: \(error)")
+            self.scheduleData = nil
+        }
     }
     
     // MARK: - Computed Properties
@@ -311,10 +316,19 @@ final class CompoundProtocol {
     var schedule: DoseSchedule {
         get {
             guard let data = scheduleData else { return .daily }
-            return (try? JSONDecoder().decode(DoseSchedule.self, from: data)) ?? .daily
+            do {
+                return try JSONDecoder().decode(DoseSchedule.self, from: data)
+            } catch {
+                print("[CompoundProtocol] Failed to decode schedule: \(error)")
+                return .daily
+            }
         }
         set {
-            scheduleData = try? JSONEncoder().encode(newValue)
+            do {
+                scheduleData = try JSONEncoder().encode(newValue)
+            } catch {
+                print("[CompoundProtocol] Failed to encode schedule: \(error)")
+            }
         }
     }
     
@@ -370,31 +384,71 @@ final class CompoundProtocol {
             return candidate
 
         case .everyXDays:
+            // Calculate next dose by advancing from last logged dose (or start date)
+            // by the interval, ensuring the result is always in the future.
             let base = lastLoggedDate ?? startDate
-            if let next = cal.date(byAdding: .day, value: sched.intervalDays, to: base) {
-                return applyDoseTime(to: next)
+            let interval = max(1, sched.intervalDays)
+            var candidate = base
+            // Advance in interval-sized steps until we find a future date
+            for _ in 0..<365 { // safety limit to prevent infinite loop
+                guard let next = cal.date(byAdding: .day, value: interval, to: candidate) else { return nil }
+                candidate = next
+                let result = applyDoseTime(to: candidate)
+                if result > date { return result }
             }
             return nil
 
         case .specificWeekdays:
-            let targetWeekdays = sched.weekdays.map { $0.rawValue }
+            let targetWeekdays = Set(sched.weekdays.map { $0.rawValue })
+            guard !targetWeekdays.isEmpty else { return nil }
+            // Search forward up to 14 days for the next matching weekday
             for offset in 1...14 {
-                if let candidate = cal.date(byAdding: .day, value: offset, to: date) {
-                    let wd = cal.component(.weekday, from: candidate)
-                    if targetWeekdays.contains(wd) { return applyDoseTime(to: candidate) }
+                guard let candidate = cal.date(byAdding: .day, value: offset, to: date) else { continue }
+                let weekday = cal.component(.weekday, from: candidate)
+                if targetWeekdays.contains(weekday) {
+                    return applyDoseTime(to: candidate)
                 }
             }
             return nil
 
         case .timesPerWeek:
-            if let next = cal.date(byAdding: .day, value: 2, to: date) {
-                return applyDoseTime(to: next)
+            // Distribute doses evenly: e.g., 3x/week → every ~2.33 days, 5x/week → every ~1.4 days
+            let timesPerWeek = max(1, sched.timesPerWeek)
+            let intervalSeconds = (7.0 / Double(timesPerWeek)) * 86400.0
+            let base = lastLoggedDate ?? startDate
+            
+            // Calculate how many intervals have passed since base
+            let secondsSinceBase = date.timeIntervalSince(base)
+            guard secondsSinceBase >= 0 else {
+                // date is before base, return first scheduled dose after base
+                return applyDoseTime(to: base)
+            }
+            
+            // Find the next interval boundary after `date`
+            let intervalsElapsed = floor(secondsSinceBase / intervalSeconds)
+            var nextIntervalIndex = intervalsElapsed + 1
+            
+            // Advance from base by successive intervals until we find a future date
+            for _ in 0..<365 { // safety limit
+                let offsetSeconds = nextIntervalIndex * intervalSeconds
+                guard let nextDate = cal.date(byAdding: .second, value: Int(offsetSeconds), to: base) else { return nil }
+                let result = applyDoseTime(to: nextDate)
+                if result > date { return result }
+                nextIntervalIndex += 1
             }
             return nil
 
         case .custom:
-            if let next = cal.date(byAdding: .day, value: 1, to: date) {
-                return applyDoseTime(to: next)
+            // Custom schedules use the same interval logic as everyXDays,
+            // defaulting to daily if no interval is specified.
+            let base = lastLoggedDate ?? startDate
+            let interval = max(1, sched.intervalDays)
+            var candidate = base
+            for _ in 0..<365 {
+                guard let next = cal.date(byAdding: .day, value: interval, to: candidate) else { return nil }
+                candidate = next
+                let result = applyDoseTime(to: candidate)
+                if result > date { return result }
             }
             return nil
         }

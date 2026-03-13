@@ -138,7 +138,11 @@ struct LogDoseSheet: View {
         // Decrement inventory
         let warning = InventoryService.shared.decrementInventory(for: protocol_, dose: log)
         
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[LogDoseSheet] Failed to save dose log: \(error)")
+        }
         
         // Low inventory notification
         if case .some(let w) = warning {

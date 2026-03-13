@@ -63,7 +63,11 @@ struct MediaLibraryView: View {
                 Button("Save") {
                     if let doc = documentToRename, !renameText.trimmingCharacters(in: .whitespaces).isEmpty {
                         doc.title = renameText.trimmingCharacters(in: .whitespaces)
-                        try? context.save()
+                        do {
+                            try context.save()
+                        } catch {
+                            print("[MediaLibraryView] Failed to save rename: \(error)")
+                        }
                     }
                     documentToRename = nil
                 }
@@ -77,11 +81,15 @@ struct MediaLibraryView: View {
             // Photo picker onChange
             .onChange(of: selectedItem) { _, newItem in
                 Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                        let doc = MediaDocument(imageData: data, fileExtension: "jpg")
-                        context.insert(doc)
-                        try? context.save()
-                        selectedItem = nil
+                    do {
+                        if let data = try await newItem?.loadTransferable(type: Data.self) {
+                            let doc = MediaDocument(imageData: data, fileExtension: "jpg")
+                            context.insert(doc)
+                            try context.save()
+                            selectedItem = nil
+                        }
+                    } catch {
+                        print("[MediaLibraryView] Failed to import photo: \(error)")
                     }
                 }
             }
@@ -99,13 +107,16 @@ struct MediaLibraryView: View {
                     if url.startAccessingSecurityScopedResource() {
                         defer { url.stopAccessingSecurityScopedResource() }
                         
-                        if let data = try? Data(contentsOf: url) {
+                        do {
+                            let data = try Data(contentsOf: url)
                             let title = url.deletingPathExtension().lastPathComponent
                             let ext = url.pathExtension.lowercased()
                             
                             let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
                             context.insert(doc)
-                            try? context.save()
+                            try context.save()
+                        } catch {
+                            print("[MediaLibraryView] Failed to import file: \(error)")
                         }
                     }
                 case .failure(let error):
@@ -204,7 +215,11 @@ struct MediaLibraryView: View {
             }
             Button(role: .destructive) {
                 context.delete(doc)
-                try? context.save()
+                do {
+                    try context.save()
+                } catch {
+                    print("[MediaLibraryView] Failed to delete document: \(error)")
+                }
             } label: {
                 Label("Delete", systemImage: "trash")
             }
@@ -303,7 +318,11 @@ struct MediaLibraryView: View {
         for doc in documents where selectedIds.contains(doc.id) {
             context.delete(doc)
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[MediaLibraryView] Failed to delete selected documents: \(error)")
+        }
         selectedIds.removeAll()
         withAnimation { isEditing = false }
     }

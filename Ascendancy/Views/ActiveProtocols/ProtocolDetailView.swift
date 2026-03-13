@@ -11,22 +11,21 @@ struct ProtocolDetailView: View {
     @State private var showReconCalc = false
     @State private var showRestockInventory = false
     
-    var activeLevelData: [ActiveLevelDataPoint] {
-        PharmacokineticsEngine.activeLevel(
+    // Cached PK calculations (recalculated only when logs change)
+    @State private var activeLevelData: [ActiveLevelDataPoint] = []
+    @State private var currentLevel: Double = 0
+    @State private var stableInfo: StableLevelInfo = StableLevelInfo(percentage: 0, hoursOnProtocol: 0, halfLivesElapsed: 0)
+    
+    private func recalculatePK() {
+        activeLevelData = PharmacokineticsEngine.activeLevel(
             for: protocol_,
             logs: protocol_.sortedLogs,
             startDate: Calendar.current.date(byAdding: .day, value: -30, to: Date()),
             endDate: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
             resolution: 200
         )
-    }
-    
-    var currentLevel: Double {
-        PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs)
-    }
-    
-    var stableInfo: StableLevelInfo {
-        PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: protocol_.doseLogs)
+        currentLevel = PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs)
+        stableInfo = PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: protocol_.doseLogs)
     }
     
     var body: some View {
@@ -103,6 +102,12 @@ struct ProtocolDetailView: View {
         }
         .sheet(isPresented: $showRestockInventory) {
             RestockInventorySheet(protocol_: protocol_)
+        }
+        .task {
+            recalculatePK()
+        }
+        .onChange(of: protocol_.doseLogs.count) {
+            recalculatePK()
         }
     }
     
@@ -375,12 +380,20 @@ struct ProtocolDetailView: View {
     
     private func updateStatus(_ status: ProtocolStatus) {
         protocol_.status = status
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[ProtocolDetailView] Failed to save status update: \(error)")
+        }
     }
     
     private func deleteProtocol() {
         context.delete(protocol_)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[ProtocolDetailView] Failed to delete protocol: \(error)")
+        }
         dismiss()
     }
 }
@@ -583,7 +596,11 @@ private struct RestockInventorySheet: View {
         } else {
             protocol_.inventoryCount = max(0, protocol_.inventoryCount + delta)
         }
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("[ProtocolDetailView] Failed to save inventory restock: \(error)")
+        }
         dismiss()
     }
 }
