@@ -153,6 +153,7 @@ struct LogDoseSheet: View {
             }
         }
         
+        Haptics.notification(.success)
         dismiss()
     }
 }
@@ -290,6 +291,7 @@ struct EditDoseSheet: View {
         log.notes = notes
         do {
             try context.save()
+            Haptics.notification(.success)
         } catch {
             print("[EditDoseSheet] Failed to save edits: \(error)")
         }

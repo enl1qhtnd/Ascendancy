@@ -90,7 +90,10 @@ struct ProtocolCard: View {
                 }
                 
                 if let onLogDose {
-                    Button(action: onLogDose) {
+                    Button(action: {
+                        Haptics.selection()
+                        onLogDose()
+                    }) {
                         Label("Log Dose", systemImage: "plus.circle.fill")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(.white)
