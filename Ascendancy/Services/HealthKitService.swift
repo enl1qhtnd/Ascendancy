@@ -2,8 +2,7 @@ import Foundation
 import HealthKit
 import Combine
 
-@MainActor
-class HealthKitService: ObservableObject {
+final class HealthKitService: ObservableObject {
 
     static let shared = HealthKitService()
     private let store = HKHealthStore()
@@ -36,7 +35,7 @@ class HealthKitService: ObservableObject {
 
         do {
             try await store.requestAuthorization(toShare: [], read: readTypes)
-            isAuthorized = true
+            await MainActor.run { isAuthorized = true }
             await fetchAll()
         } catch {
             print("HealthKit auth failed: \(error)")
@@ -55,14 +54,16 @@ class HealthKitService: ObservableObject {
         async let bmiData = fetchBMI(days: 90)
 
         let (w, h, s, f, e, hd, b) = await (weight, hr, steps, fat, energy, heightData, bmiData)
-        bodyWeightSamples = w
-        heartRateSamples = h
-        stepSamples = s
-        bodyFatSamples = f
-        activeEnergySamples = e
-        heightSamples = hd
-        bmiSamples = b
-        latestWeight = w.last?.value
+        await MainActor.run {
+            bodyWeightSamples = w
+            heartRateSamples = h
+            stepSamples = s
+            bodyFatSamples = f
+            activeEnergySamples = e
+            heightSamples = hd
+            bmiSamples = b
+            latestWeight = w.last?.value
+        }
     }
 
     // MARK: - Body Weight
