@@ -18,50 +18,6 @@ actor NotificationService {
         }
     }
 
-    // MARK: - Schedule Reminders for Protocol
-
-    func scheduleReminders(for protocol_: CompoundProtocol) async {
-        guard protocol_.remindersEnabled else { return }
-
-        // Remove existing reminders for this protocol first
-        await cancelReminders(for: protocol_)
-
-        let doseStr = "\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)"
-
-        // Schedule next 14 doses
-        var doseDates: [Date] = []
-        var cursor = Date()
-
-        for _ in 0..<14 {
-            if let next = protocol_.nextDoseDate(from: cursor) {
-                doseDates.append(next)
-                cursor = next
-            }
-        }
-
-        for (index, doseDate) in doseDates.enumerated() {
-            guard doseDate > Date() else { continue }
-
-            let content = UNMutableNotificationContent()
-            content.title = "Time for \(protocol_.name)"
-            content.body = "Your scheduled dose: \(doseStr)"
-            content.sound = .default
-            content.userInfo = ["protocolId": protocol_.id.uuidString]
-
-            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: doseDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-
-            let id = "\(protocol_.id.uuidString)-dose-\(index)"
-            let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-
-            do {
-                try await center.add(request)
-            } catch {
-                print("[NotificationService] Failed to schedule reminder \(id): \(error)")
-            }
-        }
-    }
-    
     // MARK: - Schedule Reminders for All Protocols (coordinated)
 
     /// Cancels all pending dose reminders and reschedules them for all given protocols,

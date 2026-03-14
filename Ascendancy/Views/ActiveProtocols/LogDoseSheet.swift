@@ -156,3 +156,143 @@ struct LogDoseSheet: View {
         dismiss()
     }
 }
+
+// MARK: - Edit Dose Sheet
+
+struct EditDoseSheet: View {
+    let log: DoseLog
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var doseAmount: String = ""
+    @State private var doseUnit: DoseUnit = .mg
+    @State private var timestamp: Date = Date()
+    @State private var notes: String = ""
+
+    var isValid: Bool {
+        guard let amount = NumericInputParser.parse(doseAmount) else { return false }
+        return amount > 0
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    if let p = log.protocol_ {
+                        HStack(spacing: 12) {
+                            CategoryIcon(category: p.category, size: 44)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(p.name)
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                Text("Editing logged dose")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(.white.opacity(0.45))
+                            }
+                            Spacer()
+                        }
+                        .glassCard()
+                    }
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("Dose")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .textCase(.uppercase)
+                            .tracking(0.8)
+
+                        HStack(spacing: 12) {
+                            TextField("0", text: $doseAmount)
+                                .keyboardType(.decimalPad)
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+
+                            FormPicker(label: "", selection: $doseUnit, options: DoseUnit.allCases)
+                                .frame(maxWidth: 80)
+                        }
+                    }
+                    .glassCard()
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Date & Time")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .textCase(.uppercase)
+                            .tracking(0.8)
+                        DatePicker("", selection: $timestamp)
+                            .labelsHidden()
+                            .foregroundStyle(.white)
+                            .tint(.white)
+                    }
+                    .glassCard()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Notes (Optional)")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.4))
+                            .textCase(.uppercase)
+                            .tracking(0.8)
+                        TextField("Add a note...", text: $notes, axis: .vertical)
+                            .font(.system(size: 14))
+                            .foregroundStyle(.white)
+                            .lineLimit(3)
+                    }
+                    .glassCard()
+
+                    Spacer()
+
+                    Button {
+                        saveEdits()
+                    } label: {
+                        Text("Save Changes")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(isValid ? .black : .white.opacity(0.3))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(isValid ? Color.white : Color.white.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .disabled(!isValid)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Edit Dose")
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+            }
+            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+        }
+        .onAppear {
+            doseAmount = log.actualDoseAmount.formatted(.number.precision(.fractionLength(0...4)).grouping(.never))
+            doseUnit = log.doseUnit
+            timestamp = log.timestamp
+            notes = log.notes
+        }
+    }
+
+    private func saveEdits() {
+        guard let amount = NumericInputParser.parse(doseAmount), amount > 0 else { return }
+        log.actualDoseAmount = amount
+        log.doseUnit = doseUnit
+        log.timestamp = timestamp
+        log.notes = notes
+        do {
+            try context.save()
+        } catch {
+            print("[EditDoseSheet] Failed to save edits: \(error)")
+        }
+        dismiss()
+    }
+}

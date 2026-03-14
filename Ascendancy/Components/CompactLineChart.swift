@@ -83,6 +83,14 @@ struct HealthMetricChart: View {
     var minValue: Double { dataPoints.map(\.value).min() ?? 0 }
     var maxValue: Double { dataPoints.map(\.value).max() ?? 1 }
     
+    var yDomain: ClosedRange<Double> {
+        let range = maxValue - minValue
+        let padding = range > 0 ? range * 0.1 : max(maxValue * 0.1, 1)
+        let lower = max(0, minValue - padding)
+        let upper = maxValue + padding
+        return lower...upper
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
@@ -146,7 +154,7 @@ struct HealthMetricChart: View {
                         }
                     }
                 }
-                .chartYScale(domain: (minValue - (maxValue - minValue) * 0.1)...(maxValue + (maxValue - minValue) * 0.1))
+                .chartYScale(domain: yDomain)
                 .frame(height: 100)
             }
         }

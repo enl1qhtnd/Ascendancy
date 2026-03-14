@@ -9,9 +9,9 @@ struct ReconstitutionCalculatorView: View {
     @State private var diluentAmountStr = ""   // mL
     @State private var targetDoseStr = ""      // mcg
     
-    var peptideAmount: Double { Double(peptideAmountStr) ?? 0 }
-    var diluentAmount: Double { Double(diluentAmountStr) ?? 0 }
-    var targetDose: Double { Double(targetDoseStr) ?? 0 }
+    var peptideAmount: Double { NumericInputParser.parse(peptideAmountStr) ?? 0 }
+    var diluentAmount: Double { NumericInputParser.parse(diluentAmountStr) ?? 0 }
+    var targetDose: Double { NumericInputParser.parse(targetDoseStr) ?? 0 }
     
     var concentration: Double? {   // mcg per mL
         guard peptideAmount > 0, diluentAmount > 0 else { return nil }
