@@ -114,6 +114,7 @@ struct HomeView: View {
                     
                     ForEach(activeProtocols) { p in
                         Button {
+                            Haptics.selection()
                             selectedProtocolForLog = p
                         } label: {
                             Label(p.name, systemImage: "plus.circle")

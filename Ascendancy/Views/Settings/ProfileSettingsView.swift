@@ -118,13 +118,10 @@ struct ProfileSettingsView: View {
                                 infoRow(label: "Version", value: "1.3")
                                 AscendancyDivider()
                                 infoRow(label: "Build", value: "4")
-                                AscendancyDivider()
-                                infoRow(label: "Data", value: "Stored locally on device")
                             }
                         }
                         
-                        // Disclaimer
-                        Text("Ascendancy is not a medical device. Always consult a qualified healthcare professional before starting or modifying any compound protocol.")
+                        Text("made with ❤️ by @enl1qhtnd")
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.25))
                             .multilineTextAlignment(.center)

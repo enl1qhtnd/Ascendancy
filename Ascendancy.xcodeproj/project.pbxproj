@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03F7B4D0F7F2D57D4C362D8D /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D23A0F822E0EDF55949A5 /* GlassCard.swift */; };
 		0732CC309DB6110209EA57B3 /* PharmacokineticsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */; };
+		17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA10A4DF8F52F6987FDED74 /* Haptics.swift */; };
 		286C4F6CE9A6DE18F67A0866 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E687B55949AB305F50D6D9 /* ContentView.swift */; };
 		29CCCCF8EC1DFEEE3E340608 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49F7B62635E513713286AC9 /* UserNotifications.framework */; };
 		2B7FB6DC4064E75E5A37686E /* CompactLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */; };
@@ -72,6 +73,7 @@
 		C7E21E1EEBA077B63AA3EF21 /* DoseLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseLog.swift; sourceTree = "<group>"; };
 		D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PharmacokineticsEngine.swift; sourceTree = "<group>"; };
 		D49F7B62635E513713286AC9 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		DBA10A4DF8F52F6987FDED74 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E69361A890000C4B18E31236 /* NewProtocolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProtocolView.swift; sourceTree = "<group>"; };
 		F1DCCE948632457FA826A335 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4BA6310E729F2A550463DBF /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 		D5654A067FA08933B316AB51 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				DBA10A4DF8F52F6987FDED74 /* Haptics.swift */,
 				A89B0BD57D843CD85E9D767F /* HealthKitService.swift */,
 				007256FD5EE26B17C2FD75DB /* InventoryService.swift */,
 				919C7B9D2F90573DF7222DCB /* NotificationService.swift */,
@@ -302,6 +305,7 @@
 				286C4F6CE9A6DE18F67A0866 /* ContentView.swift in Sources */,
 				F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */,
 				03F7B4D0F7F2D57D4C362D8D /* GlassCard.swift in Sources */,
+				17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */,
 				EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */,
 				ADA97C66C505A722EB128C28 /* HomeView.swift in Sources */,
 				380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */,
@@ -383,7 +387,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
@@ -466,7 +470,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
