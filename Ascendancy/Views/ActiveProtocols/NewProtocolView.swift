@@ -298,8 +298,12 @@ struct NewProtocolView: View {
         } catch {
             print("[NewProtocolView] Failed to save new protocol: \(error)")
         }
-        if remindersEnabled {
-            Task { await NotificationService.shared.scheduleReminders(for: p) }
+        Task {
+            let descriptor = FetchDescriptor<CompoundProtocol>(
+                predicate: #Predicate { $0.statusRaw == "Active" }
+            )
+            let allActive = (try? context.fetch(descriptor)) ?? []
+            await NotificationService.shared.scheduleAll(protocols: allActive)
         }
     }
     
@@ -326,12 +330,13 @@ struct NewProtocolView: View {
         } catch {
             print("[NewProtocolView] Failed to save protocol update: \(error)")
         }
-        // Re-schedule reminders with updated timing
+        // Re-schedule reminders for all active protocols in case times overlap
         Task {
-            await NotificationService.shared.cancelReminders(for: p)
-            if remindersEnabled {
-                await NotificationService.shared.scheduleReminders(for: p)
-            }
+            let descriptor = FetchDescriptor<CompoundProtocol>(
+                predicate: #Predicate { $0.statusRaw == "Active" }
+            )
+            let allActive = (try? context.fetch(descriptor)) ?? []
+            await NotificationService.shared.scheduleAll(protocols: allActive)
         }
     }
 }

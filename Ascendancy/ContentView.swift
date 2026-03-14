@@ -60,10 +60,7 @@ struct ContentView: View {
         Task {
             let auth = await NotificationService.shared.requestAuthorization()
             guard auth else { return }
-            
-            for protocol_ in activeProtocols {
-                await NotificationService.shared.scheduleReminders(for: protocol_)
-            }
+            await NotificationService.shared.scheduleAll(protocols: activeProtocols)
         }
     }
     
