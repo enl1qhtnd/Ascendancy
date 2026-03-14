@@ -398,7 +398,7 @@ struct CompactNextDoseTile: View {
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showDaySchedule) {
-            DayScheduleSheet(doses: dosesToday)
+            DayScheduleSheet(protocols: protocols, initialDay: nextDoseDay ?? Date())
         }
     }
 }
@@ -406,14 +406,33 @@ struct CompactNextDoseTile: View {
 // MARK: - Day Schedule Sheet
 
 struct DayScheduleSheet: View {
-    let doses: [(CompoundProtocol, Date)]
+    let protocols: [CompoundProtocol]
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedDay: Date
+
+    init(protocols: [CompoundProtocol], initialDay: Date) {
+        self.protocols = protocols
+        _selectedDay = State(initialValue: Calendar.current.startOfDay(for: initialDay))
+    }
+
+    private var doses: [(CompoundProtocol, Date)] {
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: selectedDay)
+        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return [] }
+        let justBefore = start.addingTimeInterval(-1)
+        return protocols.compactMap { p -> (CompoundProtocol, Date)? in
+            guard let next = p.nextDoseDate(from: justBefore),
+                  next >= start, next < end else { return nil }
+            return (p, next)
+        }.sorted { $0.1 < $1.1 }
+    }
 
     private var dayLabel: String {
-        guard let date = doses.first?.1 else { return "Schedule" }
-        if Calendar.current.isDateInToday(date) { return "Today" }
-        if Calendar.current.isDateInTomorrow(date) { return "Tomorrow" }
-        return date.formatted(.dateTime.weekday(.wide).month(.wide).day())
+        let cal = Calendar.current
+        if cal.isDateInToday(selectedDay) { return "Today" }
+        if cal.isDateInTomorrow(selectedDay) { return "Tomorrow" }
+        if cal.isDateInYesterday(selectedDay) { return "Yesterday" }
+        return selectedDay.formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 
     var body: some View {
@@ -439,6 +458,7 @@ struct DayScheduleSheet: View {
                         Text(dayLabel)
                             .font(.system(size: 26, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
+                            .animation(.easeInOut(duration: 0.15), value: dayLabel)
                     }
                     Spacer()
                     Button { dismiss() } label: {
@@ -449,6 +469,37 @@ struct DayScheduleSheet: View {
                     }
                 }
                 .padding(.horizontal, 20)
+                .padding(.bottom, 16)
+
+                // Day selector
+                HStack(spacing: 0) {
+                    Button {
+                        selectedDay = Calendar.current.date(byAdding: .day, value: -1, to: selectedDay) ?? selectedDay
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.7))
+                            .frame(width: 44, height: 36)
+                            .contentShape(Rectangle())
+                    }
+
+                    Text(selectedDay.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity)
+                        .animation(.easeInOut(duration: 0.15), value: selectedDay)
+
+                    Button {
+                        selectedDay = Calendar.current.date(byAdding: .day, value: 1, to: selectedDay) ?? selectedDay
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.7))
+                            .frame(width: 44, height: 36)
+                            .contentShape(Rectangle())
+                    }
+                }
+                .padding(.horizontal, 12)
                 .padding(.bottom, 20)
 
                 if doses.isEmpty {
