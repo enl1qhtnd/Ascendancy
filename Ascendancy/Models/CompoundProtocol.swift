@@ -174,7 +174,7 @@ struct DoseSchedule: Codable {
     static var daily: DoseSchedule {
         var s = DoseSchedule()
         s.type = .daily
-        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()]
         return s
     }
     
@@ -182,7 +182,7 @@ struct DoseSchedule: Codable {
         var s = DoseSchedule()
         s.type = .everyXDays
         s.intervalDays = 2
-        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()]
         return s
     }
     
@@ -190,7 +190,7 @@ struct DoseSchedule: Codable {
         var s = DoseSchedule()
         s.type = .specificWeekdays
         s.weekdays = [.monday, .wednesday, .friday]
-        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+        s.timesOfDay = [Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()]
         return s
     }
     
@@ -367,7 +367,8 @@ final class CompoundProtocol {
         // Apply the stored dose time (hour/minute) to any candidate date.
         func applyDoseTime(to base: Date) -> Date {
             let src = sched.timesOfDay.first
-                ?? cal.date(bySettingHour: 8, minute: 0, second: 0, of: base)!
+                ?? cal.date(bySettingHour: 8, minute: 0, second: 0, of: base)
+                ?? base
             let comps = cal.dateComponents([.hour, .minute], from: src)
             return cal.date(bySettingHour: comps.hour ?? 8,
                             minute: comps.minute ?? 0,

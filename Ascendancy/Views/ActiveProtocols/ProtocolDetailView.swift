@@ -10,11 +10,13 @@ struct ProtocolDetailView: View {
     @State private var showEditProtocol = false
     @State private var showReconCalc = false
     @State private var showRestockInventory = false
+    @State private var showDeleteConfirmation = false
     
     // Cached PK calculations (recalculated only when logs change)
     @State private var activeLevelData: [ActiveLevelDataPoint] = []
     @State private var currentLevel: Double = 0
     @State private var stableInfo: StableLevelInfo = StableLevelInfo(percentage: 0, hoursOnProtocol: 0, halfLivesElapsed: 0)
+    @State private var pkRecalcTask: Task<Void, Never>? = nil
     
     private func recalculatePK() {
         activeLevelData = PharmacokineticsEngine.activeLevel(
@@ -26,6 +28,15 @@ struct ProtocolDetailView: View {
         )
         currentLevel = PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs)
         stableInfo = PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: protocol_.doseLogs)
+    }
+    
+    private func schedulePKRecalc() {
+        pkRecalcTask?.cancel()
+        pkRecalcTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            recalculatePK()
+        }
     }
     
     var body: some View {
@@ -74,10 +85,14 @@ struct ProtocolDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button("Edit Protocol") { showEditProtocol = true }
-                    Button("PepCalc") { showReconCalc = true }
+                    if protocol_.category == .peptide {
+                        Button("PepCalc") { showReconCalc = true }
+                    }
                     Divider()
                     if protocol_.status == .archived {
-                        Button("Delete Permanently", role: .destructive) { deleteProtocol() }
+                        Button("Unarchive") { updateStatus(.active) }
+                        Divider()
+                        Button("Delete Permanently", role: .destructive) { showDeleteConfirmation = true }
                     } else {
                         Button("Pause") { updateStatus(.paused) }
                         Button("Complete") { updateStatus(.completed) }
@@ -103,11 +118,20 @@ struct ProtocolDetailView: View {
         .sheet(isPresented: $showRestockInventory) {
             RestockInventorySheet(protocol_: protocol_)
         }
+        .confirmationDialog(
+            "Delete \"\(protocol_.name)\"?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Permanently", role: .destructive) { deleteProtocol() }
+        } message: {
+            Text("This will permanently delete this protocol and all \(protocol_.doseLogs.count) logged doses. This cannot be undone.")
+        }
         .task {
             recalculatePK()
         }
         .onChange(of: protocol_.doseLogs.count) {
-            recalculatePK()
+            schedulePKRecalc()
         }
     }
     

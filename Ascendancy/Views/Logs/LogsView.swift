@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct LogsView: View {
+    @Environment(\.modelContext) private var context
     @Query(sort: \DoseLog.timestamp, order: .reverse)
     private var logs: [DoseLog]
     
@@ -14,9 +15,10 @@ struct LogsView: View {
     
     var filteredLogs: [DoseLog] {
         logs.filter { log in
+            let logName = log.protocol_?.name ?? log.protocolName
             let matchesSearch = searchText.isEmpty ||
-                log.protocolName.localizedCaseInsensitiveContains(searchText) ||
-                (log.notes.localizedCaseInsensitiveContains(searchText))
+                logName.localizedCaseInsensitiveContains(searchText) ||
+                log.notes.localizedCaseInsensitiveContains(searchText)
             let matchesProtocol = selectedProtocolFilter == nil || log.protocol_?.id == selectedProtocolFilter?.id
             return matchesSearch && matchesProtocol
         }
@@ -73,6 +75,21 @@ struct LogsView: View {
                                             .listRowBackground(Color.clear)
                                             .listRowSeparator(.hidden)
                                             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(role: .destructive) {
+                                                    deleteLog(log)
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                            }
+                                            .swipeActions(edge: .leading) {
+                                                Button {
+                                                    selectedLogForEdit = log
+                                                } label: {
+                                                    Label("Edit", systemImage: "pencil")
+                                                }
+                                                .tint(.blue)
+                                            }
                                     }
                                 } header: {
                                     Text(dateString)
@@ -108,7 +125,15 @@ struct LogsView: View {
             }
             .toolbarBackground(Color.black, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .sheet(item: $selectedLogForEdit) { log in
+                EditDoseSheet(log: log)
+            }
         }
+    }
+    
+    private func deleteLog(_ log: DoseLog) {
+        context.delete(log)
+        try? context.save()
     }
     
     private var emptyState: some View {
@@ -151,7 +176,7 @@ struct LogEntryRow: View {
             
             // Content
             VStack(alignment: .leading, spacing: 3) {
-                Text(log.protocolName.isEmpty ? (log.protocol_?.name ?? "Unknown") : log.protocolName)
+                Text(log.protocol_?.name ?? log.protocolName)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)

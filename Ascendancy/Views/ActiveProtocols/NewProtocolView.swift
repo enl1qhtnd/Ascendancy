@@ -31,6 +31,7 @@ struct NewProtocolView: View {
     @State private var formDosage = ""
     @State private var inventoryThreshold = ""
     @State private var remindersEnabled = true
+    @State private var customNotes = ""
     
     private var isEditMode: Bool { protocol_ != nil }
     
@@ -108,6 +109,12 @@ struct NewProtocolView: View {
                                 case .timesPerWeek:
                                     Stepper("\(timesPerWeek)x per week", value: $timesPerWeek, in: 1...7)
                                         .foregroundStyle(.white)
+                                    
+                                case .custom:
+                                    FormField(label: "Schedule Description", placeholder: "e.g. Loading dose then weekly") {
+                                        TextField("", text: $customNotes)
+                                            .foregroundStyle(.white)
+                                    }
                                     
                                 default:
                                     EmptyView()
@@ -252,6 +259,7 @@ struct NewProtocolView: View {
         doseTime = sched.timesOfDay.first
             ?? Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: Date())
             ?? Date()
+        customNotes = sched.customNotes
     }
     
     private func buildSchedule() -> DoseSchedule {
@@ -261,6 +269,7 @@ struct NewProtocolView: View {
         schedule.weekdays = Array(selectedWeekdays)
         schedule.timesPerWeek = timesPerWeek
         schedule.timesOfDay = [doseTime]
+        schedule.customNotes = customNotes
         return schedule
     }
     

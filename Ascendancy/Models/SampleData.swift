@@ -31,7 +31,7 @@ enum SampleData {
             var s = DoseSchedule()
             s.type = .everyXDays
             s.intervalDays = 7
-            s.timesOfDay = [cal.date(bySettingHour: 9, minute: 0, second: 0, of: now)!]
+            s.timesOfDay = [cal.date(bySettingHour: 9, minute: 0, second: 0, of: now) ?? Date()]
             return s
         }()
         let tc = CompoundProtocol(
@@ -41,7 +41,7 @@ enum SampleData {
             doseAmount: 1.0,
             doseUnit: .mL,
             schedule: tcSchedule,
-            startDate: cal.date(byAdding: .month, value: -3, to: now)!,
+            startDate: cal.date(byAdding: .month, value: -3, to: now) ?? now,
             notes: "200mg/mL concentration. Glute injection, alternate sides.",
             halfLifeValue: 8,
             halfLifeUnit: .days,
@@ -55,7 +55,7 @@ enum SampleData {
         let bpcSchedule: DoseSchedule = {
             var s = DoseSchedule()
             s.type = .daily
-            s.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: now)!]
+            s.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: now) ?? Date()]
             return s
         }()
         let bpc = CompoundProtocol(
@@ -65,7 +65,7 @@ enum SampleData {
             doseAmount: 500,
             doseUnit: .mcg,
             schedule: bpcSchedule,
-            startDate: cal.date(byAdding: .day, value: -21, to: now)!,
+            startDate: cal.date(byAdding: .day, value: -21, to: now) ?? now,
             endDate: cal.date(byAdding: .day, value: 9, to: now),
             notes: "Subcutaneous injection, near injury site. 30-day protocol.",
             halfLifeValue: 4,
@@ -81,8 +81,8 @@ enum SampleData {
             var s = DoseSchedule()
             s.type = .daily
             s.timesOfDay = [
-                cal.date(bySettingHour: 8, minute: 0, second: 0, of: now)!,
-                cal.date(bySettingHour: 20, minute: 0, second: 0, of: now)!
+                cal.date(bySettingHour: 8, minute: 0, second: 0, of: now) ?? Date(),
+                cal.date(bySettingHour: 20, minute: 0, second: 0, of: now) ?? Date()
             ]
             return s
         }()
@@ -93,7 +93,7 @@ enum SampleData {
             doseAmount: 500,
             doseUnit: .mg,
             schedule: metSchedule,
-            startDate: cal.date(byAdding: .month, value: -6, to: now)!,
+            startDate: cal.date(byAdding: .month, value: -6, to: now) ?? now,
             notes: "Take with food to reduce GI upset.",
             halfLifeValue: 6,
             halfLifeUnit: .hours,
@@ -107,7 +107,7 @@ enum SampleData {
             var s = DoseSchedule()
             s.type = .everyXDays
             s.intervalDays = 7
-            s.timesOfDay = [cal.date(bySettingHour: 10, minute: 0, second: 0, of: now)!]
+            s.timesOfDay = [cal.date(bySettingHour: 10, minute: 0, second: 0, of: now) ?? Date()]
             return s
         }()
         let sem = CompoundProtocol(
@@ -117,7 +117,7 @@ enum SampleData {
             doseAmount: 0.5,
             doseUnit: .mg,
             schedule: semSchedule,
-            startDate: cal.date(byAdding: .month, value: -2, to: now)!,
+            startDate: cal.date(byAdding: .month, value: -2, to: now) ?? now,
             notes: "Subcutaneous injection, abdomen. Titrating dose.",
             halfLifeValue: 7,
             halfLifeUnit: .days,
@@ -136,7 +136,7 @@ enum SampleData {
             doseAmount: 300,
             doseUnit: .mcg,
             schedule: serSchedule,
-            startDate: cal.date(byAdding: .month, value: -1, to: now)!,
+            startDate: cal.date(byAdding: .month, value: -1, to: now) ?? now,
             notes: "Pre-sleep injection for GH pulse.",
             halfLifeValue: 11,
             halfLifeUnit: .minutes,
@@ -157,7 +157,7 @@ enum SampleData {
         // TC logs: weekly for 12 weeks
         if let tc = protocols.first(where: { $0.name == "Testosterone Cypionate" }) {
             for week in 0..<12 {
-                let date = cal.date(byAdding: .weekOfYear, value: -week, to: now)!
+                let date = cal.date(byAdding: .weekOfYear, value: -week, to: now) ?? now
                 let log = DoseLog(protocol_: tc, actualDoseAmount: 1.0, doseUnit: .mL, timestamp: adjustTime(date, hour: 9), notes: week == 0 ? "Right glute" : "")
                 logs.append(log)
             }
@@ -166,7 +166,7 @@ enum SampleData {
         // BPC logs: daily for 21 days
         if let bpc = protocols.first(where: { $0.name == "BPC-157" }) {
             for day in 0..<21 {
-                let date = cal.date(byAdding: .day, value: -day, to: now)!
+                let date = cal.date(byAdding: .day, value: -day, to: now) ?? now
                 logs.append(DoseLog(protocol_: bpc, actualDoseAmount: 500, doseUnit: .mcg, timestamp: adjustTime(date, hour: 8)))
             }
         }
@@ -174,7 +174,7 @@ enum SampleData {
         // Metformin: twice daily for 30 days
         if let met = protocols.first(where: { $0.name == "Metformin" }) {
             for day in 0..<30 {
-                let date = cal.date(byAdding: .day, value: -day, to: now)!
+                let date = cal.date(byAdding: .day, value: -day, to: now) ?? now
                 logs.append(DoseLog(protocol_: met, actualDoseAmount: 500, doseUnit: .mg, timestamp: adjustTime(date, hour: 8)))
                 logs.append(DoseLog(protocol_: met, actualDoseAmount: 500, doseUnit: .mg, timestamp: adjustTime(date, hour: 20)))
             }
@@ -183,7 +183,7 @@ enum SampleData {
         // Semaglutide: weekly for 8 weeks
         if let sem = protocols.first(where: { $0.name == "Semaglutide" }) {
             for week in 0..<8 {
-                let date = cal.date(byAdding: .weekOfYear, value: -week, to: now)!
+                let date = cal.date(byAdding: .weekOfYear, value: -week, to: now) ?? now
                 logs.append(DoseLog(protocol_: sem, actualDoseAmount: 0.5, doseUnit: .mg, timestamp: adjustTime(date, hour: 10)))
             }
         }

@@ -18,6 +18,7 @@ struct HomeView: View {
     
     // Cached PK calculation
     @State private var combinedLevelData: [ActiveLevelDataPoint] = []
+    @State private var pkRecalcTask: Task<Void, Never>? = nil
     
     private func recalculateCombinedLevels() {
         let pairs = activeProtocols.map { p in (p, p.doseLogs) }
@@ -26,6 +27,15 @@ struct HomeView: View {
             startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
             endDate: Date()
         )
+    }
+    
+    private func schedulePKRecalc() {
+        pkRecalcTask?.cancel()
+        pkRecalcTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            recalculateCombinedLevels()
+        }
     }
     
     var body: some View {
@@ -76,10 +86,10 @@ struct HomeView: View {
             recalculateCombinedLevels()
         }
         .onChange(of: activeProtocols.count) {
-            recalculateCombinedLevels()
+            schedulePKRecalc()
         }
         .onChange(of: allLogs.count) {
-            recalculateCombinedLevels()
+            schedulePKRecalc()
         }
     }
     
