@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03852ACBB49F04BE84E66F86 /* DoseScheduleDayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */; };
 		03F7B4D0F7F2D57D4C362D8D /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D23A0F822E0EDF55949A5 /* GlassCard.swift */; };
 		0732CC309DB6110209EA57B3 /* PharmacokineticsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */; };
 		17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA10A4DF8F52F6987FDED74 /* Haptics.swift */; };
@@ -19,10 +20,13 @@
 		3A1DD03F7D890F2E60784405 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */; };
 		419802A40D2A48C9DB04C813 /* AscendancyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */; };
 		4B6EDFFB6F3F58F5AFFF1B71 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BA6310E729F2A550463DBF /* ProfileSettingsView.swift */; };
+		61D14C698656A40E99E542AE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */; };
 		62D31CFE451B774CA52D54CB /* NumericInputParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */; };
 		6653E0ED655E13F6DA82E973 /* ActiveProtocolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7023DB9310CC4807E12747E /* ActiveProtocolsView.swift */; };
 		6BC35CEE7E081E580742552A /* MediaDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2ADC4DCBCCEF7F9772EA1B /* MediaDocument.swift */; };
+		82F29BB7C5FA3532FE2F97F7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 3C98F898585CF09A997A2980 /* Localizable.xcstrings */; };
 		85FFF5A948F08A6DE4051B1D /* LogDoseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30CCBB636DA6275330BC4632 /* LogDoseSheet.swift */; };
+		87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */; };
 		8AA5D694F85CC81A575EEEAE /* AppIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = BF64565FF22E04CBDDCD7C21 /* AppIcon.png */; };
 		99E3A7C5640F1CF46BC6FC23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DCCE948632457FA826A335 /* Assets.xcassets */; };
 		A642BAB34B44330D2BA3BAD4 /* NewProtocolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69361A890000C4B18E31236 /* NewProtocolView.swift */; };
@@ -49,12 +53,15 @@
 		30CCBB636DA6275330BC4632 /* LogDoseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDoseSheet.swift; sourceTree = "<group>"; };
 		38183C22CFB8F2B9AABBCBB9 /* ProtocolCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolCard.swift; sourceTree = "<group>"; };
 		3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericInputParser.swift; sourceTree = "<group>"; };
+		3C98F898585CF09A997A2980 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		45B88F94FDFEE077968FE0B0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		49D9822F41BE6C633EEF926D /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseScheduleDayHelper.swift; sourceTree = "<group>"; };
 		4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyApp.swift; sourceTree = "<group>"; };
 		5B5DD5E683F9C6BC857AA996 /* Ascendancy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ascendancy.entitlements; sourceTree = "<group>"; };
 		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
+		715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		7491664CDAEFC424DA2EA42C /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
 		7BD62E51AB218CC22A874B27 /* CompoundProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompoundProtocol.swift; sourceTree = "<group>"; };
 		816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolDetailView.swift; sourceTree = "<group>"; };
@@ -67,6 +74,7 @@
 		A7023DB9310CC4807E12747E /* ActiveProtocolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveProtocolsView.swift; sourceTree = "<group>"; };
 		A89B0BD57D843CD85E9D767F /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		B456CAA284E6491C885BD03D /* ReconstitutionCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconstitutionCalculatorView.swift; sourceTree = "<group>"; };
+		B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizedStringKey+Catalog.swift"; sourceTree = "<group>"; };
 		BC2ADC4DCBCCEF7F9772EA1B /* MediaDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDocument.swift; sourceTree = "<group>"; };
 		BF64565FF22E04CBDDCD7C21 /* AppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon.png; sourceTree = "<group>"; };
 		C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactLineChart.swift; sourceTree = "<group>"; };
@@ -120,7 +128,10 @@
 				F1DCCE948632457FA826A335 /* Assets.xcassets */,
 				A5E687B55949AB305F50D6D9 /* ContentView.swift */,
 				45B88F94FDFEE077968FE0B0 /* Info.plist */,
+				715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */,
+				3C98F898585CF09A997A2980 /* Localizable.xcstrings */,
 				EFF7C3F2099018027FAA5D75 /* Components */,
+				C99D0B3D94795F971EF786F5 /* Extensions */,
 				31346AF244DFA117CE022E9E /* Models */,
 				D5654A067FA08933B316AB51 /* Services */,
 				E4C9EF4267380295BD1FF52F /* Views */,
@@ -164,6 +175,14 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		C99D0B3D94795F971EF786F5 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		D165BCB625299DBE66A154DE = {
 			isa = PBXGroup;
 			children = (
@@ -176,6 +195,7 @@
 		D5654A067FA08933B316AB51 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */,
 				DBA10A4DF8F52F6987FDED74 /* Haptics.swift */,
 				A89B0BD57D843CD85E9D767F /* HealthKitService.swift */,
 				007256FD5EE26B17C2FD75DB /* InventoryService.swift */,
@@ -288,6 +308,8 @@
 			files = (
 				8AA5D694F85CC81A575EEEAE /* AppIcon.png in Resources */,
 				99E3A7C5640F1CF46BC6FC23 /* Assets.xcassets in Resources */,
+				61D14C698656A40E99E542AE /* InfoPlist.xcstrings in Resources */,
+				82F29BB7C5FA3532FE2F97F7 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,11 +326,13 @@
 				2E173DD1218BF6768F9AB726 /* CompoundProtocol.swift in Sources */,
 				286C4F6CE9A6DE18F67A0866 /* ContentView.swift in Sources */,
 				F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */,
+				03852ACBB49F04BE84E66F86 /* DoseScheduleDayHelper.swift in Sources */,
 				03F7B4D0F7F2D57D4C362D8D /* GlassCard.swift in Sources */,
 				17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */,
 				EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */,
 				ADA97C66C505A722EB128C28 /* HomeView.swift in Sources */,
 				380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */,
+				87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */,
 				85FFF5A948F08A6DE4051B1D /* LogDoseSheet.swift in Sources */,
 				C493D31283F9C8CB9FEA8D9D /* LogsView.swift in Sources */,
 				6BC35CEE7E081E580742552A /* MediaDocument.swift in Sources */,

@@ -262,9 +262,6 @@ struct MetricsView: View {
         }
         .task {
             await healthKit.requestAuthorization()
-            if !healthKit.isAuthorized {
-                healthKit.loadMockData()
-            }
             recalculateCombinedLevels()
         }
         .onChange(of: selectedPeriod) {

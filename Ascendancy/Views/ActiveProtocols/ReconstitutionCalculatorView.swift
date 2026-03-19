@@ -110,7 +110,7 @@ struct ReconstitutionCalculatorView: View {
                                     
                                     // Visual syringe scale
                                     VStack(alignment: .leading, spacing: 6) {
-                                        Text("Syringe Position (\(Int(units.rounded())) / 100 units)")
+                                        Text(String(format: String(localized: "Syringe Position (%lld / 100 units)"), Int(units.rounded())))
                                             .font(.system(size: 11))
                                             .foregroundStyle(.white.opacity(0.4))
                                         GeometryReader { geo in
@@ -182,7 +182,7 @@ struct ReconstitutionCalculatorView: View {
     @ViewBuilder
     private func inputField(label: String, placeholder: String, unit: String? = nil, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.white.opacity(0.45))
                 .textCase(.uppercase)
@@ -193,7 +193,7 @@ struct ReconstitutionCalculatorView: View {
                     .font(.system(size: 16))
                     .foregroundStyle(.white)
                 if let unit {
-                    Text(unit)
+                    Text(catalogKey: unit)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.white.opacity(0.4))
                 }
@@ -207,7 +207,7 @@ struct ReconstitutionCalculatorView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(color)
                 .frame(width: 24)
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 14))
                 .foregroundStyle(.white.opacity(0.6))
             Spacer()

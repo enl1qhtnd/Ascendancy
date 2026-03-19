@@ -80,9 +80,6 @@ struct HomeView: View {
         }
         .task {
             await healthKit.requestAuthorization()
-            if healthKit.bodyWeightSamples.isEmpty {
-                healthKit.loadMockData()
-            }
             recalculateCombinedLevels()
         }
         .onChange(of: activeProtocols.count) {
@@ -152,9 +149,9 @@ struct HomeView: View {
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 0..<12: return "Good morning"
-        case 12..<17: return "Good afternoon"
-        default: return "Good evening"
+        case 0..<12: return String(localized: "Good morning")
+        case 12..<17: return String(localized: "Good afternoon")
+        default: return String(localized: "Good evening")
         }
     }
 }
@@ -197,7 +194,7 @@ struct ActiveProtocolsTile: View {
                         }
                     }
                     if protocols.count > maxShown {
-                        Text("+\(protocols.count - maxShown) more")
+                        Text(String(format: String(localized: "+%lld more"), protocols.count - maxShown))
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
                     }
@@ -253,8 +250,8 @@ struct NextDoseTile: View {
     }
     
     private func relativeDate(_ date: Date) -> String {
-        if Calendar.current.isDateInToday(date) { return "Today" }
-        if Calendar.current.isDateInTomorrow(date) { return "Tomorrow" }
+        if Calendar.current.isDateInToday(date) { return String(localized: "Today") }
+        if Calendar.current.isDateInTomorrow(date) { return String(localized: "Tomorrow") }
         return date.formatted(.dateTime.weekday(.wide))
     }
 }
@@ -291,7 +288,7 @@ struct BodyweightTile: View {
                             Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
-                            Text(String(format: "%+.1f kg (7d)", trend))
+                            Text(String(format: String(localized: "%1$+.1f kg (7d)"), locale: .current, trend))
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundStyle(.white.opacity(0.45))
                         }
@@ -321,46 +318,6 @@ struct BodyweightTile: View {
             }
         }
         .glassCard()
-    }
-}
-
-// MARK: - Dose schedule rows (tile + sheet)
-
-private enum DoseScheduleDayHelper {
-    static func scheduledRows(protocols: [CompoundProtocol], on day: Date) -> [(CompoundProtocol, Date)] {
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: day)
-        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return [] }
-        let justBefore = start.addingTimeInterval(-1)
-        return protocols.compactMap { p -> (CompoundProtocol, Date)? in
-            guard let next = p.nextDoseDate(from: justBefore),
-                  next >= start, next < end else { return nil }
-            return (p, next)
-        }.sorted { $0.1 < $1.1 }
-    }
-
-    static func mergedRows(protocols: [CompoundProtocol], logs: [DoseLog], on day: Date) -> [(CompoundProtocol, Date)] {
-        let scheduled = scheduledRows(protocols: protocols, on: day)
-        let scheduledIds = Set(scheduled.map { $0.0.id })
-        let cal = Calendar.current
-        let dayStart = cal.startOfDay(for: day)
-        let extras: [(CompoundProtocol, Date)] = protocols.compactMap { p in
-            guard !scheduledIds.contains(p.id) else { return nil }
-            guard let latest = logs
-                .filter({ $0.protocol_?.id == p.id && cal.isDate($0.timestamp, inSameDayAs: dayStart) })
-                .map(\.timestamp)
-                .max() else { return nil }
-            return (p, latest)
-        }
-        return (scheduled + extras).sorted { $0.1 < $1.1 }
-    }
-
-    static func isLogged(_ p: CompoundProtocol, on day: Date, logs: [DoseLog]) -> Bool {
-        let cal = Calendar.current
-        let dayStart = cal.startOfDay(for: day)
-        return logs.contains { log in
-            log.protocol_?.id == p.id && cal.isDate(log.timestamp, inSameDayAs: dayStart)
-        }
     }
 }
 
@@ -421,7 +378,12 @@ struct CompactTodaysDoseTile: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
-                            Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue) · \(doneCount)/\(rows.count)")
+                            Text(String(
+                                format: String(localized: "%@ · %lld/%lld"),
+                                "\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue)",
+                                doneCount,
+                                rows.count
+                            ))
                                 .font(.system(size: 11, design: .rounded))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
@@ -435,7 +397,7 @@ struct CompactTodaysDoseTile: View {
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
                         if moreIncompleteCount > 0 {
-                            Text("(+\(moreIncompleteCount) more)")
+                            Text(String(format: String(localized: "(+%lld more)"), moreIncompleteCount))
                                 .font(.system(size: 10))
                                 .foregroundStyle(.white.opacity(0.35))
                         }
@@ -450,7 +412,7 @@ struct CompactTodaysDoseTile: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
-                            Text("\(rows.count)/\(rows.count) today")
+                            Text(String(format: String(localized: "%lld/%lld today"), rows.count, rows.count))
                                 .font(.system(size: 11, design: .rounded))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
@@ -460,7 +422,7 @@ struct CompactTodaysDoseTile: View {
                         Text("Done")
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                        Text("today")
+                        Text(String(localized: "today"))
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
                     }
@@ -498,9 +460,9 @@ struct DayScheduleSheet: View {
 
     private var dayLabel: String {
         let cal = Calendar.current
-        if cal.isDateInToday(selectedDay) { return "Today" }
-        if cal.isDateInTomorrow(selectedDay) { return "Tomorrow" }
-        if cal.isDateInYesterday(selectedDay) { return "Yesterday" }
+        if cal.isDateInToday(selectedDay) { return String(localized: "Today") }
+        if cal.isDateInTomorrow(selectedDay) { return String(localized: "Tomorrow") }
+        if cal.isDateInYesterday(selectedDay) { return String(localized: "Yesterday") }
         return selectedDay.formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 
@@ -663,7 +625,7 @@ struct CompactBodyweightTile: View {
                     Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
-                    Text(String(format: "%+.1f kg", trend))
+                    Text(String(format: String(localized: "%1$+.1f kg"), locale: .current, trend))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.45))
                     Text("7d")
@@ -714,7 +676,7 @@ struct ActiveLevelsTile: View {
                             .foregroundStyle(.white.opacity(0.35))
                             .textCase(.uppercase)
                             .tracking(0.4)
-                        Text("\(protocols.count) compounds")
+                        Text(String(format: String(localized: "%lld compounds"), protocols.count))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(.white.opacity(0.7))
                     }

@@ -109,22 +109,39 @@ struct MediaLibraryView: View {
                 switch result {
                 case .success(let urls):
                     guard let url = urls.first else { return }
-                    
-                    // Access security scoped resource
-                    if url.startAccessingSecurityScopedResource() {
-                        defer { url.stopAccessingSecurityScopedResource() }
-                        
+                    // Must attempt read even when startAccessing returns false (some providers/locations);
+                    // only call stop when start succeeded.
+                    let didStartAccess = url.startAccessingSecurityScopedResource()
+                    defer {
+                        if didStartAccess {
+                            url.stopAccessingSecurityScopedResource()
+                        }
+                    }
+                    // Read synchronously while security scope is active; defer runs after this block.
+                    let readResult: Result<(Data, String, String), Error> = {
                         do {
                             let data = try Data(contentsOf: url)
                             let title = url.deletingPathExtension().lastPathComponent
                             let ext = url.pathExtension.lowercased()
-                            
-                            let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
-                            context.insert(doc)
-                            try context.save()
-                            Haptics.success()
+                            return .success((data, title, ext))
                         } catch {
-                            print("[MediaLibraryView] Failed to import file: \(error)")
+                            return .failure(error)
+                        }
+                    }()
+                    Task { @MainActor in
+                        switch readResult {
+                        case .success(let (data, title, ext)):
+                            do {
+                                let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
+                                context.insert(doc)
+                                try context.save()
+                                Haptics.success()
+                            } catch {
+                                print("[MediaLibraryView] Failed to save imported file: \(error)")
+                                Haptics.error()
+                            }
+                        case .failure(let error):
+                            print("[MediaLibraryView] Failed to read imported file: \(error)")
                             Haptics.error()
                         }
                     }

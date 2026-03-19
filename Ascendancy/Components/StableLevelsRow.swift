@@ -11,16 +11,22 @@ struct StableLevelsRow: View {
     /// Friendly label for how far along (e.g. "2.3 half-lives elapsed")
     private var subtitleText: String {
         if info.isStable {
-            return "Stable — \(info.halfLivesElapsed.formatted(.number.precision(.fractionLength(1)))) half-lives"
+            let n = info.halfLivesElapsed.formatted(.number.precision(.fractionLength(1)))
+            return String(format: String(localized: "Stable — %@ half-lives"), n)
         }
         let remaining = Swift.max(0, 5.0 - info.halfLivesElapsed)
-        return String(format: "%.1f of 5 half-lives — %.1f remaining", info.halfLivesElapsed, remaining)
+        return String(
+            format: String(localized: "%1$.1f of 5 half-lives — %2$.1f remaining"),
+            locale: .current,
+            info.halfLivesElapsed,
+            remaining
+        )
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Stable Levels")
+                Text(catalogKey: "Stable Levels")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.5))
                     .textCase(.uppercase)
@@ -74,20 +80,20 @@ struct StableLevelsRow: View {
             
             // Tick labels
             HStack {
-                Text("0%")
+                Text(catalogKey: "0%")
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                 Spacer()
-                Text("50%")
+                Text(catalogKey: "50%")
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                     .offset(x: 4)    // align under 50% tick
                 Spacer()
-                Text("75%")
+                Text(catalogKey: "75%")
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                 Spacer()
-                Text("Stable\n≥97%")
+                Text(catalogKey: "Stable\n≥97%")
                     .font(.system(size: 9))
                     .foregroundStyle(info.isStable ? color.opacity(0.7) : .white.opacity(0.2))
                     .multilineTextAlignment(.trailing)

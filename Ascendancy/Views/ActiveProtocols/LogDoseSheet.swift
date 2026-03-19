@@ -31,7 +31,13 @@ struct LogDoseSheet: View {
                             Text(protocol_.name)
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundStyle(.white)
-                            Text("Scheduled: \(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
+                            Text(
+                                String(
+                                    format: String(localized: "Scheduled: %@ %@"),
+                                    protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2))),
+                                    protocol_.doseUnit.rawValue
+                                )
+                            )
                                 .font(.system(size: 13))
                                 .foregroundStyle(.white.opacity(0.45))
                         }

@@ -71,11 +71,11 @@ actor NotificationService {
 
             if group.count == 1 {
                 let event = group[0]
-                content.title = "Time for \(event.protocol_.name)"
-                content.body = "Your scheduled dose: \(event.doseStr)"
+                content.title = String(format: String(localized: "Time for %@"), event.protocol_.name)
+                content.body = String(format: String(localized: "Your scheduled dose: %@"), event.doseStr)
                 content.userInfo = ["protocolId": event.protocol_.id.uuidString]
             } else {
-                content.title = "Time for your scheduled doses"
+                content.title = String(localized: "Time for your scheduled doses")
                 content.body = group.map { "\($0.protocol_.name): \($0.doseStr)" }.joined(separator: " · ")
             }
 
@@ -108,8 +108,12 @@ actor NotificationService {
 
     func sendLowInventoryAlert(for protocol_: CompoundProtocol) async {
         let content = UNMutableNotificationContent()
-        content.title = "Low Inventory: \(protocol_.name)"
-        content.body = "Only \(protocol_.inventoryCount.formatted()) \(protocol_.inventoryDisplayUnitLabel) remaining."
+        content.title = String(format: String(localized: "Low Inventory: %@"), protocol_.name)
+        content.body = String(
+            format: String(localized: "Only %@ %@ remaining."),
+            protocol_.inventoryCount.formatted(),
+            protocol_.inventoryDisplayUnitLabel
+        )
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

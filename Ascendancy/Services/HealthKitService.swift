@@ -196,62 +196,6 @@ final class HealthKitService: ObservableObject {
             store.execute(query)
         }
     }
-
-    // MARK: - Mock Data (for simulator / previews)
-
-    func loadMockData() {
-        let now = Date()
-        let cal = Calendar.current
-
-        // Weight samples: 90 days
-        bodyWeightSamples = (0..<90).map { i in
-            let date = cal.date(byAdding: .day, value: -i, to: now)!
-            let base = 82.5
-            let noise = Double.random(in: -0.4...0.4)
-            let trend = Double(90 - i) * 0.005
-            return HealthMetricPoint(date: date, value: base - trend + noise)
-        }.reversed()
-        latestWeight = bodyWeightSamples.last?.value
-
-        // Heart rate samples
-        heartRateSamples = (0..<90).map { i in
-            let date = cal.date(byAdding: .day, value: -i, to: now)!
-            return HealthMetricPoint(date: date, value: Double.random(in: 52...68))
-        }.reversed()
-
-        // Step samples
-        stepSamples = (0..<90).map { i in
-            let date = cal.date(byAdding: .day, value: -i, to: now)!
-            return HealthMetricPoint(date: date, value: Double.random(in: 4000...14000))
-        }.reversed()
-
-        // Body fat samples
-        bodyFatSamples = (0..<90).map { i in
-            let date = cal.date(byAdding: .day, value: -i, to: now)!
-            let base = 0.15 // 15%
-            let trend = Double(90 - i) * 0.0001
-            let noise = Double.random(in: -0.002...0.002)
-            return HealthMetricPoint(date: date, value: base - trend + noise)
-        }.reversed()
-
-        // Active energy samples
-        activeEnergySamples = (0..<90).map { i in
-            let date = cal.date(byAdding: .day, value: -i, to: now)!
-            return HealthMetricPoint(date: date, value: Double.random(in: 400...1200))
-        }.reversed()
-
-        // Height sample (static)
-        heightSamples = [HealthMetricPoint(date: now, value: 180.0)]
-
-        // BMI samples
-        bmiSamples = bodyWeightSamples.map { wp in
-            let heightMeters = 1.80
-            let bmi = wp.value / (heightMeters * heightMeters)
-            return HealthMetricPoint(date: wp.date, value: bmi)
-        }
-
-        isAuthorized = true
-    }
 }
 
 struct HealthMetricPoint: Identifiable {

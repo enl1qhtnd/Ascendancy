@@ -52,7 +52,7 @@ struct StatusBadge: View {
     let status: ProtocolStatus
     
     var body: some View {
-        Text(status.rawValue)
+        Text(catalogKey: status.rawValue)
             .font(.system(size: 10, weight: .semibold, design: .rounded))
             .foregroundStyle(statusColor)
             .padding(.horizontal, 8)
@@ -107,7 +107,7 @@ struct StatLabel: View {
             Text(value)
                 .font(valueFont)
                 .foregroundStyle(.white)
-            Text(label)
+            Text(catalogKey: label)
                 .font(labelFont)
                 .foregroundStyle(.white.opacity(0.5))
                 .textCase(.uppercase)
@@ -125,14 +125,14 @@ struct SectionHeader: View {
     
     var body: some View {
         HStack {
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.5))
                 .textCase(.uppercase)
                 .tracking(0.8)
             Spacer()
             if let action {
-                Button(actionLabel, action: action)
+                Button(LocalizedStringKey(actionLabel), action: action)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.white.opacity(0.4))
             }
@@ -152,7 +152,7 @@ struct TileHeader: View {
             Image(systemName: icon)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(iconColor)
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.5))
                 .textCase(.uppercase)
@@ -169,7 +169,7 @@ struct PillTag: View {
     var color: Color = .white.opacity(0.15)
     
     var body: some View {
-        Text(text)
+        Text(catalogKey: text)
             .font(.system(size: 11, weight: .medium))
             .foregroundStyle(.white.opacity(0.7))
             .padding(.horizontal, 8)

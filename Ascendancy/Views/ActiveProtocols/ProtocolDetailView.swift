@@ -38,6 +38,15 @@ struct ProtocolDetailView: View {
             recalculatePK()
         }
     }
+
+    private var inventoryUnitSubtitle: String {
+        let base = String(localized: String.LocalizationValue(stringLiteral: protocol_.inventoryDisplayUnitLabel))
+        guard protocol_.formDosage > 0 else { return base }
+        let singular = String(localized: String.LocalizationValue(stringLiteral: protocol_.administrationForm.inventorySingularLabel))
+        let amt = protocol_.formDosage.formatted(.number.precision(.fractionLength(0...2)))
+        let du = protocol_.doseUnit.rawValue
+        return "\(base) (\(amt) \(du) \(String(localized: "per")) \(singular))"
+    }
     
     var body: some View {
         ZStack {
@@ -128,7 +137,7 @@ struct ProtocolDetailView: View {
             RestockInventorySheet(protocol_: protocol_)
         }
         .confirmationDialog(
-            "Delete \"\(protocol_.name)\"?",
+            String(format: String(localized: "Delete \"%@\"?"), protocol_.name),
             isPresented: $showDeleteConfirmation,
             titleVisibility: .visible
         ) {
@@ -137,7 +146,12 @@ struct ProtocolDetailView: View {
                 deleteProtocol()
             }
         } message: {
-            Text("This will permanently delete this protocol and all \(protocol_.doseLogs.count) logged doses. This cannot be undone.")
+            Text(
+                String(
+                    format: String(localized: "This will permanently delete this protocol and all %lld logged doses. This cannot be undone."),
+                    protocol_.doseLogs.count
+                )
+            )
         }
         .task {
             recalculatePK()
@@ -162,7 +176,7 @@ struct ProtocolDetailView: View {
                     PillTag(text: protocol_.category.rawValue)
                     PillTag(text: protocol_.administrationForm.rawValue)
                 }
-                Text("Started \(protocol_.startDate.formatted(.dateTime.month(.wide).day().year()))")
+                Text(String(format: String(localized: "Started %@"), protocol_.startDate.formatted(.dateTime.month(.wide).day().year())))
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.4))
             }
@@ -208,7 +222,7 @@ struct ProtocolDetailView: View {
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundStyle(protocol_.isLowInventory ? .orange : .white)
                 
-                Text(protocol_.inventoryDisplayUnitLabel + (protocol_.formDosage > 0 ? " (\(protocol_.formDosage.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue) per \(protocol_.administrationForm.inventorySingularLabel))" : ""))
+                Text(inventoryUnitSubtitle)
                     .font(.system(size: 12))
                     .foregroundStyle(.white.opacity(0.4))
             }
@@ -222,7 +236,7 @@ struct ProtocolDetailView: View {
             }
             
             if let days = InventoryService.shared.daysOfSupply(for: protocol_) {
-                Text("\(Int(days)) days remaining")
+                Text(String(format: String(localized: "%lld days remaining"), Int(days)))
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.4))
             }
@@ -361,7 +375,7 @@ struct ProtocolDetailView: View {
                 .glassCard()
                 
                 if protocol_.doseLogs.count > 8 {
-                    Text("View all \(protocol_.doseLogs.count) entries in Logs tab")
+                    Text(String(format: String(localized: "View all %lld entries in Logs tab"), protocol_.doseLogs.count))
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.35))
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -447,7 +461,7 @@ private struct InfoRow: View {
     
     var body: some View {
         HStack {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.4))
             Spacer()
@@ -537,7 +551,7 @@ private struct RestockInventorySheet: View {
                                     .monospacedDigit()
                                     .contentTransition(.numericText(value: Double(adjustment)))
                                     .animation(.spring(response: 0.25), value: adjustment)
-                                Text(protocol_.administrationForm.inventoryPluralLabel)
+                                Text(catalogKey: protocol_.administrationForm.inventoryPluralLabel)
                                     .font(.system(size: 12))
                                     .foregroundStyle(.white.opacity(0.35))
                             }
@@ -594,9 +608,7 @@ private struct RestockInventorySheet: View {
                         applyAdjustment()
                     } label: {
                         Label(
-                            isDepletion
-                                ? "Apply Depletion"
-                                : "Restock \(protocol_.administrationForm.inventoryPluralLabel.capitalized)",
+                            isDepletion ? String(localized: "Apply Depletion") : protocol_.restockButtonTitle,
                             systemImage: isDepletion ? "minus.circle.fill" : "shippingbox.badge.plus"
                         )
                         .font(.system(size: 16, weight: .semibold))

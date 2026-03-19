@@ -62,7 +62,7 @@ struct ProtocolCard: View {
                         Image(systemName: protocol_.isLowInventory ? "exclamationmark.triangle.fill" : "shippingbox.fill")
                             .font(.system(size: 10))
                             .foregroundStyle(protocol_.isLowInventory ? Color.orange : Color.white.opacity(0.4))
-                        Text("Inventory")
+                        Text(catalogKey: "Inventory")
                             .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(.white.opacity(0.4))
                             .textCase(.uppercase)
@@ -73,7 +73,7 @@ struct ProtocolCard: View {
                         Text(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...1))))
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundStyle(protocol_.isLowInventory ? .orange : .white)
-                        Text(protocol_.inventoryDisplayUnitLabel)
+                        Text(catalogKey: protocol_.inventoryDisplayUnitLabel)
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
                     }
@@ -83,7 +83,7 @@ struct ProtocolCard: View {
                 
                 if let days = daysOfSupply {
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("\(Int(days))d supply")
+                        Text(String(localized: "\(Int(days))d supply"))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.6))
                     }
@@ -126,7 +126,7 @@ private struct InfoBit: View {
                 Image(systemName: icon)
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.35))
-                Text(label)
+                Text(catalogKey: label)
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.white.opacity(0.35))
                     .textCase(.uppercase)
