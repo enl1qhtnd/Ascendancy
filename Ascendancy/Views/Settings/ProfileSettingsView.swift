@@ -161,7 +161,7 @@ struct ProfileSettingsView: View {
     
     private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.4))
                 .textCase(.uppercase)
@@ -175,7 +175,7 @@ struct ProfileSettingsView: View {
     
     private func settingsField(label: String, placeholder: String, text: Binding<String>) -> some View {
         HStack {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 14))
                 .foregroundStyle(.white.opacity(0.5))
                 .frame(width: 70, alignment: .leading)
@@ -187,7 +187,7 @@ struct ProfileSettingsView: View {
     
     private func infoRow(label: String, value: String) -> some View {
         HStack {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 14))
                 .foregroundStyle(.white.opacity(0.5))
             Spacer()

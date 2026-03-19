@@ -99,16 +99,20 @@ struct NewProtocolView: View {
                                     HStack {
                                         Text("Every")
                                             .foregroundStyle(.white.opacity(0.6))
-                                        Stepper("\(intervalDays) days", value: $intervalDays, in: 1...365)
-                                            .foregroundStyle(.white)
+                                        Stepper(value: $intervalDays, in: 1...365) {
+                                            Text(String(format: String(localized: "%lld days"), intervalDays))
+                                        }
+                                        .foregroundStyle(.white)
                                     }
                                     
                                 case .specificWeekdays:
                                     WeekdayPicker(selected: $selectedWeekdays)
                                     
                                 case .timesPerWeek:
-                                    Stepper("\(timesPerWeek)x per week", value: $timesPerWeek, in: 1...7)
-                                        .foregroundStyle(.white)
+                                    Stepper(value: $timesPerWeek, in: 1...7) {
+                                        Text(String(format: String(localized: "%lldx per week"), timesPerWeek))
+                                    }
+                                    .foregroundStyle(.white)
                                     
                                 case .custom:
                                     FormField(label: "Schedule Description", placeholder: "e.g. Loading dose then weekly") {
@@ -222,7 +226,7 @@ struct NewProtocolView: View {
     
     private func formSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.4))
                 .textCase(.uppercase)
@@ -368,7 +372,7 @@ struct FormField<Content: View>: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.white.opacity(0.45))
                 .textCase(.uppercase)
@@ -388,7 +392,7 @@ struct FormPicker<T: Hashable & RawRepresentable>: View where T.RawValue == Stri
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.white.opacity(0.45))
                 .textCase(.uppercase)
@@ -396,14 +400,14 @@ struct FormPicker<T: Hashable & RawRepresentable>: View where T.RawValue == Stri
             
             Menu {
                 ForEach(options, id: \.rawValue) { option in
-                    Button(option.rawValue) {
+                    Button(LocalizedStringKey(option.rawValue)) {
                         Haptics.selection()
                         selection = option
                     }
                 }
             } label: {
                 HStack {
-                    Text(selection.rawValue)
+                    Text(catalogKey: selection.rawValue)
                         .font(.system(size: 15))
                         .foregroundStyle(.white)
                     Spacer()
@@ -430,7 +434,7 @@ struct WeekdayPicker: View {
                     if isSelected { selected.remove(day) }
                     else { selected.insert(day) }
                 } label: {
-                    Text(day.short)
+                    Text(day.localizedShort)
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(isSelected ? .black : .white.opacity(0.5))
                         .frame(width: 34, height: 34)

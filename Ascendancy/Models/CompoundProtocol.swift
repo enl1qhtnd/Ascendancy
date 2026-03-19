@@ -159,6 +159,19 @@ enum Weekday: Int, Codable, CaseIterable, Identifiable {
         case .saturday: return "Saturday"
         }
     }
+
+    /// Locale-aware very short weekday label for schedule summaries.
+    var localizedShort: String {
+        let cal = Calendar.current
+        var comps = DateComponents()
+        comps.weekday = rawValue
+        guard let d = cal.nextDate(
+            after: Date().addingTimeInterval(-86400 * 21),
+            matching: comps,
+            matchingPolicy: .nextTimePreservingSmallerComponents
+        ) else { return short }
+        return d.formatted(.dateTime.weekday(.narrow))
+    }
 }
 
 // MARK: - Schedule Model (Codable wrapper stored as JSON)
@@ -197,16 +210,16 @@ struct DoseSchedule: Codable {
     var description: String {
         switch type {
         case .daily:
-            return "Daily"
+            return String(localized: "Daily")
         case .everyXDays:
-            return "Every \(intervalDays) days"
+            return String(localized: "Every \(intervalDays) days")
         case .specificWeekdays:
-            let days = weekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.short }.joined(separator: ", ")
-            return days.isEmpty ? "Specific days" : days
+            let days = weekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.localizedShort }.joined(separator: ", ")
+            return days.isEmpty ? String(localized: "Specific days") : days
         case .timesPerWeek:
-            return "\(timesPerWeek)x per week"
+            return String(localized: "\(timesPerWeek)x per week")
         case .custom:
-            return customNotes.isEmpty ? "Custom" : customNotes
+            return customNotes.isEmpty ? String(localized: "Custom") : customNotes
         }
     }
 }
@@ -349,7 +362,9 @@ final class CompoundProtocol {
     }
 
     var restockButtonTitle: String {
-        "Restock \(administrationForm.inventoryPluralLabel.capitalized)"
+        let plural = administrationForm.inventoryPluralLabel
+        let capitalized = plural.prefix(1).uppercased() + plural.dropFirst()
+        return String(localized: "Restock \(capitalized)")
     }
 
     var sortedLogs: [DoseLog] {

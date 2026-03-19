@@ -70,11 +70,18 @@ struct WeekDotRow: View {
         
         if dayStart > today { return .future }
         
-        // Get active protocols that should have had a dose this day
-        let activeProtocols = protocols.filter { $0.status == .active && $0.startDate <= day }
-        if activeProtocols.isEmpty { return .noDose }
+        let activeForDay = protocols.filter { p in
+            guard p.status == .active, p.startDate <= day else { return false }
+            if let end = p.endDate, calendar.startOfDay(for: end) < dayStart { return false }
+            return true
+        }
+        if activeForDay.isEmpty { return .noDose }
         
-        // Check if any dose was logged for any active protocol on this day
+        let scheduled = DoseScheduleDayHelper.scheduledRows(protocols: activeForDay, on: day)
+        if scheduled.isEmpty {
+            return .complete
+        }
+        
         let dayLogs = logs.filter {
             calendar.startOfDay(for: $0.timestamp) == dayStart
         }
@@ -93,9 +100,7 @@ struct WeekDotRow: View {
     }
     
     private func dayLabel(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return String(formatter.string(from: date).prefix(2))
+        date.formatted(.dateTime.weekday(.narrow))
     }
     
     private func isToday(_ date: Date) -> Bool {

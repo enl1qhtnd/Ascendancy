@@ -133,7 +133,7 @@ struct FilterChip: View {
             Haptics.selection()
             action()
         } label: {
-            Text(label)
+            Text(catalogKey: label)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(isSelected ? .black : .white.opacity(0.6))
                 .padding(.horizontal, 14)
