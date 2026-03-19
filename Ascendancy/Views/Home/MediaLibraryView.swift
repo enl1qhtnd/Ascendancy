@@ -59,14 +59,19 @@ struct MediaLibraryView: View {
             )) {
                 TextField("Name", text: $renameText)
                     .autocorrectionDisabled()
-                Button("Cancel", role: .cancel) { documentToRename = nil }
+                Button("Cancel", role: .cancel) {
+                    Haptics.tap()
+                    documentToRename = nil
+                }
                 Button("Save") {
                     if let doc = documentToRename, !renameText.trimmingCharacters(in: .whitespaces).isEmpty {
                         doc.title = renameText.trimmingCharacters(in: .whitespaces)
                         do {
                             try context.save()
+                            Haptics.success()
                         } catch {
                             print("[MediaLibraryView] Failed to save rename: \(error)")
+                            Haptics.error()
                         }
                     }
                     documentToRename = nil
@@ -87,9 +92,11 @@ struct MediaLibraryView: View {
                             context.insert(doc)
                             try context.save()
                             selectedItem = nil
+                            await MainActor.run { Haptics.success() }
                         }
                     } catch {
                         print("[MediaLibraryView] Failed to import photo: \(error)")
+                        await MainActor.run { Haptics.error() }
                     }
                 }
             }
@@ -115,8 +122,10 @@ struct MediaLibraryView: View {
                             let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
                             context.insert(doc)
                             try context.save()
+                            Haptics.success()
                         } catch {
                             print("[MediaLibraryView] Failed to import file: \(error)")
+                            Haptics.error()
                         }
                     }
                 case .failure(let error):
@@ -141,9 +150,11 @@ struct MediaLibraryView: View {
         
         Button {
             if isEditing {
+                Haptics.selection()
                 if isSelected { selectedIds.remove(doc.id) }
                 else { selectedIds.insert(doc.id) }
             } else {
+                Haptics.tap()
                 previewDocument = doc
             }
         } label: {
@@ -208,6 +219,7 @@ struct MediaLibraryView: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button {
+                Haptics.tap()
                 documentToRename = doc
                 renameText = doc.title
             } label: {
@@ -217,8 +229,10 @@ struct MediaLibraryView: View {
                 context.delete(doc)
                 do {
                     try context.save()
+                    Haptics.warning()
                 } catch {
                     print("[MediaLibraryView] Failed to delete document: \(error)")
+                    Haptics.error()
                 }
             } label: {
                 Label("Delete", systemImage: "trash")
@@ -242,11 +256,15 @@ struct MediaLibraryView: View {
         ToolbarItem(placement: .navigationBarLeading) {
             if isEditing {
                 Button("Done") {
+                    Haptics.tap()
                     withAnimation { isEditing = false; selectedIds.removeAll() }
                 }
                 .foregroundStyle(.white)
             } else {
-                Button("Close") { dismiss() }
+                Button("Close") {
+                    Haptics.tap()
+                    dismiss()
+                }
                     .foregroundStyle(.white.opacity(0.6))
             }
         }
@@ -255,6 +273,7 @@ struct MediaLibraryView: View {
             if isEditing {
                 // Delete selected
                 Button(role: .destructive) {
+                    Haptics.warning()
                     deleteSelected()
                 } label: {
                     Label("Delete", systemImage: "trash")
@@ -266,6 +285,7 @@ struct MediaLibraryView: View {
                     // Edit button
                     if !documents.isEmpty {
                         Button {
+                            Haptics.tap()
                             withAnimation { isEditing = true }
                         } label: {
                             Text("Edit")
@@ -275,11 +295,13 @@ struct MediaLibraryView: View {
                     // Add Menu
                     Menu {
                         Button {
+                            Haptics.tap()
                             showPhotoPicker = true
                         } label: {
                             Label("Photo Library", systemImage: "photo.on.rectangle")
                         }
                         Button {
+                            Haptics.tap()
                             showFileImporter = true
                         } label: {
                             Label("Choose File", systemImage: "folder")
@@ -322,6 +344,8 @@ struct MediaLibraryView: View {
             try context.save()
         } catch {
             print("[MediaLibraryView] Failed to delete selected documents: \(error)")
+            Haptics.error()
+            return
         }
         selectedIds.removeAll()
         withAnimation { isEditing = false }
@@ -359,7 +383,10 @@ struct ImagePreviewSheet: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            Button { dismiss() } label: {
+            Button {
+                Haptics.tap()
+                dismiss()
+            } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 28))
                     .foregroundStyle(.white.opacity(0.7))

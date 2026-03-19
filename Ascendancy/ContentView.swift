@@ -50,6 +50,9 @@ struct ContentView: View {
                 }
         }
         .tint(.white)
+        .onChange(of: selectedTab) { _, _ in
+            Haptics.selection()
+        }
         .onAppear {
             setupTabBarAppearance()
             scheduleAllReminders()

@@ -52,7 +52,7 @@ struct HomeView: View {
                         
                         // 2. Next Dose + Bodyweight side-by-side
                         HStack(spacing: 12) {
-                            CompactNextDoseTile(protocols: activeProtocols)
+                            CompactTodaysDoseTile(protocols: activeProtocols, logs: allLogs)
                             CompactBodyweightTile(healthKit: healthKit)
                         }
                         
@@ -128,6 +128,7 @@ struct HomeView: View {
                 }
                 
                 Button {
+                    Haptics.tap()
                     showProfile = true
                 } label: {
                     if let data = profileImageData, let uiImage = UIImage(data: data) {
@@ -323,50 +324,96 @@ struct BodyweightTile: View {
     }
 }
 
-// MARK: - Compact Next Dose Tile (half width)
+// MARK: - Dose schedule rows (tile + sheet)
 
-struct CompactNextDoseTile: View {
+private enum DoseScheduleDayHelper {
+    static func scheduledRows(protocols: [CompoundProtocol], on day: Date) -> [(CompoundProtocol, Date)] {
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: day)
+        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return [] }
+        let justBefore = start.addingTimeInterval(-1)
+        return protocols.compactMap { p -> (CompoundProtocol, Date)? in
+            guard let next = p.nextDoseDate(from: justBefore),
+                  next >= start, next < end else { return nil }
+            return (p, next)
+        }.sorted { $0.1 < $1.1 }
+    }
+
+    static func mergedRows(protocols: [CompoundProtocol], logs: [DoseLog], on day: Date) -> [(CompoundProtocol, Date)] {
+        let scheduled = scheduledRows(protocols: protocols, on: day)
+        let scheduledIds = Set(scheduled.map { $0.0.id })
+        let cal = Calendar.current
+        let dayStart = cal.startOfDay(for: day)
+        let extras: [(CompoundProtocol, Date)] = protocols.compactMap { p in
+            guard !scheduledIds.contains(p.id) else { return nil }
+            guard let latest = logs
+                .filter({ $0.protocol_?.id == p.id && cal.isDate($0.timestamp, inSameDayAs: dayStart) })
+                .map(\.timestamp)
+                .max() else { return nil }
+            return (p, latest)
+        }
+        return (scheduled + extras).sorted { $0.1 < $1.1 }
+    }
+
+    static func isLogged(_ p: CompoundProtocol, on day: Date, logs: [DoseLog]) -> Bool {
+        let cal = Calendar.current
+        let dayStart = cal.startOfDay(for: day)
+        return logs.contains { log in
+            log.protocol_?.id == p.id && cal.isDate(log.timestamp, inSameDayAs: dayStart)
+        }
+    }
+}
+
+// MARK: - Compact Today's Dose Tile (half width)
+
+struct CompactTodaysDoseTile: View {
     let protocols: [CompoundProtocol]
+    let logs: [DoseLog]
     @State private var showDaySchedule = false
 
-    private var nextDoseProtocol: CompoundProtocol? {
-        protocols
-            .compactMap { p -> (CompoundProtocol, Date)? in
-                guard let next = p.nextDoseDate() else { return nil }
-                return (p, next)
-            }
-            .sorted { $0.1 < $1.1 }
-            .first?.0
+    private var dayStart: Date {
+        Calendar.current.startOfDay(for: Date())
     }
 
-    private var nextDoseDay: Date? {
-        nextDoseProtocol.flatMap { $0.nextDoseDate() }
-            .map { Calendar.current.startOfDay(for: $0) }
+    private var rows: [(CompoundProtocol, Date)] {
+        DoseScheduleDayHelper.mergedRows(protocols: protocols, logs: logs, on: dayStart)
     }
 
-    private var dosesToday: [(CompoundProtocol, Date)] {
-        guard let day = nextDoseDay else { return [] }
-        return protocols
-            .compactMap { p -> (CompoundProtocol, Date)? in
-                guard let next = p.nextDoseDate(),
-                      Calendar.current.startOfDay(for: next) == day else { return nil }
-                return (p, next)
-            }
-            .sorted { $0.1 < $1.1 }
+    private var doneCount: Int {
+        rows.filter { DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }.count
+    }
+
+    private var nextIncomplete: (CompoundProtocol, Date)? {
+        rows.first { !DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }
+    }
+
+    private var moreIncompleteCount: Int {
+        guard nextIncomplete != nil else { return 0 }
+        return rows.filter { !DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }.count - 1
     }
 
     var body: some View {
-        Button { showDaySchedule = true } label: {
-            VStack(alignment: .leading, spacing: 10) {
+        Button {
+            Haptics.tap()
+            showDaySchedule = true
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    TileHeader(icon: "clock.arrow.circlepath", title: "Next Dose")
+                    TileHeader(icon: "calendar", title: "Today's Dose")
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.3))
                 }
 
-                if let p = nextDoseProtocol, let nextDate = p.nextDoseDate() {
+                if rows.isEmpty {
+                    Text("–")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.25))
+                    Text("No doses today")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.3))
+                } else if let (p, time) = nextIncomplete {
                     HStack(spacing: 8) {
                         CategoryIcon(category: p.category, size: 28)
                         VStack(alignment: .leading, spacing: 2) {
@@ -374,32 +421,49 @@ struct CompactNextDoseTile: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
-                            Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue)")
+                            Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue) · \(doneCount)/\(rows.count)")
                                 .font(.system(size: 11, design: .rounded))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                     }
 
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text(nextDate, format: .dateTime.hour().minute())
+                        Text(time, format: .dateTime.hour().minute())
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
-                        Text(Calendar.current.isDateInToday(nextDate) ? "today" : "tmrw")
+                        Text("next")
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
-                        if dosesToday.count > 1 {
-                            Text("(+\(dosesToday.count - 1) more)")
+                        if moreIncompleteCount > 0 {
+                            Text("(+\(moreIncompleteCount) more)")
                                 .font(.system(size: 10))
                                 .foregroundStyle(.white.opacity(0.35))
                         }
                     }
                 } else {
-                    Text("–")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.25))
-                    Text("No upcoming dose")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.white.opacity(0.3))
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 26))
+                            .foregroundStyle(Color.green.opacity(0.85))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("All caught up")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            Text("\(rows.count)/\(rows.count) today")
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.5))
+                        }
+                    }
+
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("Done")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text("today")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.4))
+                    }
                 }
 
                 Spacer(minLength: 0)
@@ -409,7 +473,7 @@ struct CompactNextDoseTile: View {
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showDaySchedule) {
-            DayScheduleSheet(protocols: protocols, initialDay: nextDoseDay ?? Date())
+            DayScheduleSheet(protocols: protocols, logs: logs, initialDay: dayStart)
         }
     }
 }
@@ -418,24 +482,18 @@ struct CompactNextDoseTile: View {
 
 struct DayScheduleSheet: View {
     let protocols: [CompoundProtocol]
+    let logs: [DoseLog]
     @Environment(\.dismiss) private var dismiss
     @State private var selectedDay: Date
 
-    init(protocols: [CompoundProtocol], initialDay: Date) {
+    init(protocols: [CompoundProtocol], logs: [DoseLog], initialDay: Date) {
         self.protocols = protocols
+        self.logs = logs
         _selectedDay = State(initialValue: Calendar.current.startOfDay(for: initialDay))
     }
 
     private var doses: [(CompoundProtocol, Date)] {
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: selectedDay)
-        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return [] }
-        let justBefore = start.addingTimeInterval(-1)
-        return protocols.compactMap { p -> (CompoundProtocol, Date)? in
-            guard let next = p.nextDoseDate(from: justBefore),
-                  next >= start, next < end else { return nil }
-            return (p, next)
-        }.sorted { $0.1 < $1.1 }
+        DoseScheduleDayHelper.mergedRows(protocols: protocols, logs: logs, on: selectedDay)
     }
 
     private var dayLabel: String {
@@ -472,7 +530,10 @@ struct DayScheduleSheet: View {
                             .animation(.easeInOut(duration: 0.15), value: dayLabel)
                     }
                     Spacer()
-                    Button { dismiss() } label: {
+                    Button {
+                        Haptics.tap()
+                        dismiss()
+                    } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 24))
                             .foregroundStyle(.white.opacity(0.35))
@@ -485,6 +546,7 @@ struct DayScheduleSheet: View {
                 // Day selector
                 HStack(spacing: 0) {
                     Button {
+                        Haptics.selection()
                         selectedDay = Calendar.current.date(byAdding: .day, value: -1, to: selectedDay) ?? selectedDay
                     } label: {
                         Image(systemName: "chevron.left")
@@ -501,6 +563,7 @@ struct DayScheduleSheet: View {
                         .animation(.easeInOut(duration: 0.15), value: selectedDay)
 
                     Button {
+                        Haptics.selection()
                         selectedDay = Calendar.current.date(byAdding: .day, value: 1, to: selectedDay) ?? selectedDay
                     } label: {
                         Image(systemName: "chevron.right")
@@ -515,15 +578,16 @@ struct DayScheduleSheet: View {
 
                 if doses.isEmpty {
                     Spacer()
-                    Text("No doses scheduled")
+                    Text("Nothing on this day")
                         .font(.system(size: 15))
                         .foregroundStyle(.white.opacity(0.35))
                     Spacer()
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 10) {
-                            ForEach(Array(doses.enumerated()), id: \.offset) { _, pair in
+                            ForEach(doses, id: \.0.id) { pair in
                                 let (p, date) = pair
+                                let done = DoseScheduleDayHelper.isLogged(p, on: selectedDay, logs: logs)
                                 HStack(spacing: 14) {
                                     CategoryIcon(category: p.category, size: 38)
 
@@ -541,7 +605,13 @@ struct DayScheduleSheet: View {
                                     Text(date, format: .dateTime.hour().minute())
                                         .font(.system(size: 18, weight: .bold, design: .rounded))
                                         .foregroundStyle(.white)
+
+                                    Image(systemName: done ? "checkmark.circle.fill" : "circle")
+                                        .font(.system(size: 22))
+                                        .foregroundStyle(done ? Color.green.opacity(0.9) : .white.opacity(0.2))
+                                        .symbolRenderingMode(.hierarchical)
                                 }
+                                .opacity(done ? 0.55 : 1)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 14)
                                 .background(Color.white.opacity(0.06))
@@ -706,7 +776,10 @@ struct PicturesDocumentsTile: View {
     @State private var showLibrary = false
     
     var body: some View {
-        Button { showLibrary = true } label: {
+        Button {
+            Haptics.tap()
+            showLibrary = true
+        } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     TileHeader(icon: "photo.on.rectangle.angled", title: "Pictures & Documents")

@@ -58,6 +58,7 @@ struct LogDoseSheet: View {
                         }
                         
                         Button("Use scheduled dose") {
+                            Haptics.selection()
                             doseAmount = "\(protocol_.doseAmount)"
                             doseUnit = protocol_.doseUnit
                         }
@@ -120,8 +121,11 @@ struct LogDoseSheet: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Cancel") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
@@ -142,6 +146,8 @@ struct LogDoseSheet: View {
             try context.save()
         } catch {
             print("[LogDoseSheet] Failed to save dose log: \(error)")
+            Haptics.error()
+            return
         }
         
         // Low inventory notification (fire-and-forget on MainActor)
@@ -153,7 +159,7 @@ struct LogDoseSheet: View {
             }
         }
         
-        Haptics.notification(.success)
+        Haptics.success()
         dismiss()
     }
 }
@@ -268,8 +274,11 @@ struct EditDoseSheet: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Cancel") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
@@ -291,10 +300,11 @@ struct EditDoseSheet: View {
         log.notes = notes
         do {
             try context.save()
-            Haptics.notification(.success)
+            Haptics.success()
+            dismiss()
         } catch {
             print("[EditDoseSheet] Failed to save edits: \(error)")
+            Haptics.error()
         }
-        dismiss()
     }
 }
