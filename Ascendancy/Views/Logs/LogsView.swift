@@ -78,12 +78,14 @@ struct LogsView: View {
                                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                                 Button(role: .destructive) {
                                                     deleteLog(log)
+                                                    Haptics.warning()
                                                 } label: {
                                                     Label("Delete", systemImage: "trash")
                                                 }
                                             }
                                             .swipeActions(edge: .leading) {
                                                 Button {
+                                                    Haptics.selection()
                                                     selectedLogForEdit = log
                                                 } label: {
                                                     Label("Edit", systemImage: "pencil")

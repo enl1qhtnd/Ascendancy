@@ -203,8 +203,11 @@ struct NewProtocolView: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Cancel") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
@@ -274,15 +277,12 @@ struct NewProtocolView: View {
     }
     
     private func save() {
-        if isEditMode {
-            updateExisting()
-        } else {
-            createNew()
-        }
-        dismiss()
+        let didSave = isEditMode ? updateExisting() : createNew()
+        if didSave { dismiss() }
     }
     
-    private func createNew() {
+    @discardableResult
+    private func createNew() -> Bool {
         let p = CompoundProtocol(
             name: name,
             category: category,
@@ -304,8 +304,11 @@ struct NewProtocolView: View {
         context.insert(p)
         do {
             try context.save()
+            Haptics.success()
         } catch {
             print("[NewProtocolView] Failed to save new protocol: \(error)")
+            Haptics.error()
+            return false
         }
         Task {
             let descriptor = FetchDescriptor<CompoundProtocol>(
@@ -314,10 +317,12 @@ struct NewProtocolView: View {
             let allActive = (try? context.fetch(descriptor)) ?? []
             await NotificationService.shared.scheduleAll(protocols: allActive)
         }
+        return true
     }
     
-    private func updateExisting() {
-        guard let p = protocol_ else { return }
+    @discardableResult
+    private func updateExisting() -> Bool {
+        guard let p = protocol_ else { return false }
         p.name = name
         p.category = category
         p.administrationForm = administrationForm
@@ -336,8 +341,11 @@ struct NewProtocolView: View {
         p.refreshInventoryUnitLabel()
         do {
             try context.save()
+            Haptics.success()
         } catch {
             print("[NewProtocolView] Failed to save protocol update: \(error)")
+            Haptics.error()
+            return false
         }
         // Re-schedule reminders for all active protocols in case times overlap
         Task {
@@ -347,6 +355,7 @@ struct NewProtocolView: View {
             let allActive = (try? context.fetch(descriptor)) ?? []
             await NotificationService.shared.scheduleAll(protocols: allActive)
         }
+        return true
     }
 }
 
@@ -387,7 +396,10 @@ struct FormPicker<T: Hashable & RawRepresentable>: View where T.RawValue == Stri
             
             Menu {
                 ForEach(options, id: \.rawValue) { option in
-                    Button(option.rawValue) { selection = option }
+                    Button(option.rawValue) {
+                        Haptics.selection()
+                        selection = option
+                    }
                 }
             } label: {
                 HStack {
@@ -414,6 +426,7 @@ struct WeekdayPicker: View {
             ForEach(Weekday.allCases) { day in
                 let isSelected = selected.contains(day)
                 Button {
+                    Haptics.selection()
                     if isSelected { selected.remove(day) }
                     else { selected.insert(day) }
                 } label: {

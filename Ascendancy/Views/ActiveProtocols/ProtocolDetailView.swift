@@ -84,15 +84,24 @@ struct ProtocolDetailView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Button("Edit Protocol") { showEditProtocol = true }
+                    Button("Edit Protocol") {
+                        Haptics.tap()
+                        showEditProtocol = true
+                    }
                     if protocol_.category == .peptide {
-                        Button("PepCalc") { showReconCalc = true }
+                        Button("PepCalc") {
+                            Haptics.tap()
+                            showReconCalc = true
+                        }
                     }
                     Divider()
                     if protocol_.status == .archived {
                         Button("Unarchive") { updateStatus(.active) }
                         Divider()
-                        Button("Delete Permanently", role: .destructive) { showDeleteConfirmation = true }
+                        Button("Delete Permanently", role: .destructive) {
+                            Haptics.warning()
+                            showDeleteConfirmation = true
+                        }
                     } else {
                         Button("Pause") { updateStatus(.paused) }
                         Button("Complete") { updateStatus(.completed) }
@@ -123,7 +132,10 @@ struct ProtocolDetailView: View {
             isPresented: $showDeleteConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Delete Permanently", role: .destructive) { deleteProtocol() }
+            Button("Delete Permanently", role: .destructive) {
+                Haptics.emphasize()
+                deleteProtocol()
+            }
         } message: {
             Text("This will permanently delete this protocol and all \(protocol_.doseLogs.count) logged doses. This cannot be undone.")
         }
@@ -216,6 +228,7 @@ struct ProtocolDetailView: View {
             }
 
             Button {
+                Haptics.tap()
                 showRestockInventory = true
             } label: {
                 Label(protocol_.restockButtonTitle, systemImage: "shippingbox.badge.plus")
@@ -375,6 +388,7 @@ struct ProtocolDetailView: View {
     private var actionButtons: some View {
         VStack(spacing: 10) {
             Button {
+                Haptics.tap()
                 showLogDose = true
             } label: {
                 Label("Log Dose", systemImage: "plus.circle.fill")
@@ -388,6 +402,7 @@ struct ProtocolDetailView: View {
             
             if protocol_.category == .peptide {
                 Button {
+                    Haptics.tap()
                     showReconCalc = true
                 } label: {
                     Label("Reconstitution Calculator", systemImage: "flask.fill")
@@ -406,8 +421,10 @@ struct ProtocolDetailView: View {
         protocol_.status = status
         do {
             try context.save()
+            Haptics.selection()
         } catch {
             print("[ProtocolDetailView] Failed to save status update: \(error)")
+            Haptics.error()
         }
     }
     
@@ -417,6 +434,8 @@ struct ProtocolDetailView: View {
             try context.save()
         } catch {
             print("[ProtocolDetailView] Failed to delete protocol: \(error)")
+            Haptics.error()
+            return
         }
         dismiss()
     }
@@ -491,6 +510,7 @@ private struct RestockInventorySheet: View {
                         HStack(spacing: 0) {
                             Button {
                                 if Double(adjustment - 1) + protocol_.inventoryCount >= 0 {
+                                    Haptics.rigidTap()
                                     adjustment -= 1
                                 }
                             } label: {
@@ -526,6 +546,7 @@ private struct RestockInventorySheet: View {
                             Spacer()
 
                             Button {
+                                Haptics.rigidTap()
                                 adjustment += 1
                             } label: {
                                 Image(systemName: "plus.circle.fill")
@@ -598,8 +619,11 @@ private struct RestockInventorySheet: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Cancel") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
@@ -622,8 +646,11 @@ private struct RestockInventorySheet: View {
         }
         do {
             try context.save()
+            Haptics.success()
         } catch {
             print("[ProtocolDetailView] Failed to save inventory restock: \(error)")
+            Haptics.error()
+            return
         }
         dismiss()
     }

@@ -76,6 +76,7 @@ struct MetricsView: View {
                         HStack(spacing: 0) {
                             ForEach(MetricPeriod.allCases, id: \.self) { period in
                                 Button {
+                                    Haptics.selection()
                                     withAnimation(.spring(response: 0.3)) {
                                         selectedPeriod = period
                                     }
@@ -295,6 +296,7 @@ struct MetricsView: View {
                 .foregroundStyle(.white.opacity(0.4))
                 .multilineTextAlignment(.center)
             Button {
+                Haptics.tap()
                 Task { await healthKit.requestAuthorization() }
             } label: {
                 Text("Connect Health")

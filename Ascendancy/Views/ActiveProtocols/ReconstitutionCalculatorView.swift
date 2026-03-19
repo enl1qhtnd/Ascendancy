@@ -164,8 +164,11 @@ struct ReconstitutionCalculatorView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Done") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)

@@ -56,6 +56,7 @@ struct ActiveProtocolsView: View {
                             LazyVStack(spacing: 12) {
                                 ForEach(filtered) { p in
                                     Button {
+                                        Haptics.tap()
                                         selectedProtocol = p
                                     } label: {
                                         ProtocolCard(protocol_: p) {
@@ -80,6 +81,7 @@ struct ActiveProtocolsView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
+                        Haptics.tap()
                         showNewProtocol = true
                     } label: {
                         Image(systemName: "plus")
@@ -127,7 +129,10 @@ struct FilterChip: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button {
+            Haptics.selection()
+            action()
+        } label: {
             Text(label)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(isSelected ? .black : .white.opacity(0.6))

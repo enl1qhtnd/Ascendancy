@@ -52,11 +52,12 @@ struct ProfileSettingsView: View {
                                 }
                             }
                             .onChange(of: selectedPhotoItem) { _, newItem in
-                                Task {
+                                Task { @MainActor in
                                     if let data = try? await newItem?.loadTransferable(type: Data.self),
                                        let uiImage = UIImage(data: data),
                                        let compressed = uiImage.jpegData(compressionQuality: 0.8) {
                                         profileImageData = compressed
+                                        Haptics.success()
                                     }
                                 }
                             }
@@ -98,6 +99,7 @@ struct ProfileSettingsView: View {
                         // Tools
                         settingsSection("Tools") {
                             Button {
+                                Haptics.tap()
                                 showReconCalc = true
                             } label: {
                                 HStack {
@@ -141,9 +143,12 @@ struct ProfileSettingsView: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white)
+                    Button("Done") {
+                        Haptics.tap()
+                        dismiss()
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
