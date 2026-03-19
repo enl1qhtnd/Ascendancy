@@ -7,6 +7,11 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Must match project.yml MARKETING_VERSION / CURRENT_PROJECT_VERSION.
+APP_MARKETING_VERSION = "1.4"
+APP_BUILD_NUMBER = "5"
+
 LOCALES = [
     "de",
     "es",
@@ -1763,7 +1768,21 @@ def build_infoplist() -> dict:
         "pl": "Ascendancy może zapisywać dane zdrowotne, aby śledzić postępy.",
         "tr": "Ascendancy, ilerlemenizi takip etmek için sağlık verisi yazabilir.",
     }
+    def _version_locs(value: str) -> dict:
+        locs = {"en": {"stringUnit": {"state": "new", "value": value}}}
+        for loc in LOCALES:
+            locs[loc] = {"stringUnit": {"state": "translated", "value": value}}
+        return locs
+
     strings = {
+        "CFBundleShortVersionString": {
+            "comment": "Marketing version (sync with project.yml MARKETING_VERSION).",
+            "localizations": _version_locs(APP_MARKETING_VERSION),
+        },
+        "CFBundleVersion": {
+            "comment": "Build number (sync with project.yml CURRENT_PROJECT_VERSION).",
+            "localizations": _version_locs(APP_BUILD_NUMBER),
+        },
         "CFBundleDisplayName": {
             "localizations": {
                 loc: {"stringUnit": {"state": "translated", "value": "Ascendancy"}} for loc in LOCALES
