@@ -15,6 +15,7 @@
 		29CCCCF8EC1DFEEE3E340608 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49F7B62635E513713286AC9 /* UserNotifications.framework */; };
 		2B7FB6DC4064E75E5A37686E /* CompactLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */; };
 		2E173DD1218BF6768F9AB726 /* CompoundProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD62E51AB218CC22A874B27 /* CompoundProtocol.swift */; };
+		2EEDE6DEBB398B413A400017 /* ProtocolSortMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */; };
 		373A8A73E74B2A86BA9A09C9 /* ProtocolDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */; };
 		380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007256FD5EE26B17C2FD75DB /* InventoryService.swift */; };
 		3A1DD03F7D890F2E60784405 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */; };
@@ -59,6 +60,7 @@
 		4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseScheduleDayHelper.swift; sourceTree = "<group>"; };
 		4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyApp.swift; sourceTree = "<group>"; };
 		5B5DD5E683F9C6BC857AA996 /* Ascendancy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ascendancy.entitlements; sourceTree = "<group>"; };
+		5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigration.swift; sourceTree = "<group>"; };
 		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
 		715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 				919C7B9D2F90573DF7222DCB /* NotificationService.swift */,
 				3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */,
 				D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */,
+				5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -346,6 +349,7 @@
 				4B6EDFFB6F3F58F5AFFF1B71 /* ProfileSettingsView.swift in Sources */,
 				B70FD61CBBB7740AC2C5B5C4 /* ProtocolCard.swift in Sources */,
 				373A8A73E74B2A86BA9A09C9 /* ProtocolDetailView.swift in Sources */,
+				2EEDE6DEBB398B413A400017 /* ProtocolSortMigration.swift in Sources */,
 				DB395041AA1DF932A7F85CE8 /* ReconstitutionCalculatorView.swift in Sources */,
 				EA5AEF0C13ECA24026A7E1D9 /* SampleData.swift in Sources */,
 				BC2116C17DF473527B482566 /* StableLevelsRow.swift in Sources */,

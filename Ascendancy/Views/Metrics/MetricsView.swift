@@ -3,7 +3,10 @@ import SwiftData
 
 struct MetricsView: View {
     @StateObject private var healthKit = HealthKitService.shared
-    @Query(filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" })
+    @Query(
+        filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" },
+        sort: CompoundProtocol.listSortDescriptors
+    )
     private var activeProtocols: [CompoundProtocol]
     
     enum MetricPeriod: String, CaseIterable {

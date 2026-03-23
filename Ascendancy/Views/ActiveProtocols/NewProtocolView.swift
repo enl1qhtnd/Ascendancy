@@ -285,8 +285,16 @@ struct NewProtocolView: View {
         if didSave { dismiss() }
     }
     
+    private func nextSortOrder() -> Int {
+        let descriptor = FetchDescriptor<CompoundProtocol>()
+        let all = (try? context.fetch(descriptor)) ?? []
+        let maxOrder = all.map(\.sortOrder).max() ?? -1
+        return maxOrder + 1
+    }
+    
     @discardableResult
     private func createNew() -> Bool {
+        let nextOrder = nextSortOrder()
         let p = CompoundProtocol(
             name: name,
             category: category,
@@ -303,7 +311,8 @@ struct NewProtocolView: View {
             inventoryCount: NumericInputParser.parse(inventoryCount) ?? 0,
             inventoryLowThreshold: NumericInputParser.parse(inventoryThreshold) ?? 5,
             remindersEnabled: remindersEnabled,
-            formDosage: NumericInputParser.parse(formDosage) ?? 0
+            formDosage: NumericInputParser.parse(formDosage) ?? 0,
+            sortOrder: nextOrder
         )
         context.insert(p)
         do {

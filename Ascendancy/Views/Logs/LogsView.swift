@@ -6,7 +6,8 @@ struct LogsView: View {
     @Query(sort: \DoseLog.timestamp, order: .reverse)
     private var logs: [DoseLog]
     
-    @Query private var protocols: [CompoundProtocol]
+    @Query(sort: CompoundProtocol.listSortDescriptors)
+    private var protocols: [CompoundProtocol]
     
     @State private var searchText = ""
     @State private var selectedProtocolFilter: CompoundProtocol? = nil

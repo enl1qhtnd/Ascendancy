@@ -2,7 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Query(filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" })
+    @Environment(\.modelContext) private var context
+    
+    @Query(
+        filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" },
+        sort: CompoundProtocol.listSortDescriptors
+    )
     private var activeProtocols: [CompoundProtocol]
     
     @State private var selectedTab: Tab = .home
@@ -56,6 +61,9 @@ struct ContentView: View {
         .onAppear {
             setupTabBarAppearance()
             scheduleAllReminders()
+        }
+        .task {
+            ProtocolSortMigration.normalizeIfNeeded(in: context)
         }
     }
     
