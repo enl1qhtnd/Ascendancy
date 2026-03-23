@@ -3,7 +3,10 @@ import SwiftData
 import PhotosUI
 
 struct HomeView: View {
-    @Query(filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" })
+    @Query(
+        filter: #Predicate<CompoundProtocol> { $0.statusRaw == "Active" },
+        sort: CompoundProtocol.listSortDescriptors
+    )
     private var activeProtocols: [CompoundProtocol]
     
     @Query(sort: \DoseLog.timestamp, order: .reverse)

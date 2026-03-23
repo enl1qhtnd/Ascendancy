@@ -47,7 +47,8 @@ enum SampleData {
             halfLifeUnit: .days,
             status: .active,
             inventoryCount: 8.5,
-            inventoryLowThreshold: 2
+            inventoryLowThreshold: 2,
+            sortOrder: 0
         )
         tc.inventoryUnitLabel = "mL"
         
@@ -72,7 +73,8 @@ enum SampleData {
             halfLifeUnit: .hours,
             status: .active,
             inventoryCount: 4500,
-            inventoryLowThreshold: 1000
+            inventoryLowThreshold: 1000,
+            sortOrder: 1
         )
         bpc.inventoryUnitLabel = "mcg"
         
@@ -99,7 +101,8 @@ enum SampleData {
             halfLifeUnit: .hours,
             status: .active,
             inventoryCount: 46,
-            inventoryLowThreshold: 10
+            inventoryLowThreshold: 10,
+            sortOrder: 2
         )
         
         // 4. Semaglutide - Medication
@@ -123,7 +126,8 @@ enum SampleData {
             halfLifeUnit: .days,
             status: .active,
             inventoryCount: 3.5,
-            inventoryLowThreshold: 1.0
+            inventoryLowThreshold: 1.0,
+            sortOrder: 3
         )
         sem.inventoryUnitLabel = "mL"
         
@@ -142,7 +146,8 @@ enum SampleData {
             halfLifeUnit: .minutes,
             status: .paused,
             inventoryCount: 2000,
-            inventoryLowThreshold: 300
+            inventoryLowThreshold: 300,
+            sortOrder: 4
         )
         ser.inventoryUnitLabel = "mcg"
         

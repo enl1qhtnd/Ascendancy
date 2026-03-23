@@ -2,12 +2,12 @@ import SwiftUI
 import SwiftData
 
 struct ActiveProtocolsView: View {
-    @Query private var protocols: [CompoundProtocol]
+    @Query(sort: CompoundProtocol.listSortDescriptors)
+    private var protocols: [CompoundProtocol]
     @Environment(\.modelContext) private var context
     
     @State private var showNewProtocol = false
     @State private var selectedFilter: FilterOption = .all
-    @State private var selectedProtocol: CompoundProtocol? = nil
     @State private var protocolToLog: CompoundProtocol? = nil
     
     enum FilterOption: String, CaseIterable {
@@ -55,15 +55,7 @@ struct ActiveProtocolsView: View {
                         ScrollView(showsIndicators: false) {
                             LazyVStack(spacing: 12) {
                                 ForEach(filtered) { p in
-                                    Button {
-                                        Haptics.tap()
-                                        selectedProtocol = p
-                                    } label: {
-                                        ProtocolCard(protocol_: p) {
-                                            protocolToLog = p
-                                        }
-                                    }
-                                    .buttonStyle(.plain)
+                                    protocolRow(p)
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -98,9 +90,56 @@ struct ActiveProtocolsView: View {
             .sheet(item: $protocolToLog) { p in
                 LogDoseSheet(protocol_: p)
             }
-            .navigationDestination(item: $selectedProtocol) { p in
-                ProtocolDetailView(protocol_: p)
+            .navigationDestination(for: UUID.self) { id in
+                if let p = protocols.first(where: { $0.id == id }) {
+                    ProtocolDetailView(protocol_: p)
+                }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func protocolRow(_ p: CompoundProtocol) -> some View {
+        let link = NavigationLink(value: p.id) {
+            ProtocolCard(protocol_: p) {
+                protocolToLog = p
+            }
+        }
+        .buttonStyle(.plain)
+        
+        if selectedFilter == .all {
+            link
+                .draggable(p.id.uuidString)
+                .dropDestination(for: String.self) { items, _ in
+                    guard let s = items.first,
+                          let draggedId = UUID(uuidString: s),
+                          draggedId != p.id else { return false }
+                    applyReorder(draggedId: draggedId, targetId: p.id)
+                    return true
+                }
+        } else {
+            link
+        }
+    }
+    
+    private func applyReorder(draggedId: UUID, targetId: UUID) {
+        guard draggedId != targetId else { return }
+        var ids = protocols.map(\.id)
+        guard let from = ids.firstIndex(of: draggedId), let to = ids.firstIndex(of: targetId) else { return }
+        ids.remove(at: from)
+        let insertAt = from < to ? to - 1 : to
+        ids.insert(draggedId, at: insertAt)
+        let orderById = Dictionary(uniqueKeysWithValues: ids.enumerated().map { ($0.element, $0.offset) })
+        for proto in protocols {
+            if let o = orderById[proto.id] {
+                proto.sortOrder = o
+            }
+        }
+        do {
+            try context.save()
+            Haptics.selection()
+        } catch {
+            print("[ActiveProtocolsView] reorder save failed: \(error)")
         }
     }
     

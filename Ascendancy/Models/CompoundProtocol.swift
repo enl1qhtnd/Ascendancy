@@ -253,6 +253,9 @@ final class CompoundProtocol {
     // Amount per form (e.g. 40mg per vial)
     var formDosage: Double = 0.0
     
+    /// User-defined list order (lower = earlier). Renumbered by migration when needed.
+    var sortOrder: Int = 0
+    
     @Relationship(deleteRule: .cascade)
     var doseLogs: [DoseLog] = []
     
@@ -272,7 +275,8 @@ final class CompoundProtocol {
         inventoryCount: Double = 0,
         inventoryLowThreshold: Double = 5,
         remindersEnabled: Bool = true,
-        formDosage: Double = 0.0
+        formDosage: Double = 0.0,
+        sortOrder: Int = 0
     ) {
         self.id = UUID()
         self.name = name
@@ -291,6 +295,7 @@ final class CompoundProtocol {
         self.inventoryUnitLabel = administrationForm.inventoryPluralLabel
         self.remindersEnabled = remindersEnabled
         self.formDosage = formDosage
+        self.sortOrder = sortOrder
         do {
             self.scheduleData = try JSONEncoder().encode(schedule)
         } catch {
@@ -473,4 +478,12 @@ final class CompoundProtocol {
     func refreshInventoryUnitLabel() {
         inventoryUnitLabel = administrationForm.inventoryPluralLabel
     }
+}
+
+extension CompoundProtocol {
+    /// Stable ordering for lists: user order, then name.
+    static let listSortDescriptors: [SortDescriptor<CompoundProtocol>] = [
+        SortDescriptor(\CompoundProtocol.sortOrder),
+        SortDescriptor(\CompoundProtocol.name)
+    ]
 }
