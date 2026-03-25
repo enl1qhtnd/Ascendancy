@@ -395,6 +395,43 @@ final class CompoundProtocol {
                             second: 0, of: base) ?? base
         }
 
+        // Interval-based schedules stay anchored to the protocol start date so
+        // edited or incorrectly logged doses do not shift future scheduled times.
+        func nextAnchoredIntervalDate(intervalDays: Int) -> Date? {
+            let interval = max(1, intervalDays)
+            let anchor = applyDoseTime(to: startDate)
+            if anchor > date { return anchor }
+
+            let anchorDay = cal.startOfDay(for: anchor)
+            let queryDay = cal.startOfDay(for: date)
+            let daysSinceAnchor = cal.dateComponents([.day], from: anchorDay, to: queryDay).day ?? 0
+            let intervalsElapsed = max(0, daysSinceAnchor / interval)
+            var candidate = cal.date(byAdding: .day, value: intervalsElapsed * interval, to: anchor) ?? anchor
+
+            if candidate <= date {
+                candidate = cal.date(byAdding: .day, value: interval, to: candidate) ?? candidate
+            }
+            return candidate
+        }
+
+        func nextAnchoredWeeklySlot(timesPerWeek: Int) -> Date? {
+            let anchor = applyDoseTime(to: startDate)
+            if anchor > date { return anchor }
+
+            let clampedTimesPerWeek = max(1, timesPerWeek)
+            let intervalSeconds = (7.0 / Double(clampedTimesPerWeek)) * 86400.0
+            let secondsSinceAnchor = date.timeIntervalSince(anchor)
+            let nextIntervalIndex = max(0, Int(floor(secondsSinceAnchor / intervalSeconds)) + 1)
+
+            for offset in nextIntervalIndex...(nextIntervalIndex + 365) {
+                guard let candidate = cal.date(byAdding: .second, value: Int(Double(offset) * intervalSeconds), to: anchor) else {
+                    return nil
+                }
+                if candidate > date { return candidate }
+            }
+            return nil
+        }
+
         switch sched.type {
         case .daily:
             var candidate = applyDoseTime(to: date)
@@ -405,19 +442,7 @@ final class CompoundProtocol {
             return candidate
 
         case .everyXDays:
-            // Calculate next dose by advancing from last logged dose (or start date)
-            // by the interval, ensuring the result is always in the future.
-            let base = lastLoggedDate ?? startDate
-            let interval = max(1, sched.intervalDays)
-            var candidate = base
-            // Advance in interval-sized steps until we find a future date
-            for _ in 0..<365 { // safety limit to prevent infinite loop
-                guard let next = cal.date(byAdding: .day, value: interval, to: candidate) else { return nil }
-                candidate = next
-                let result = applyDoseTime(to: candidate)
-                if result > date { return result }
-            }
-            return nil
+            return nextAnchoredIntervalDate(intervalDays: sched.intervalDays)
 
         case .specificWeekdays:
             let targetWeekdays = Set(sched.weekdays.map { $0.rawValue })
@@ -433,45 +458,10 @@ final class CompoundProtocol {
             return nil
 
         case .timesPerWeek:
-            // Distribute doses evenly: e.g., 3x/week → every ~2.33 days, 5x/week → every ~1.4 days
-            let timesPerWeek = max(1, sched.timesPerWeek)
-            let intervalSeconds = (7.0 / Double(timesPerWeek)) * 86400.0
-            let base = lastLoggedDate ?? startDate
-            
-            // Calculate how many intervals have passed since base
-            let secondsSinceBase = date.timeIntervalSince(base)
-            guard secondsSinceBase >= 0 else {
-                // date is before base, return first scheduled dose after base
-                return applyDoseTime(to: base)
-            }
-            
-            // Find the next interval boundary after `date`
-            let intervalsElapsed = floor(secondsSinceBase / intervalSeconds)
-            var nextIntervalIndex = intervalsElapsed + 1
-            
-            // Advance from base by successive intervals until we find a future date
-            for _ in 0..<365 { // safety limit
-                let offsetSeconds = nextIntervalIndex * intervalSeconds
-                guard let nextDate = cal.date(byAdding: .second, value: Int(offsetSeconds), to: base) else { return nil }
-                let result = applyDoseTime(to: nextDate)
-                if result > date { return result }
-                nextIntervalIndex += 1
-            }
-            return nil
+            return nextAnchoredWeeklySlot(timesPerWeek: sched.timesPerWeek)
 
         case .custom:
-            // Custom schedules use the same interval logic as everyXDays,
-            // defaulting to daily if no interval is specified.
-            let base = lastLoggedDate ?? startDate
-            let interval = max(1, sched.intervalDays)
-            var candidate = base
-            for _ in 0..<365 {
-                guard let next = cal.date(byAdding: .day, value: interval, to: candidate) else { return nil }
-                candidate = next
-                let result = applyDoseTime(to: candidate)
-                if result > date { return result }
-            }
-            return nil
+            return nextAnchoredIntervalDate(intervalDays: sched.intervalDays)
         }
     }
 
