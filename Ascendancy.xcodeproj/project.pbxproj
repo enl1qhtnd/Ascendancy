@@ -61,7 +61,7 @@
 		4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyApp.swift; sourceTree = "<group>"; };
 		5B5DD5E683F9C6BC857AA996 /* Ascendancy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ascendancy.entitlements; sourceTree = "<group>"; };
 		5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigration.swift; sourceTree = "<group>"; };
-		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
 		715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		7491664CDAEFC424DA2EA42C /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
@@ -282,8 +282,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = C5D9252B6C7BE813622B0AE5 /* Build configuration list for PBXProject "Ascendancy" */;
 			developmentRegion = en;
@@ -365,6 +363,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = Ascendancy/Ascendancy.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -448,6 +447,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = Ascendancy/Ascendancy.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
