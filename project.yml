@@ -89,10 +89,28 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
 
+  AscendancyTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: AscendancyTests
+    dependencies:
+      - target: Ascendancy
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+        PRODUCT_BUNDLE_IDENTIFIER: de.enl1qhtnd.asce.tests
+
 schemes:
   Ascendancy:
     build:
       targets:
         Ascendancy: all
+        AscendancyTests: testing
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - AscendancyTests
