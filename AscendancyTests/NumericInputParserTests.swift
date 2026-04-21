@@ -40,7 +40,7 @@ final class NumericInputParserTests: XCTestCase {
     }
 
     func test_parse_smallFractionalValue() {
-        XCTAssertEqual(NumericInputParser.parse("0.25"), 0.25, accuracy: 0.0001)
+        XCTAssertEqual(NumericInputParser.parse("0.25"), 0.25)
     }
 
     func test_parse_largeWholeNumber() {

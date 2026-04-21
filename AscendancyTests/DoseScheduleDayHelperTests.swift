@@ -27,12 +27,17 @@ final class DoseScheduleDayHelperTests: XCTestCase {
             doseAmount: 10.0, doseUnit: .mg, schedule: schedule
         )
         context.insert(p)
+        try? context.save()
         return p
     }
 
     func makeLog(for p: CompoundProtocol, on date: Date) -> DoseLog {
         let log = DoseLog(protocol_: p, actualDoseAmount: 10.0, doseUnit: .mg, timestamp: date)
         context.insert(log)
+        // Re-establish the relationship after insertion so SwiftData's backing store
+        // tracks it correctly regardless of when the relationship was first assigned.
+        p.doseLogs.append(log)
+        try? context.save()
         return log
     }
 
