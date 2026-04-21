@@ -35,11 +35,11 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run tests (if any)
+      - name: Run tests
         run: |
           xcodebuild test \
             -project Ascendancy.xcodeproj \
             -scheme Ascendancy \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO || echo "No tests found, skipping"
+            CODE_SIGNING_ALLOWED=NO
