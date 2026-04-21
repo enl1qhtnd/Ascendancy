@@ -67,18 +67,24 @@ final class InventoryServiceTests: XCTestCase {
         XCTAssertEqual(p.inventoryCount, 7.0)
     }
 
-    func test_decrementInventory_syringe_decrementsByDoseAmount() async {
+    func test_decrementInventory_syringe_decrementsByActualDoseAmount() async {
+        // Use distinct values so a regression reading protocol.doseAmount instead of
+        // log.actualDoseAmount would produce a different inventory result.
         let p = makeProtocol(form: .syringe, doseAmount: 2.5, inventory: 10.0)
-        let log = makeLog(for: p, amount: 2.5)
+        let log = makeLog(for: p, amount: 1.5)
         await InventoryService.shared.decrementInventory(for: p, dose: log)
-        XCTAssertEqual(p.inventoryCount, 7.5, accuracy: 0.001)
+        // Should decrement by actualDoseAmount (1.5), NOT protocol.doseAmount (2.5)
+        XCTAssertEqual(p.inventoryCount, 8.5, accuracy: 0.001)
     }
 
-    func test_decrementInventory_custom_decrementsByDoseAmount() async {
+    func test_decrementInventory_custom_decrementsByActualDoseAmount() async {
+        // Use distinct values so a regression reading protocol.doseAmount instead of
+        // log.actualDoseAmount would produce a different inventory result.
         let p = makeProtocol(form: .custom, doseAmount: 3.0, inventory: 12.0)
-        let log = makeLog(for: p, amount: 3.0)
+        let log = makeLog(for: p, amount: 4.0)
         await InventoryService.shared.decrementInventory(for: p, dose: log)
-        XCTAssertEqual(p.inventoryCount, 9.0, accuracy: 0.001)
+        // Should decrement by actualDoseAmount (4.0), NOT protocol.doseAmount (3.0)
+        XCTAssertEqual(p.inventoryCount, 8.0, accuracy: 0.001)
     }
 
     // MARK: - decrementInventory: formDosage path
