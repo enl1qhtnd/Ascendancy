@@ -39,9 +39,14 @@ actor InventoryService {
     func addInventory(to protocol_: CompoundProtocol, amount: Double) {
         protocol_.inventoryCount += amount
     }
+}
 
+// MARK: - Pure Functions (No Actor Isolation Needed)
+
+extension InventoryService {
     /// Compute days of supply remaining
-    func daysOfSupply(for protocol_: CompoundProtocol) -> Double? {
+    /// This is a pure calculation and doesn't need actor isolation
+    nonisolated func daysOfSupply(for protocol_: CompoundProtocol) -> Double? {
         let sched = protocol_.schedule
         let dosesPerDay: Double
 

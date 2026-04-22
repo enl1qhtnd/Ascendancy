@@ -5,9 +5,9 @@ import SwiftUI
 struct WeekDotRow: View {
     let logs: [DoseLog]
     let protocols: [CompoundProtocol]
-    
+
     private let calendar = Calendar.current
-    
+
     var weekDays: [Date] {
         let today = calendar.startOfDay(for: Date())
         let weekday = calendar.component(.weekday, from: today) // 1=Sun
@@ -16,16 +16,30 @@ struct WeekDotRow: View {
             calendar.date(byAdding: .day, value: startOffset + $0, to: today)
         }
     }
-    
+
+    // Pre-compute log lookup for better performance
+    private func buildLogLookup() -> [Date: Set<UUID>] {
+        var lookup: [Date: Set<UUID>] = [:]
+        for log in logs {
+            let dayStart = calendar.startOfDay(for: log.timestamp)
+            if let protocolId = log.protocol_?.id {
+                lookup[dayStart, default: []].insert(protocolId)
+            }
+        }
+        return lookup
+    }
+
     var body: some View {
+        let logLookup = buildLogLookup()
+
         HStack(spacing: 0) {
             ForEach(weekDays, id: \.self) { day in
                 VStack(spacing: 5) {
                     Text(dayLabel(day))
                         .font(.system(size: 9, weight: .medium))
                         .foregroundStyle(.white.opacity(0.35))
-                    
-                    let status = dayStatus(day)
+
+                    let status = dayStatus(day, logLookup: logLookup)
                     Circle()
                         .fill(circleColor(status))
                         .frame(width: 24, height: 24)
@@ -59,37 +73,38 @@ struct WeekDotRow: View {
             }
         }
     }
-    
+
     private enum DayStatus {
         case complete, missed, noDose, future
     }
-    
-    private func dayStatus(_ day: Date) -> DayStatus {
+
+    private func dayStatus(_ day: Date, logLookup: [Date: Set<UUID>]) -> DayStatus {
         let today = calendar.startOfDay(for: Date())
         let dayStart = calendar.startOfDay(for: day)
-        
+
         if dayStart > today { return .future }
-        
+
         let activeForDay = protocols.filter { p in
             guard p.status == .active, p.startDate <= day else { return false }
             if let end = p.endDate, calendar.startOfDay(for: end) < dayStart { return false }
             return true
         }
         if activeForDay.isEmpty { return .noDose }
-        
+
         let scheduled = DoseScheduleDayHelper.scheduledRows(protocols: activeForDay, on: day)
         if scheduled.isEmpty {
             return .complete
         }
-        
-        let dayLogs = logs.filter {
-            calendar.startOfDay(for: $0.timestamp) == dayStart
+
+        // Use pre-computed lookup instead of filtering logs
+        let loggedProtocols = logLookup[dayStart] ?? []
+        if loggedProtocols.isEmpty {
+            return dayStart < today ? .missed : .future
         }
-        
-        if dayLogs.isEmpty { return dayStart < today ? .missed : .future }
+
         return .complete
     }
-    
+
     private func circleColor(_ status: DayStatus) -> Color {
         switch status {
         case .complete: return Color.green.opacity(0.8)
@@ -98,11 +113,11 @@ struct WeekDotRow: View {
         case .future: return Color.white.opacity(0.06)
         }
     }
-    
+
     private func dayLabel(_ date: Date) -> String {
         date.formatted(.dateTime.weekday(.narrow))
     }
-    
+
     private func isToday(_ date: Date) -> Bool {
         calendar.isDateInToday(date)
     }

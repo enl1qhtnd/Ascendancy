@@ -241,24 +241,29 @@ final class CompoundProtocol {
     var halfLifeValue: Double = 24.0
     var halfLifeUnitRaw: String = HalfLifeUnit.hours.rawValue
     var statusRaw: String = ProtocolStatus.active.rawValue
-    
+
     // Inventory
     var inventoryCount: Double = 0.0
     var inventoryLowThreshold: Double = 5.0
     var inventoryUnitLabel: String = ""
-    
+
     // Reminders enabled
     var remindersEnabled: Bool = true
-    
+
     // Amount per form (e.g. 40mg per vial)
     var formDosage: Double = 0.0
-    
+
     /// User-defined list order (lower = earlier). Renumbered by migration when needed.
     var sortOrder: Int = 0
-    
+
     @Relationship(deleteRule: .cascade)
     var doseLogs: [DoseLog] = []
-    
+
+    // Cache for decoded schedule
+    private var _cachedSchedule: DoseSchedule?
+    private var _cachedSortedLogs: [DoseLog]?
+    private var _sortedLogsVersion: Int = 0
+
     init(
         name: String,
         category: CompoundCategory,
@@ -298,6 +303,7 @@ final class CompoundProtocol {
         self.sortOrder = sortOrder
         do {
             self.scheduleData = try JSONEncoder().encode(schedule)
+            self._cachedSchedule = schedule
         } catch {
             print("[CompoundProtocol] Failed to encode schedule: \(error)")
             self.scheduleData = nil
@@ -333,17 +339,32 @@ final class CompoundProtocol {
     
     var schedule: DoseSchedule {
         get {
-            guard let data = scheduleData else { return .daily }
+            // Return cached schedule if available
+            if let cached = _cachedSchedule {
+                return cached
+            }
+
+            guard let data = scheduleData else {
+                let defaultSchedule = DoseSchedule.daily
+                _cachedSchedule = defaultSchedule
+                return defaultSchedule
+            }
+
             do {
-                return try JSONDecoder().decode(DoseSchedule.self, from: data)
+                let decoded = try JSONDecoder().decode(DoseSchedule.self, from: data)
+                _cachedSchedule = decoded
+                return decoded
             } catch {
                 print("[CompoundProtocol] Failed to decode schedule: \(error)")
-                return .daily
+                let defaultSchedule = DoseSchedule.daily
+                _cachedSchedule = defaultSchedule
+                return defaultSchedule
             }
         }
         set {
             do {
                 scheduleData = try JSONEncoder().encode(newValue)
+                _cachedSchedule = newValue
             } catch {
                 print("[CompoundProtocol] Failed to encode schedule: \(error)")
             }
@@ -373,7 +394,16 @@ final class CompoundProtocol {
     }
 
     var sortedLogs: [DoseLog] {
-        doseLogs.sorted { $0.timestamp > $1.timestamp }
+        // Cache sorted logs and invalidate when doseLogs changes
+        let currentVersion = doseLogs.count
+        if let cached = _cachedSortedLogs, _sortedLogsVersion == currentVersion {
+            return cached
+        }
+
+        let sorted = doseLogs.sorted { $0.timestamp > $1.timestamp }
+        _cachedSortedLogs = sorted
+        _sortedLogsVersion = currentVersion
+        return sorted
     }
     
     var lastLoggedDate: Date? {
