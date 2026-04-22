@@ -49,10 +49,6 @@ enum PharmacokineticsEngine {
 
         guard windowStart < windowEnd else { return [] }
 
-        // Pre-sort logs once (instead of sorting on every call)
-        let sortedLogs = logs.sorted { $0.timestamp < $1.timestamp }
-        guard !sortedLogs.isEmpty else { return [] }
-
         let totalInterval = windowEnd.timeIntervalSince(windowStart)
         let step = totalInterval / Double(resolution - 1)
 
@@ -63,6 +59,9 @@ enum PharmacokineticsEngine {
 
         // Pre-calculate decay threshold (5-7 half-lives is effectively zero contribution)
         let significantHours = halfLifeHours * 7.0
+
+        // Pre-sort logs once (instead of sorting on every call)
+        let sortedLogs = logs.sorted { $0.timestamp < $1.timestamp }
 
         for i in 0..<resolution {
             let t = windowStart.addingTimeInterval(Double(i) * step)
