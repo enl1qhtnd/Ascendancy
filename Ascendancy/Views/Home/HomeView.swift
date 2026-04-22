@@ -8,31 +8,52 @@ struct HomeView: View {
         sort: CompoundProtocol.listSortDescriptors
     )
     private var activeProtocols: [CompoundProtocol]
-    
+
     @Query(sort: \DoseLog.timestamp, order: .reverse)
     private var allLogs: [DoseLog]
-    
+
     @StateObject private var healthKit = HealthKitService.shared
     @State private var showProfile = false
     @State private var showLogSheet = false
     @State private var selectedProtocolForLog: CompoundProtocol? = nil
-    
+
     @AppStorage("profileImageData") private var profileImageData: Data?
-    
+
     // Cached PK calculation
     @State private var combinedLevelData: [ActiveLevelDataPoint] = []
     @State private var pkRecalcTask: Task<Void, Never>? = nil
-    
+
+    // Track data version to avoid unnecessary recalculations
+    @State private var lastProtocolsHash: Int = 0
+    @State private var lastLogsHash: Int = 0
+
     private func recalculateCombinedLevels() {
-        let pairs = activeProtocols.map { p in (p, p.doseLogs) }
-        combinedLevelData = PharmacokineticsEngine.combinedActiveLevel(
-            protocols: pairs,
-            startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
-            endDate: Date()
-        )
+        // Run in background to avoid blocking UI
+        Task.detached(priority: .userInitiated) {
+            let pairs = activeProtocols.map { p in (p, p.doseLogs) }
+            let newData = PharmacokineticsEngine.combinedActiveLevel(
+                protocols: pairs,
+                startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
+                endDate: Date()
+            )
+            await MainActor.run {
+                combinedLevelData = newData
+            }
+        }
     }
-    
+
     private func schedulePKRecalc() {
+        // Check if data actually changed
+        let protocolsHash = activeProtocols.map { "\($0.id)-\($0.doseLogs.count)" }.joined().hashValue
+        let logsHash = allLogs.prefix(100).map { "\($0.id)-\($0.timestamp)" }.joined().hashValue
+
+        guard protocolsHash != lastProtocolsHash || logsHash != lastLogsHash else {
+            return // No change, skip recalculation
+        }
+
+        lastProtocolsHash = protocolsHash
+        lastLogsHash = logsHash
+
         pkRecalcTask?.cancel()
         pkRecalcTask = Task {
             try? await Task.sleep(for: .milliseconds(300))
@@ -263,19 +284,11 @@ struct NextDoseTile: View {
 
 struct BodyweightTile: View {
     @ObservedObject var healthKit: HealthKitService
-    
-    var trend: Double {
-        guard healthKit.bodyWeightSamples.count >= 7 else { return 0 }
-        let last7 = Array(healthKit.bodyWeightSamples.suffix(7))
-        let first = last7.first?.value ?? 0
-        let last = last7.last?.value ?? 0
-        return last - first
-    }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             TileHeader(icon: "scalemass.fill", title: "Bodyweight")
-            
+
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 2) {
                     if let w = healthKit.latestWeight {
@@ -288,6 +301,7 @@ struct BodyweightTile: View {
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                         HStack(spacing: 3) {
+                            let trend = healthKit.weightTrend7Day
                             Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
@@ -301,9 +315,9 @@ struct BodyweightTile: View {
                             .foregroundStyle(.white.opacity(0.3))
                     }
                 }
-                
+
                 Spacer()
-                
+
                 // Mini sparkline
                 let recent = Array(healthKit.bodyWeightSamples.suffix(21))
                 if !recent.isEmpty {
@@ -603,17 +617,11 @@ struct DayScheduleSheet: View {
 
 struct CompactBodyweightTile: View {
     @ObservedObject var healthKit: HealthKitService
-    
-    var trend: Double {
-        guard healthKit.bodyWeightSamples.count >= 7 else { return 0 }
-        let last7 = Array(healthKit.bodyWeightSamples.suffix(7))
-        return (last7.last?.value ?? 0) - (last7.first?.value ?? 0)
-    }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             TileHeader(icon: "scalemass.fill", title: "Weight")
-            
+
             if let w = healthKit.latestWeight {
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text(w.formatted(.number.precision(.fractionLength(1))))
@@ -623,8 +631,9 @@ struct CompactBodyweightTile: View {
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.white.opacity(0.45))
                 }
-                
+
                 HStack(spacing: 4) {
+                    let trend = healthKit.weightTrend7Day
                     Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
@@ -643,7 +652,7 @@ struct CompactBodyweightTile: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.3))
             }
-            
+
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -656,15 +665,11 @@ struct CompactBodyweightTile: View {
 struct ActiveLevelsTile: View {
     let dataPoints: [ActiveLevelDataPoint]
     let protocols: [CompoundProtocol]
-    
-    var currentPeak: Double {
-        dataPoints.map(\.level).max() ?? 0
-    }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             TileHeader(icon: "waveform.path.ecg", title: "Active Levels")
-            
+
             if protocols.isEmpty {
                 Text("No active protocols")
                     .font(.system(size: 13))
@@ -685,14 +690,14 @@ struct ActiveLevelsTile: View {
                     }
                     Spacer()
                 }
-                
+
                 CompactLineChart(
                     dataPoints: dataPoints,
                     lineColor: Color(white: 0.85),
                     showCurrentDot: true,
                     height: 72
                 )
-                
+
                 // Protocol level dots with stable %
                 HStack(spacing: 8) {
                     ForEach(protocols.prefix(4)) { p in
@@ -716,7 +721,7 @@ struct ActiveLevelsTile: View {
         }
         .glassCard()
     }
-    
+
 }
 
 // MARK: - This Week Tile
