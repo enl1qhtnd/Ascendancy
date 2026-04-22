@@ -25,13 +25,17 @@ private struct PKCacheKey: Hashable {
     }
 }
 
-/// Simple LRU cache for PK calculations
-private actor PKCache {
+/// Simple LRU cache for PK calculations (thread-safe with NSLock)
+private final class PKCache {
     private var cache: [PKCacheKey: [ActiveLevelDataPoint]] = [:]
     private var accessOrder: [PKCacheKey] = []
     private let maxSize = 20
+    private let lock = NSLock()
 
     func get(_ key: PKCacheKey) -> [ActiveLevelDataPoint]? {
+        lock.lock()
+        defer { lock.unlock() }
+
         if let value = cache[key] {
             // Update access order
             accessOrder.removeAll { $0 == key }
@@ -42,6 +46,9 @@ private actor PKCache {
     }
 
     func set(_ key: PKCacheKey, value: [ActiveLevelDataPoint]) {
+        lock.lock()
+        defer { lock.unlock() }
+
         cache[key] = value
         accessOrder.append(key)
 
@@ -53,6 +60,9 @@ private actor PKCache {
     }
 
     func clear() {
+        lock.lock()
+        defer { lock.unlock() }
+
         cache.removeAll()
         accessOrder.removeAll()
     }
@@ -110,10 +120,8 @@ enum PharmacokineticsEngine {
         // Check cache
         if useCache {
             let cacheKey = PKCacheKey(protocol_: protocol_, logs: logs, startDate: windowStart, endDate: windowEnd, resolution: resolution)
-            if let cached = Task { await cache.get(cacheKey) }.result.value {
-                if let result = try? cached.get() {
-                    return result
-                }
+            if let cached = cache.get(cacheKey) {
+                return cached
             }
         }
 
@@ -146,7 +154,7 @@ enum PharmacokineticsEngine {
         // Cache result
         if useCache {
             let cacheKey = PKCacheKey(protocol_: protocol_, logs: logs, startDate: windowStart, endDate: windowEnd, resolution: resolution)
-            Task { await cache.set(cacheKey, value: points) }
+            cache.set(cacheKey, value: points)
         }
 
         return points
@@ -154,7 +162,7 @@ enum PharmacokineticsEngine {
 
     /// Clear the calculation cache (call when protocols or logs are modified)
     static func clearCache() {
-        Task { await cache.clear() }
+        cache.clear()
     }
     
     /// Quick current level snapshot
