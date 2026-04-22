@@ -216,7 +216,12 @@ enum PharmacokineticsEngine {
         logs: [DoseLog]
     ) -> Double? {
         let halfLifeHours = protocol_.halfLifeInHours
-        guard halfLifeHours > 0, !logs.isEmpty else { return nil }
+        guard halfLifeHours > 0 else { return nil }
+
+        // If no logs, current level is 0. Check if already below threshold.
+        if logs.isEmpty {
+            return 0 <= threshold ? 0 : nil
+        }
 
         let kDecay = log(2) / halfLifeHours
         let now = Date()
