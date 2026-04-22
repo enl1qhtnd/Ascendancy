@@ -696,7 +696,7 @@ struct ActiveLevelsTile: View {
                 // Protocol level dots with stable %
                 HStack(spacing: 8) {
                     ForEach(protocols.prefix(4)) { p in
-                        let stable = PharmacokineticsEngine.stableLevelInfo(for: p, logs: p.doseLogs)
+                        let stable = p.cachedStableLevelInfo()
                         HStack(spacing: 4) {
                             Circle()
                                 .fill(p.category.uiColor)
