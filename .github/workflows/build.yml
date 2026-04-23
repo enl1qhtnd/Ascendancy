@@ -43,3 +43,57 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Archive for device
+        run: |
+          xcodebuild archive \
+            -project Ascendancy.xcodeproj \
+            -scheme Ascendancy \
+            -archivePath build/Ascendancy.xcarchive \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Export IPA with timestamp
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          IPA_NAME="Ascendancy_${TIMESTAMP}.ipa"
+
+          # Create export options plist
+          cat > build/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>uploadSymbols</key>
+              <false/>
+              <key>compileBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
+
+          # Export the archive
+          xcodebuild -exportArchive \
+            -archivePath build/Ascendancy.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist build/ExportOptions.plist \
+            -allowProvisioningUpdates
+
+          # Rename the IPA with timestamp
+          mv build/ipa/Ascendancy.ipa "build/ipa/${IPA_NAME}"
+          echo "IPA_NAME=${IPA_NAME}" >> $GITHUB_ENV
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IPA_NAME }}
+          path: build/ipa/${{ env.IPA_NAME }}
+          retention-days: 30
