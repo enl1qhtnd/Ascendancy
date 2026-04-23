@@ -269,16 +269,6 @@ struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-// MARK: - Divider Component
-
-private struct AscendancyDivider: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.08))
-            .frame(height: 1)
-    }
-}
-
 #Preview {
     BackupExportView()
         .preferredColorScheme(.dark)
