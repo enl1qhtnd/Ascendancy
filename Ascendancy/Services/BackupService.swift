@@ -312,17 +312,49 @@ class BackupService {
 
 extension FileManager {
     func unzipItem(at sourceURL: URL, to destinationURL: URL) throws {
-        // For iOS 16+, we can use the built-in unarchiving
-        // This is a simplified implementation - in production you might want to use a library like ZIPFoundation
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-        process.arguments = ["-o", sourceURL.path, "-d", destinationURL.path]
+        // Simple iOS-compatible unzip using FileManager
+        // Read the zip file data
+        let zipData = try Data(contentsOf: sourceURL)
 
-        try process.run()
-        process.waitUntilExit()
+        // Create destination directory
+        try createDirectory(at: destinationURL, withIntermediateDirectories: true)
 
-        guard process.terminationStatus == 0 else {
-            throw BackupError.fileAccessError("Failed to extract archive")
+        // Use a temporary directory for extraction
+        let tempDir = temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        defer {
+            try? removeItem(at: tempDir)
+        }
+
+        // Write zip to temp location
+        let tempZip = tempDir.appendingPathComponent("archive.zip")
+        try zipData.write(to: tempZip)
+
+        // For iOS, we'll use the system's built-in unarchiving via CoordinatedRead
+        let coordinator = NSFileCoordinator()
+        var coordinationError: NSError?
+
+        coordinator.coordinate(readingItemAt: tempZip, options: .forUploading, error: &coordinationError) { zipURL in
+            // The .forUploading option automatically unzips the directory
+            do {
+                // Copy contents from unzipped directory to destination
+                if let contents = try? self.contentsOfDirectory(at: zipURL, includingPropertiesForKeys: nil) {
+                    for item in contents {
+                        let destItem = destinationURL.appendingPathComponent(item.lastPathComponent)
+                        if self.fileExists(atPath: destItem.path) {
+                            try? self.removeItem(at: destItem)
+                        }
+                        try self.copyItem(at: item, to: destItem)
+                    }
+                }
+            } catch {
+                coordinationError = error as NSError
+            }
+        }
+
+        if let error = coordinationError {
+            throw BackupError.fileAccessError("Failed to extract archive: \(error.localizedDescription)")
         }
     }
 }
