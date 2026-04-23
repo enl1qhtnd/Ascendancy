@@ -12,6 +12,7 @@ struct BackupImportView: View {
     @State private var isImporting = false
     @State private var showFilePicker = false
     @State private var selectedFileURL: URL?
+    @State private var didStartSecurityAccess = false
     @State private var backupMetadata: BackupMetadata?
     @State private var mergeStrategy: MergeStrategy = .replaceAll
     @State private var errorMessage: String?
@@ -74,6 +75,10 @@ struct BackupImportView: View {
 
                                 Button("Try Again") {
                                     Haptics.tap()
+                                    if let url = selectedFileURL, didStartSecurityAccess {
+                                        url.stopAccessingSecurityScopedResource()
+                                        didStartSecurityAccess = false
+                                    }
                                     errorMessage = nil
                                     selectedFileURL = nil
                                     backupMetadata = nil
@@ -335,19 +340,19 @@ struct BackupImportView: View {
     }
 
     private func handleFileSelection(result: Result<[URL], Error>) {
-        do {
-            guard let url = try result.get().first else { return }
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
 
-            // Start accessing security-scoped resource
-            guard url.startAccessingSecurityScopedResource() else {
-                errorMessage = "Unable to access the selected file"
-                return
-            }
+            // Must attempt read even when startAccessing returns false (some providers/locations);
+            // only call stop when start succeeded.
+            didStartSecurityAccess = url.startAccessingSecurityScopedResource()
 
+            // Store the URL
             selectedFileURL = url
 
-            // Validate the backup
-            Task {
+            // Validate the backup asynchronously
+            Task { @MainActor in
                 do {
                     let metadata = try await BackupService.shared.validateBackup(at: url)
                     backupMetadata = metadata
@@ -355,10 +360,15 @@ struct BackupImportView: View {
                 } catch {
                     errorMessage = error.localizedDescription
                     Haptics.error()
-                    url.stopAccessingSecurityScopedResource()
+                    if didStartSecurityAccess {
+                        url.stopAccessingSecurityScopedResource()
+                        didStartSecurityAccess = false
+                    }
+                    selectedFileURL = nil
                 }
             }
-        } catch {
+
+        case .failure(let error):
             errorMessage = "Failed to load file: \(error.localizedDescription)"
             Haptics.error()
         }
@@ -382,13 +392,19 @@ struct BackupImportView: View {
                 profileImageData = profile.profileImageData
             }
 
-            url.stopAccessingSecurityScopedResource()
+            if didStartSecurityAccess {
+                url.stopAccessingSecurityScopedResource()
+                didStartSecurityAccess = false
+            }
             importSuccess = true
             Haptics.success()
         } catch {
             errorMessage = error.localizedDescription
             Haptics.error()
-            url.stopAccessingSecurityScopedResource()
+            if didStartSecurityAccess {
+                url.stopAccessingSecurityScopedResource()
+                didStartSecurityAccess = false
+            }
         }
 
         isImporting = false
