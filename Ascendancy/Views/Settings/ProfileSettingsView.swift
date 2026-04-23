@@ -10,6 +10,8 @@ struct ProfileSettingsView: View {
     @State private var notificationsEnabled = true
     @State private var showReconCalc = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
+    @State private var showBackupExport = false
+    @State private var showBackupImport = false
     
     var body: some View {
         NavigationStack {
@@ -96,6 +98,43 @@ struct ProfileSettingsView: View {
                                 .tint(.green)
                         }
                         
+                        // Backup & Restore
+                        settingsSection("Backup & Restore") {
+                            VStack(spacing: 0) {
+                                Button {
+                                    Haptics.tap()
+                                    showBackupExport = true
+                                } label: {
+                                    HStack {
+                                        Label("Export Backup", systemImage: "arrow.down.doc")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundStyle(.white.opacity(0.8))
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(.white.opacity(0.3))
+                                    }
+                                }
+
+                                AscendancyDivider()
+
+                                Button {
+                                    Haptics.tap()
+                                    showBackupImport = true
+                                } label: {
+                                    HStack {
+                                        Label("Import Backup", systemImage: "arrow.up.doc")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundStyle(.white.opacity(0.8))
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(.white.opacity(0.3))
+                                    }
+                                }
+                            }
+                        }
+
                         // Tools
                         settingsSection("Tools") {
                             Button {
@@ -156,6 +195,12 @@ struct ProfileSettingsView: View {
             .sheet(isPresented: $showReconCalc) {
                 ReconstitutionCalculatorView()
             }
+            .sheet(isPresented: $showBackupExport) {
+                BackupExportView()
+            }
+            .sheet(isPresented: $showBackupImport) {
+                BackupImportView()
+            }
         }
     }
     
@@ -195,6 +240,16 @@ struct ProfileSettingsView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(.white.opacity(0.6))
         }
+    }
+}
+
+// MARK: - Divider Component
+
+private struct AscendancyDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.08))
+            .frame(height: 1)
     }
 }
 
