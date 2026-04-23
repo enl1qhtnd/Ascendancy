@@ -476,4 +476,22 @@ extension CompoundProtocol {
         SortDescriptor(\CompoundProtocol.sortOrder),
         SortDescriptor(\CompoundProtocol.name)
     ]
+
+    /// Cached stable level info (recalculated when logs change)
+    private static var stableLevelCache: [UUID: (logsCount: Int, info: StableLevelInfo)] = [:]
+
+    func cachedStableLevelInfo() -> StableLevelInfo {
+        let logsCount = doseLogs.count
+        if let cached = Self.stableLevelCache[id], cached.logsCount == logsCount {
+            return cached.info
+        }
+        let info = PharmacokineticsEngine.stableLevelInfo(for: self, logs: doseLogs)
+        Self.stableLevelCache[id] = (logsCount, info)
+        return info
+    }
+
+    /// Clear the stable level cache for this protocol
+    func clearStableLevelCache() {
+        Self.stableLevelCache.removeValue(forKey: id)
+    }
 }

@@ -9,11 +9,19 @@ struct CompactLineChart: View {
     var showGradient: Bool = true
     var showCurrentDot: Bool = true
     var height: CGFloat = 60
-    
-    var maxLevel: Double {
-        dataPoints.map(\.level).max() ?? 1
+
+    // Pre-computed max level to avoid recalculation on every render
+    private let maxLevel: Double
+
+    init(dataPoints: [ActiveLevelDataPoint], lineColor: Color = .white, showGradient: Bool = true, showCurrentDot: Bool = true, height: CGFloat = 60) {
+        self.dataPoints = dataPoints
+        self.lineColor = lineColor
+        self.showGradient = showGradient
+        self.showCurrentDot = showCurrentDot
+        self.height = height
+        self.maxLevel = dataPoints.map(\.level).max() ?? 1
     }
-    
+
     var body: some View {
         if dataPoints.isEmpty {
             RoundedRectangle(cornerRadius: 8)
@@ -42,7 +50,7 @@ struct CompactLineChart: View {
                         .interpolationMethod(.catmullRom)
                     }
                 }
-                
+
                 ForEach(dataPoints) { point in
                     LineMark(
                         x: .value("Time", point.date),
@@ -52,7 +60,7 @@ struct CompactLineChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 1.5))
                     .interpolationMethod(.catmullRom)
                 }
-                
+
                 if showCurrentDot, let last = dataPoints.last {
                     PointMark(
                         x: .value("Time", last.date),

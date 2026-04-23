@@ -234,4 +234,68 @@ final class PharmacokineticsEngineTests: XCTestCase {
             XCTAssertEqual(s.level, c.level, accuracy: 0.001)
         }
     }
+
+    // MARK: - Caching
+
+    func test_activeLevel_caching_returnsSameResults() {
+        let p = makeProtocol(halfLifeValue: 24)
+        let log = makeLog(for: p, amount: 100.0, hoursAgo: 12)
+        let start = Date().addingTimeInterval(-48 * 3600)
+        let end = Date()
+
+        // First call (cache miss)
+        let result1 = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: true)
+
+        // Second call (cache hit)
+        let result2 = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: true)
+
+        XCTAssertEqual(result1.count, result2.count)
+        for (r1, r2) in zip(result1, result2) {
+            XCTAssertEqual(r1.level, r2.level, accuracy: 0.0001)
+            XCTAssertEqual(r1.date, r2.date)
+        }
+    }
+
+    func test_activeLevel_cacheDisabled_recalculates() {
+        let p = makeProtocol(halfLifeValue: 24)
+        let log = makeLog(for: p, amount: 100.0, hoursAgo: 12)
+        let start = Date().addingTimeInterval(-48 * 3600)
+        let end = Date()
+
+        // Call with cache disabled
+        let result1 = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: false)
+        let result2 = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: false)
+
+        // Results should still be consistent
+        XCTAssertEqual(result1.count, result2.count)
+        for (r1, r2) in zip(result1, result2) {
+            XCTAssertEqual(r1.level, r2.level, accuracy: 0.0001)
+        }
+    }
+
+    func test_clearCache_invalidatesCache() {
+        let p = makeProtocol(halfLifeValue: 24)
+        let log = makeLog(for: p, amount: 100.0, hoursAgo: 12)
+        let start = Date().addingTimeInterval(-48 * 3600)
+        let end = Date()
+
+        // Populate cache
+        let _ = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: true)
+
+        // Clear cache
+        PharmacokineticsEngine.clearCache()
+
+        // Should still work after clearing
+        let result = PharmacokineticsEngine.activeLevel(for: p, logs: [log], startDate: start, endDate: end, useCache: true)
+        XCTAssertFalse(result.isEmpty)
+    }
+
+    func test_hoursUntilBelow_binarySearch_isAccurate() {
+        let p = makeProtocol(halfLifeValue: 24)
+        // Dose of 100 logged just now; should drop below 25 in ~48 hours (2 half-lives)
+        let log = makeLog(for: p, amount: 100.0, hoursAgo: 0)
+        let result = PharmacokineticsEngine.hoursUntilBelow(threshold: 25.0, protocol_: p, logs: [log])
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result!, 48.0, accuracy: 1.0)
+    }
 }
