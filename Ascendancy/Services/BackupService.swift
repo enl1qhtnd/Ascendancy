@@ -275,35 +275,41 @@ class BackupService {
 
         // Use Foundation's Archive API (iOS 16+)
         let coordinator = NSFileCoordinator()
-        var coordinatorError: NSError?
+        var result: Result<Void, Error>?
 
-        coordinator.coordinate(readingItemAt: sourceURL, options: [.forUploading], error: &coordinatorError) { zipURL in
+        coordinator.coordinate(readingItemAt: sourceURL, options: [.forUploading], error: nil) { zipURL in
             do {
                 try FileManager.default.copyItem(at: zipURL, to: destinationURL)
+                result = .success(())
             } catch {
-                coordinatorError = error as NSError
+                result = .failure(error)
             }
         }
 
-        if let error = coordinatorError {
-            throw BackupError.creationFailed("Failed to create ZIP: \(error.localizedDescription)")
+        if let result = result {
+            try result.get()
+        } else {
+            throw BackupError.creationFailed("Failed to create ZIP")
         }
     }
 
     private func unzipFile(at sourceURL: URL, to destinationURL: URL) async throws {
         let coordinator = NSFileCoordinator()
-        var coordinatorError: NSError?
+        var result: Result<Void, Error>?
 
-        coordinator.coordinate(readingItemAt: sourceURL, options: [], error: &coordinatorError) { url in
+        coordinator.coordinate(readingItemAt: sourceURL, options: [], error: nil) { url in
             do {
                 try FileManager.default.unzipItem(at: url, to: destinationURL)
+                result = .success(())
             } catch {
-                coordinatorError = error as NSError
+                result = .failure(error)
             }
         }
 
-        if let error = coordinatorError {
-            throw BackupError.restorationFailed("Failed to extract ZIP: \(error.localizedDescription)")
+        if let result = result {
+            try result.get()
+        } else {
+            throw BackupError.restorationFailed("Failed to extract ZIP")
         }
     }
 }
@@ -333,9 +339,9 @@ extension FileManager {
 
         // For iOS, we'll use the system's built-in unarchiving via CoordinatedRead
         let coordinator = NSFileCoordinator()
-        var coordinationError: NSError?
+        var result: Result<Void, Error>?
 
-        coordinator.coordinate(readingItemAt: tempZip, options: .forUploading, error: &coordinationError) { zipURL in
+        coordinator.coordinate(readingItemAt: tempZip, options: .forUploading, error: nil) { zipURL in
             // The .forUploading option automatically unzips the directory
             do {
                 // Copy contents from unzipped directory to destination
@@ -348,13 +354,16 @@ extension FileManager {
                         try self.copyItem(at: item, to: destItem)
                     }
                 }
+                result = .success(())
             } catch {
-                coordinationError = error as NSError
+                result = .failure(error)
             }
         }
 
-        if let error = coordinationError {
-            throw BackupError.fileAccessError("Failed to extract archive: \(error.localizedDescription)")
+        if let result = result {
+            try result.get()
+        } else {
+            throw BackupError.fileAccessError("Failed to extract archive")
         }
     }
 }
