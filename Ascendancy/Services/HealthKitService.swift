@@ -18,6 +18,30 @@ final class HealthKitService: ObservableObject {
     @Published var latestWeight: Double? = nil
     @Published var weightUnit: String = "kg"
 
+    // Cached computed properties
+    private var cachedWeightTrend: (samplesCount: Int, trend: Double)?
+
+    /// 7-day weight trend (cached)
+    var weightTrend7Day: Double {
+        let currentCount = bodyWeightSamples.count
+
+        // Return cached value if data hasn't changed
+        if let cached = cachedWeightTrend, cached.samplesCount == currentCount {
+            return cached.trend
+        }
+
+        guard bodyWeightSamples.count >= 7 else {
+            cachedWeightTrend = (currentCount, 0)
+            return 0
+        }
+
+        let last7 = Array(bodyWeightSamples.suffix(7))
+        let trend = (last7.last?.value ?? 0) - (last7.first?.value ?? 0)
+
+        cachedWeightTrend = (currentCount, trend)
+        return trend
+    }
+
     // MARK: - Authorization
 
     func requestAuthorization() async {
@@ -44,8 +68,16 @@ final class HealthKitService: ObservableObject {
 
     // MARK: - Fetch All
 
+    /// Fetch all metrics (optimized to fetch body weight first for immediate display)
     func fetchAll() async {
-        async let weight = fetchBodyWeight(days: 90)
+        // Prioritize body weight for HomeView display
+        let w = await fetchBodyWeight(days: 90)
+        await MainActor.run {
+            bodyWeightSamples = w
+            latestWeight = w.last?.value
+        }
+
+        // Fetch remaining metrics in parallel
         async let hr = fetchHeartRate(days: 90)
         async let steps = fetchSteps(days: 90)
         async let fat = fetchBodyFat(days: 90)
@@ -53,17 +85,49 @@ final class HealthKitService: ObservableObject {
         async let heightData = fetchHeight(days: 90)
         async let bmiData = fetchBMI(days: 90)
 
-        let (w, h, s, f, e, hd, b) = await (weight, hr, steps, fat, energy, heightData, bmiData)
+        let (h, s, f, e, hd, b) = await (hr, steps, fat, energy, heightData, bmiData)
         await MainActor.run {
-            bodyWeightSamples = w
             heartRateSamples = h
             stepSamples = s
             bodyFatSamples = f
             activeEnergySamples = e
             heightSamples = hd
             bmiSamples = b
-            latestWeight = w.last?.value
         }
+    }
+
+    /// Fetch specific metric lazily (can be called on demand)
+    func fetchMetric(_ metric: HealthMetric) async {
+        switch metric {
+        case .bodyWeight:
+            let samples = await fetchBodyWeight(days: 90)
+            await MainActor.run {
+                bodyWeightSamples = samples
+                latestWeight = samples.last?.value
+            }
+        case .heartRate:
+            let samples = await fetchHeartRate(days: 90)
+            await MainActor.run { heartRateSamples = samples }
+        case .steps:
+            let samples = await fetchSteps(days: 90)
+            await MainActor.run { stepSamples = samples }
+        case .bodyFat:
+            let samples = await fetchBodyFat(days: 90)
+            await MainActor.run { bodyFatSamples = samples }
+        case .activeEnergy:
+            let samples = await fetchActiveEnergy(days: 90)
+            await MainActor.run { activeEnergySamples = samples }
+        case .height:
+            let samples = await fetchHeight(days: 90)
+            await MainActor.run { heightSamples = samples }
+        case .bmi:
+            let samples = await fetchBMI(days: 90)
+            await MainActor.run { bmiSamples = samples }
+        }
+    }
+
+    enum HealthMetric {
+        case bodyWeight, heartRate, steps, bodyFat, activeEnergy, height, bmi
     }
 
     // MARK: - Body Weight
