@@ -44,56 +44,44 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Archive for device
+      - name: Build and package IPA
         run: |
-          xcodebuild archive \
+          # Build for device (ad-hoc without signing)
+          xcodebuild build \
             -project Ascendancy.xcodeproj \
             -scheme Ascendancy \
-            -archivePath build/Ascendancy.xcarchive \
+            -configuration Release \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Export IPA with timestamp
-        run: |
-          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-          IPA_NAME="Ascendancy_${TIMESTAMP}.ipa"
+          # Get version info from project.yml
+          MARKETING_VERSION=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*"\(.*\)".*/\1/')
+          BUILD_VERSION=$(grep "CURRENT_PROJECT_VERSION:" project.yml | sed 's/.*"\(.*\)".*/\1/')
+          IPA_NAME="Ascendancy_v${MARKETING_VERSION}_b${BUILD_VERSION}.ipa"
 
-          # Create export options plist
-          cat > build/ExportOptions.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>development</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>stripSwiftSymbols</key>
-              <true/>
-              <key>uploadSymbols</key>
-              <false/>
-              <key>compileBitcode</key>
-              <false/>
-          </dict>
-          </plist>
-          EOF
+          # Find the .app bundle
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
 
-          # Export the archive
-          xcodebuild -exportArchive \
-            -archivePath build/Ascendancy.xcarchive \
-            -exportPath build/ipa \
-            -exportOptionsPlist build/ExportOptions.plist \
-            -allowProvisioningUpdates
+          # Create Payload directory structure for IPA
+          mkdir -p build/ipa/Payload
+          cp -r "$APP_PATH" build/ipa/Payload/
 
-          # Rename the IPA with timestamp
-          mv build/ipa/Ascendancy.ipa "build/ipa/${IPA_NAME}"
+          # Create the IPA (which is just a zip file)
+          cd build/ipa
+          zip -r "$IPA_NAME" Payload
+          cd ../..
+
+          # Move IPA to a clean location
+          mv "build/ipa/$IPA_NAME" "build/$IPA_NAME"
+
           echo "IPA_NAME=${IPA_NAME}" >> $GITHUB_ENV
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IPA_NAME }}
-          path: build/ipa/${{ env.IPA_NAME }}
+          path: build/${{ env.IPA_NAME }}
           retention-days: 30
