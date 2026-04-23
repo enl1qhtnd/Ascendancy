@@ -114,6 +114,7 @@ struct ProfileSettingsView: View {
                                             .font(.system(size: 12))
                                             .foregroundStyle(.white.opacity(0.3))
                                     }
+                                    .padding(.vertical, 12)
                                 }
 
                                 AscendancyDivider()
@@ -131,6 +132,7 @@ struct ProfileSettingsView: View {
                                             .font(.system(size: 12))
                                             .foregroundStyle(.white.opacity(0.3))
                                     }
+                                    .padding(.vertical, 12)
                                 }
                             }
                         }
@@ -150,6 +152,7 @@ struct ProfileSettingsView: View {
                                         .font(.system(size: 12))
                                         .foregroundStyle(.white.opacity(0.3))
                                 }
+                                .padding(.vertical, 12)
                             }
                         }
                         
