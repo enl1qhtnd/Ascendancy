@@ -98,41 +98,38 @@ struct ProfileSettingsView: View {
                                 .tint(.green)
                         }
                         
-                        // Backup & Restore
-                        settingsSection("Backup & Restore") {
-                            VStack(spacing: 0) {
-                                Button {
-                                    Haptics.tap()
-                                    showBackupExport = true
-                                } label: {
-                                    HStack {
-                                        Label("Export Backup", systemImage: "arrow.down.doc")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundStyle(.white.opacity(0.8))
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 12))
-                                            .foregroundStyle(.white.opacity(0.3))
-                                    }
-                                    .padding(.vertical, 12)
+                        // Export Backup
+                        settingsSection("Export Backup") {
+                            Button {
+                                Haptics.tap()
+                                showBackupExport = true
+                            } label: {
+                                HStack {
+                                    Label("Export Backup", systemImage: "arrow.down.doc")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundStyle(.white.opacity(0.8))
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.white.opacity(0.3))
                                 }
+                            }
+                        }
 
-                                AscendancyDivider()
-
-                                Button {
-                                    Haptics.tap()
-                                    showBackupImport = true
-                                } label: {
-                                    HStack {
-                                        Label("Import Backup", systemImage: "arrow.up.doc")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundStyle(.white.opacity(0.8))
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 12))
-                                            .foregroundStyle(.white.opacity(0.3))
-                                    }
-                                    .padding(.vertical, 12)
+                        // Import Backup
+                        settingsSection("Import Backup") {
+                            Button {
+                                Haptics.tap()
+                                showBackupImport = true
+                            } label: {
+                                HStack {
+                                    Label("Import Backup", systemImage: "arrow.up.doc")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundStyle(.white.opacity(0.8))
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.white.opacity(0.3))
                                 }
                             }
                         }
@@ -152,7 +149,6 @@ struct ProfileSettingsView: View {
                                         .font(.system(size: 12))
                                         .foregroundStyle(.white.opacity(0.3))
                                 }
-                                .padding(.vertical, 12)
                             }
                         }
                         
