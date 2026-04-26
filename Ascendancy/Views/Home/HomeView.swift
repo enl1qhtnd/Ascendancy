@@ -28,11 +28,20 @@ struct HomeView: View {
     @State private var lastLogsHash: Int = 0
 
     private func recalculateCombinedLevels() {
+        let snapshots = activeProtocols.map { protocol_ in
+            PKProtocolSnapshot(
+                startDate: protocol_.startDate,
+                halfLifeHours: protocol_.halfLifeInHours,
+                logs: (protocol_.doseLogs ?? [])
+                    .map { PKDoseLogSnapshot(timestamp: $0.timestamp, actualDoseAmount: $0.actualDoseAmount) }
+                    .sorted { $0.timestamp < $1.timestamp }
+            )
+        }
+
         // Run in background to avoid blocking UI
         Task.detached(priority: .userInitiated) {
-            let pairs = activeProtocols.map { p in (p, p.doseLogs ?? []) }
             let newData = PharmacokineticsEngine.combinedActiveLevel(
-                protocols: pairs,
+                snapshots: snapshots,
                 startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
                 endDate: Date()
             )
