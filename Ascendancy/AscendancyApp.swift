@@ -5,6 +5,8 @@ import SwiftData
 struct AscendancyApp: App {
     
     var sharedModelContainer: ModelContainer = {
+        let isRunningTests = AppDistribution.isRunningTests
+        let supportsCloudKitSync = AppDistribution.supportsCloudKitSync
         let schema = Schema([
             CompoundProtocol.self,
             DoseLog.self,
@@ -12,8 +14,8 @@ struct AscendancyApp: App {
         ])
         let config = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.de.enl1qhtnd.asce")
+            isStoredInMemoryOnly: isRunningTests,
+            cloudKitDatabase: supportsCloudKitSync ? .private("iCloud.de.enl1qhtnd.asce") : .none
         )
         do {
             return try ModelContainer(for: schema, configurations: [config])
