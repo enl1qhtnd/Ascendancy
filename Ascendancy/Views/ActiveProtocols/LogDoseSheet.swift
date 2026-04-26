@@ -20,7 +20,7 @@ struct LogDoseSheet: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 20) {
@@ -84,7 +84,9 @@ struct LogDoseSheet: View {
                             .labelsHidden()
                             .foregroundStyle(.white)
                             .tint(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .glassCard()
                     
                     // Notes
@@ -101,8 +103,6 @@ struct LogDoseSheet: View {
                     }
                     .glassCard()
                     
-                    Spacer()
-                    
                     Button {
                         logDose()
                     } label: {
@@ -118,6 +118,7 @@ struct LogDoseSheet: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
+                .padding(.bottom, 16)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -137,6 +138,8 @@ struct LogDoseSheet: View {
             .toolbarBackground(Color.black, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
+        .presentationDetents([.height(610)])
+        .presentationDragIndicator(.visible)
     }
     
     private func logDose() {
@@ -189,7 +192,7 @@ struct EditDoseSheet: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 Color.black.ignoresSafeArea()
 
                 VStack(spacing: 20) {
@@ -238,7 +241,9 @@ struct EditDoseSheet: View {
                             .labelsHidden()
                             .foregroundStyle(.white)
                             .tint(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .glassCard()
 
                     VStack(alignment: .leading, spacing: 8) {
@@ -253,8 +258,6 @@ struct EditDoseSheet: View {
                             .lineLimit(3)
                     }
                     .glassCard()
-
-                    Spacer()
 
                     Button {
                         saveEdits()
@@ -271,6 +274,7 @@ struct EditDoseSheet: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
+                .padding(.bottom, 16)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -290,6 +294,8 @@ struct EditDoseSheet: View {
             .toolbarBackground(Color.black, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
+        .presentationDetents([.height(580)])
+        .presentationDragIndicator(.visible)
         .onAppear {
             doseAmount = log.actualDoseAmount.formatted(.number.precision(.fractionLength(0...4)).grouping(.never))
             doseUnit = log.doseUnit

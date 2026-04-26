@@ -31,8 +31,8 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     INFOPLIST_FILE: Ascendancy/Info.plist
     PRODUCT_BUNDLE_IDENTIFIER: de.enl1qhtnd.asce
-    MARKETING_VERSION: "1.4"
-    CURRENT_PROJECT_VERSION: "5"
+    MARKETING_VERSION: "1.5"
+    CURRENT_PROJECT_VERSION: "6"
     ENABLE_PREVIEWS: YES
 
 targets:
@@ -56,6 +56,8 @@ targets:
       properties:
         CFBundleName: Ascendancy
         CFBundleDisplayName: Ascendancy
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSHealthShareUsageDescription: "Ascendancy uses Apple Health to display your health metrics in one place."
         NSHealthUpdateUsageDescription: "Ascendancy may write health data to help track your progress."
         LSSupportsOpeningDocumentsInPlace: true

@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Ascendancy Backup" : {
+
+    },
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
       "extractionState" : "extracted_with_value",
@@ -122,97 +125,97 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1.4"
+            "value" : "1.5"
           }
         }
       }
@@ -224,97 +227,97 @@
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5"
+            "value" : "6"
           }
         }
       }

@@ -141,9 +141,9 @@ struct ProfileSettingsView: View {
                         // App info
                         settingsSection("About") {
                             VStack(spacing: 10) {
-                                infoRow(label: "Version", value: "1.4")
+                                infoRow(label: "Version", value: "1.5")
                                 AscendancyDivider()
-                                infoRow(label: "Build", value: "5")
+                                infoRow(label: "Build", value: "6")
                             }
                         }
                         
