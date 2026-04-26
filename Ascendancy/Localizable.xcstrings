@@ -7632,6 +7632,9 @@
         }
       }
     },
+    "Disabled" : {
+
+    },
     "Done" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9436,6 +9439,9 @@
           }
         }
       }
+    },
+    "Enabled" : {
+
     },
     "End date" : {
       "extractionState" : "manual",
@@ -11621,6 +11627,12 @@
           }
         }
       }
+    },
+    "iCloud Sync" : {
+
+    },
+    "Import Backup?" : {
+
     },
     "Inject Volume" : {
       "extractionState" : "manual",
@@ -15612,6 +15624,9 @@
         }
       }
     },
+    "OK" : {
+
+    },
     "Only %@ %@ remaining." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -17796,6 +17811,9 @@
           }
         }
       }
+    },
+    "Replace Data" : {
+
     },
     "Resting Heart Rate" : {
       "extractionState" : "manual",
@@ -21790,6 +21808,9 @@
         }
       }
     },
+    "This replaces protocols, logs, files, and profile settings. iCloud Sync may apply these changes on your other devices." : {
+
+    },
     "This Week" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -23404,6 +23425,9 @@
           }
         }
       }
+    },
+    "Unavailable in sideloaded builds" : {
+
     },
     "unit" : {
       "extractionState" : "manual",
