@@ -1,9 +1,20 @@
 import Foundation
 
-struct ActiveLevelDataPoint: Identifiable {
+struct ActiveLevelDataPoint: Identifiable, Sendable {
     let id = UUID()
     let date: Date
     let level: Double   // Normalized concentration (arbitrary units from dose)
+}
+
+struct PKDoseLogSnapshot: Sendable {
+    let timestamp: Date
+    let actualDoseAmount: Double
+}
+
+struct PKProtocolSnapshot: Sendable {
+    let startDate: Date
+    let halfLifeHours: Double
+    let logs: [PKDoseLogSnapshot]
 }
 
 // MARK: - Performance Cache
@@ -244,6 +255,45 @@ enum PharmacokineticsEngine {
                 let kDecay = log(2) / halfLifeHours
 
                 for entry in logs {
+                    guard entry.timestamp <= t else { break }
+                    let hoursSinceDose = t.timeIntervalSince(entry.timestamp) / 3600.0
+                    totalLevel += entry.actualDoseAmount * exp(-kDecay * hoursSinceDose)
+                }
+            }
+
+            combined.append(ActiveLevelDataPoint(date: t, level: totalLevel))
+        }
+
+        return combined
+    }
+
+    static func combinedActiveLevel(
+        snapshots: [PKProtocolSnapshot],
+        startDate: Date? = nil,
+        endDate: Date = Date(),
+        resolution: Int = 120
+    ) -> [ActiveLevelDataPoint] {
+        guard !snapshots.isEmpty else { return [] }
+
+        let windowStart = startDate ?? snapshots.map(\.startDate).min() ?? endDate.addingTimeInterval(-30 * 86400)
+        let windowEnd = endDate
+        guard windowStart < windowEnd else { return [] }
+
+        let totalInterval = windowEnd.timeIntervalSince(windowStart)
+        let step = totalInterval / Double(resolution - 1)
+
+        var combined = [ActiveLevelDataPoint]()
+        combined.reserveCapacity(resolution)
+
+        for i in 0..<resolution {
+            let t = windowStart.addingTimeInterval(Double(i) * step)
+            var totalLevel: Double = 0
+
+            for snapshot in snapshots {
+                guard snapshot.halfLifeHours > 0 else { continue }
+                let kDecay = log(2) / snapshot.halfLifeHours
+
+                for entry in snapshot.logs {
                     guard entry.timestamp <= t else { break }
                     let hoursSinceDose = t.timeIntervalSince(entry.timestamp) / 3600.0
                     totalLevel += entry.actualDoseAmount * exp(-kDecay * hoursSinceDose)
