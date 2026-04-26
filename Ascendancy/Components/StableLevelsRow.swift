@@ -7,6 +7,10 @@ struct StableLevelsRow: View {
     var color: Color = .white
     
     private var barFraction: Double { info.percentage / 100.0 }
+
+    private func percentText(_ percentage: Double) -> String {
+        (percentage / 100.0).formatted(.percent.precision(.fractionLength(0)))
+    }
     
     /// Friendly label for how far along (e.g. "2.3 half-lives elapsed")
     private var subtitleText: String {
@@ -36,7 +40,7 @@ struct StableLevelsRow: View {
                 
                 // Percentage badge
                 HStack(spacing: 3) {
-                    Text("\(Int(info.percentage.rounded()))%")
+                    Text(percentText(info.percentage))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundStyle(info.isStable ? color : .white)
                     
@@ -80,23 +84,26 @@ struct StableLevelsRow: View {
             
             // Tick labels
             HStack {
-                Text(catalogKey: "0%")
+                Text(percentText(0))
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                 Spacer()
-                Text(catalogKey: "50%")
+                Text(percentText(50))
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                     .offset(x: 4)    // align under 50% tick
                 Spacer()
-                Text(catalogKey: "75%")
+                Text(percentText(75))
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.2))
                 Spacer()
-                Text(catalogKey: "Stable\n≥97%")
-                    .font(.system(size: 9))
-                    .foregroundStyle(info.isStable ? color.opacity(0.7) : .white.opacity(0.2))
-                    .multilineTextAlignment(.trailing)
+                VStack(alignment: .trailing, spacing: 0) {
+                    Text(catalogKey: "Stable")
+                    Text("≥ \(percentText(97))")
+                }
+                .font(.system(size: 9))
+                .foregroundStyle(info.isStable ? color.opacity(0.7) : .white.opacity(0.2))
+                .multilineTextAlignment(.trailing)
             }
             
             Text(subtitleText)

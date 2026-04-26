@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -287,10 +288,7 @@ KEYS = [
     "+%lld more",
     "%lldd",
     "e.g. BPC-157",
-    "0%",
-    "50%",
-    "75%",
-    "Stable\n≥97%",
+    "Stable",
     "%@ · %lld/%lld",
     "today",
     "%lld days",
@@ -312,6 +310,10 @@ def merge_locale_dicts(*dicts: dict[str, str]) -> dict[str, str]:
     for d in dicts:
         m.update(d)
     return m
+
+
+def symbol_collision_key(key: str) -> str:
+    return re.sub(r"[^0-9a-z]+", "", key.lower())
 
 
 # Shared translations: European + Asian + RTL coverage; falls back to English key.
@@ -515,10 +517,7 @@ DE = {
     "+%lld more": "+%lld weitere",
     "%lldd": "%lldT",
     "e.g. BPC-157": "z. B. BPC-157",
-    "0%": "0 %",
-    "50%": "50 %",
-    "75%": "75 %",
-    "Stable\n≥97%": "Stabil\n≥97 %",
+    "Stable": "Stabil",
     "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
     "today": "heute",
     "%lld days": "%lld Tage",
@@ -714,10 +713,7 @@ ES = {
     "+%lld more": "+%lld más",
     "%lldd": "%lld d",
     "e.g. BPC-157": "p. ej., BPC-157",
-    "0%": "0 %",
-    "50%": "50 %",
-    "75%": "75 %",
-    "Stable\n≥97%": "Estable\n≥97 %",
+    "Stable": "Estable",
     "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
     "today": "hoy",
     "%lld days": "%lld días",
@@ -909,10 +905,7 @@ FR = {
     "+%lld more": "+%lld de plus",
     "%lldd": "%lld j",
     "e.g. BPC-157": "p. ex. BPC-157",
-    "0%": "0 %",
-    "50%": "50 %",
-    "75%": "75 %",
-    "Stable\n≥97%": "Stable\n≥97 %",
+    "Stable": "Stable",
     "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
     "today": "aujourd’hui",
     "%lld days": "%lld jours",
@@ -1104,19 +1097,14 @@ IT = {
     "+%lld more": "+%lld in più",
     "%lldd": "%lldg",
     "e.g. BPC-157": "es. BPC-157",
-    "0%": "0 %",
-    "50%": "50 %",
-    "75%": "75 %",
-    "Stable\n≥97%": "Stabile\n≥97 %",
+    "Stable": "Stabile",
     "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
     "today": "oggi",
     "%lld days": "%lld giorni",
     "%lld compounds": "%lld composti",
 }
 
-JA = merge_locale_dicts(
-    {k: ES.get(k, k) for k in KEYS},
-    {
+JA = {
         "Home": "ホーム",
         "Protocols": "プロトコル",
         "Logs": "ログ",
@@ -1192,20 +1180,14 @@ JA = merge_locale_dicts(
         "+%lld more": "あと+%lld件",
         "%lldd": "%lld日",
         "e.g. BPC-157": "例: BPC-157",
-        "0%": "0%",
-        "50%": "50%",
-        "75%": "75%",
-        "Stable\n≥97%": "安定\n≥97%",
+        "Stable": "安定",
         "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
         "today": "今日",
         "%lld days": "%lld日",
         "%lld compounds": "%lld種",
-    },
-)
+}
 
-KO = merge_locale_dicts(
-    JA,
-    {
+KO = {
         "Home": "홈",
         "Protocols": "프로토콜",
         "Logs": "기록",
@@ -1280,20 +1262,14 @@ KO = merge_locale_dicts(
         "+%lld more": "+%lld개 더",
         "%lldd": "%lld일",
         "e.g. BPC-157": "예: BPC-157",
-        "0%": "0%",
-        "50%": "50%",
-        "75%": "75%",
-        "Stable\n≥97%": "안정\n≥97%",
+        "Stable": "안정",
         "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
         "today": "오늘",
         "%lld days": "%lld일",
         "%lld compounds": "%lld개 성분",
-    },
-)
+}
 
-ZH_HANS = merge_locale_dicts(
-    ES,
-    {
+ZH_HANS = {
         "Home": "主页",
         "Protocols": "方案",
         "Logs": "记录",
@@ -1368,20 +1344,14 @@ ZH_HANS = merge_locale_dicts(
         "+%lld more": "另+%lld项",
         "%lldd": "%lld天",
         "e.g. BPC-157": "例如 BPC-157",
-        "0%": "0%",
-        "50%": "50%",
-        "75%": "75%",
-        "Stable\n≥97%": "稳定\n≥97%",
+        "Stable": "稳定",
         "%@ · %lld/%lld": "%1$@ · %2$lld/%3$lld",
         "today": "今日",
         "%lld days": "%lld天",
         "%lld compounds": "%lld 种",
-    },
-)
+}
 
-ZH_HANT = merge_locale_dicts(
-    ZH_HANS,
-    {
+ZH_HANT = {
         "Home": "主畫面",
         "Protocols": "方案",
         "Logs": "紀錄",
@@ -1403,14 +1373,11 @@ ZH_HANT = merge_locale_dicts(
         "Connect Apple Health": "連接健康",
         "Connect Health": "連接健康",
         "Reconstitution Calculator": "重溶計算機",
-    },
-)
+}
 
-PT_BR = merge_locale_dicts(ES, {"Home": "Início", "Logs": "Registros", "Search logs...": "Buscar registros…", "Metrics": "Métricas"})
+PT_BR = {"Home": "Início", "Logs": "Registros", "Search logs...": "Buscar registros…", "Metrics": "Métricas"}
 
-RU = merge_locale_dicts(
-    DE,
-    {
+RU = {
         "Home": "Главная",
         "Protocols": "Протоколы",
         "Logs": "Журнал",
@@ -1467,12 +1434,9 @@ RU = merge_locale_dicts(
         "Results": "Результаты",
         "Tools": "Инструменты",
         "About": "О приложении",
-    },
-)
+}
 
-AR = merge_locale_dicts(
-    EN := {k: k for k in KEYS},
-    {
+AR = {
         "Home": "الرئيسية",
         "Protocols": "البروتوكولات",
         "Logs": "السجل",
@@ -1512,12 +1476,9 @@ AR = merge_locale_dicts(
         "Time for your scheduled doses": "حان وقت جرعاتك المجدولة",
         "Low Inventory: %@": "مخزون منخفض: %@",
         "Only %@ %@ remaining.": "يتبقى فقط %@ %@.",
-    },
-)
+}
 
-HI = merge_locale_dicts(
-    EN,
-    {
+HI = {
         "Home": "होम",
         "Protocols": "प्रोटोकॉल",
         "Logs": "लॉग",
@@ -1557,12 +1518,9 @@ HI = merge_locale_dicts(
         "No data": "कोई डेटा नहीं",
         "Combined": "संयुक्त",
         "Pictures & Documents": "चित्र और दस्तावेज़",
-    },
-)
+}
 
-NL = merge_locale_dicts(
-    DE,
-    {
+NL = {
         "Home": "Home",
         "Protocols": "Protocollen",
         "Logs": "Logboek",
@@ -1602,12 +1560,9 @@ NL = merge_locale_dicts(
         "No data": "Geen gegevens",
         "Combined": "Gecombineerd",
         "Pictures & Documents": "Foto’s en documenten",
-    },
-)
+}
 
-PL = merge_locale_dicts(
-    EN,
-    {
+PL = {
         "Home": "Strona główna",
         "Protocols": "Protokoły",
         "Logs": "Dziennik",
@@ -1647,12 +1602,9 @@ PL = merge_locale_dicts(
         "No data": "Brak danych",
         "Combined": "Łącznie",
         "Pictures & Documents": "Zdjęcia i dokumenty",
-    },
-)
+}
 
-TR = merge_locale_dicts(
-    DE,
-    {
+TR = {
         "Home": "Ana Sayfa",
         "Protocols": "Protokoller",
         "Logs": "Kayıtlar",
@@ -1692,8 +1644,7 @@ TR = merge_locale_dicts(
         "No data": "Veri yok",
         "Combined": "Birleşik",
         "Pictures & Documents": "Fotoğraflar ve belgeler",
-    },
-)
+}
 
 LOCALE_MAP = {
     "de": merge_locale_dicts({k: k for k in KEYS}, DE),
@@ -1716,12 +1667,21 @@ LOCALE_MAP = {
 
 def build_localizable() -> dict:
     strings: dict = {}
+    seen_symbols: set[str] = set()
     for key in KEYS:
+        symbol_key = symbol_collision_key(key)
+        entry = {"extractionState": "manual"}
+        if symbol_key in seen_symbols:
+            entry["generatesSymbol"] = False
+        else:
+            seen_symbols.add(symbol_key)
+
         locs = {}
         for loc in LOCALES:
             val = LOCALE_MAP[loc].get(key, key)
             locs[loc] = {"stringUnit": {"state": "translated", "value": val}}
-        strings[key] = {"extractionState": "manual", "localizations": locs}
+        entry["localizations"] = locs
+        strings[key] = entry
     return strings
 
 
@@ -1768,6 +1728,13 @@ def build_infoplist() -> dict:
         "pl": "Ascendancy może zapisywać dane zdrowotne, aby śledzić postępy.",
         "tr": "Ascendancy, ilerlemenizi takip etmek için sağlık verisi yazabilir.",
     }
+    def _localized_units(en_value: str, values: dict[str, str] | None = None) -> dict:
+        values = values or {}
+        locs = {"en": {"stringUnit": {"state": "new", "value": en_value}}}
+        for loc in LOCALES:
+            locs[loc] = {"stringUnit": {"state": "translated", "value": values.get(loc, en_value)}}
+        return locs
+
     def _version_locs(value: str) -> dict:
         locs = {"en": {"stringUnit": {"state": "new", "value": value}}}
         for loc in LOCALES:
@@ -1775,6 +1742,21 @@ def build_infoplist() -> dict:
         return locs
 
     strings = {
+        "Ascendancy Backup": {
+            "comment": "Document type name for Ascendancy backup files.",
+            "extractionState": "manual",
+            "localizations": _localized_units("Ascendancy Backup"),
+        },
+        "CFBundleDisplayName": {
+            "comment": "Bundle display name",
+            "extractionState": "manual",
+            "localizations": _localized_units("Ascendancy"),
+        },
+        "CFBundleName": {
+            "comment": "Bundle name",
+            "extractionState": "manual",
+            "localizations": _localized_units("Ascendancy"),
+        },
         "CFBundleShortVersionString": {
             "comment": "Marketing version (sync with project.yml MARKETING_VERSION).",
             "localizations": _version_locs(APP_MARKETING_VERSION),
@@ -1783,22 +1765,13 @@ def build_infoplist() -> dict:
             "comment": "Build number (sync with project.yml CURRENT_PROJECT_VERSION).",
             "localizations": _version_locs(APP_BUILD_NUMBER),
         },
-        "CFBundleDisplayName": {
-            "localizations": {
-                loc: {"stringUnit": {"state": "translated", "value": "Ascendancy"}} for loc in LOCALES
-            }
-        },
         "NSHealthShareUsageDescription": {
             "extractionState": "manual",
-            "localizations": {
-                loc: {"stringUnit": {"state": "translated", "value": share.get(loc, share["en"])}} for loc in LOCALES
-            },
+            "localizations": _localized_units(share["en"], share),
         },
         "NSHealthUpdateUsageDescription": {
             "extractionState": "manual",
-            "localizations": {
-                loc: {"stringUnit": {"state": "translated", "value": update.get(loc, update["en"])}} for loc in LOCALES
-            },
+            "localizations": _localized_units(update["en"], update),
         },
     }
     return {"sourceLanguage": "en", "strings": strings, "version": "1.0"}

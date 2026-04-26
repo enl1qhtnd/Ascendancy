@@ -675,6 +675,10 @@ struct ActiveLevelsTile: View {
     let dataPoints: [ActiveLevelDataPoint]
     let protocols: [CompoundProtocol]
 
+    private func percentText(_ percentage: Double) -> String {
+        (percentage / 100.0).formatted(.percent.precision(.fractionLength(0)))
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             TileHeader(icon: "waveform.path.ecg", title: "Active Levels")
@@ -719,7 +723,7 @@ struct ActiveLevelsTile: View {
                                 .font(.system(size: 10))
                                 .foregroundStyle(.white.opacity(0.5))
                                 .lineLimit(1)
-                            Text("\(Int(stable.percentage.rounded()))%")
+                            Text(percentText(stable.percentage))
                                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                                 .foregroundStyle(stable.isStable ? p.category.uiColor.opacity(0.8) : .white.opacity(0.35))
                         }
