@@ -278,7 +278,7 @@ struct ProfileSettingsView: View {
     private var iCloudSyncRow: some View {
         let supportsCloudKitSync = AppDistribution.supportsCloudKitSync
 
-        HStack {
+        return HStack {
             VStack(alignment: .leading, spacing: 3) {
                 Label("iCloud Sync", systemImage: "icloud.fill")
                     .font(.system(size: 14, weight: .medium))
