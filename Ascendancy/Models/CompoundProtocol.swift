@@ -257,7 +257,7 @@ final class CompoundProtocol {
     var sortOrder: Int = 0
     
     @Relationship(deleteRule: .cascade)
-    var doseLogs: [DoseLog] = []
+    var doseLogs: [DoseLog]? = []
     
     init(
         name: String,
@@ -373,7 +373,7 @@ final class CompoundProtocol {
     }
 
     var sortedLogs: [DoseLog] {
-        doseLogs.sorted { $0.timestamp > $1.timestamp }
+        (doseLogs ?? []).sorted { $0.timestamp > $1.timestamp }
     }
     
     var lastLoggedDate: Date? {
@@ -481,11 +481,12 @@ extension CompoundProtocol {
     private static var stableLevelCache: [UUID: (logsCount: Int, info: StableLevelInfo)] = [:]
 
     func cachedStableLevelInfo() -> StableLevelInfo {
-        let logsCount = doseLogs.count
+        let logs = doseLogs ?? []
+        let logsCount = logs.count
         if let cached = Self.stableLevelCache[id], cached.logsCount == logsCount {
             return cached.info
         }
-        let info = PharmacokineticsEngine.stableLevelInfo(for: self, logs: doseLogs)
+        let info = PharmacokineticsEngine.stableLevelInfo(for: self, logs: logs)
         Self.stableLevelCache[id] = (logsCount, info)
         return info
     }

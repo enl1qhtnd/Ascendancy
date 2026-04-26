@@ -36,7 +36,7 @@ final class DoseScheduleDayHelperTests: XCTestCase {
         context.insert(log)
         // Re-establish the relationship after insertion so SwiftData's backing store
         // tracks it correctly regardless of when the relationship was first assigned.
-        p.doseLogs.append(log)
+        p.doseLogs?.append(log)
         try? context.save()
         return log
     }

@@ -52,7 +52,7 @@ struct MetricsView: View {
     
     private func recalculateCombinedLevels() {
         let startDate = Calendar.current.date(byAdding: .day, value: -periodDays, to: Date())
-        let pairs = activeProtocols.map { ($0, $0.doseLogs) }
+        let pairs = activeProtocols.map { ($0, $0.doseLogs ?? []) }
         combinedLevelData = PharmacokineticsEngine.combinedActiveLevel(protocols: pairs, startDate: startDate)
     }
     
@@ -115,8 +115,9 @@ struct MetricsView: View {
                                 // Per-compound breakdown
                                 VStack(spacing: 12) {
                                     ForEach(activeProtocols) { p in
-                                        let level = PharmacokineticsEngine.currentLevel(for: p, logs: p.doseLogs)
-                                        let stable = PharmacokineticsEngine.stableLevelInfo(for: p, logs: p.doseLogs)
+                                        let logs = p.doseLogs ?? []
+                                        let level = PharmacokineticsEngine.currentLevel(for: p, logs: logs)
+                                        let stable = PharmacokineticsEngine.stableLevelInfo(for: p, logs: logs)
                                         VStack(alignment: .leading, spacing: 6) {
                                             HStack {
                                                 Circle().fill(p.category.uiColor).frame(width: 6, height: 6)

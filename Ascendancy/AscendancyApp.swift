@@ -10,7 +10,11 @@ struct AscendancyApp: App {
             DoseLog.self,
             MediaDocument.self
         ])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let config = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .private("iCloud.de.enl1qhtnd.asce")
+        )
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {

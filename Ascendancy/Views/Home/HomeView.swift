@@ -30,7 +30,7 @@ struct HomeView: View {
     private func recalculateCombinedLevels() {
         // Run in background to avoid blocking UI
         Task.detached(priority: .userInitiated) {
-            let pairs = activeProtocols.map { p in (p, p.doseLogs) }
+            let pairs = activeProtocols.map { p in (p, p.doseLogs ?? []) }
             let newData = PharmacokineticsEngine.combinedActiveLevel(
                 protocols: pairs,
                 startDate: Calendar.current.date(byAdding: .day, value: -14, to: Date()),
@@ -44,7 +44,7 @@ struct HomeView: View {
 
     private func schedulePKRecalc() {
         // Check if data actually changed
-        let protocolsHash = activeProtocols.map { "\($0.id)-\($0.doseLogs.count)" }.joined().hashValue
+        let protocolsHash = activeProtocols.map { "\($0.id)-\($0.doseLogs?.count ?? 0)" }.joined().hashValue
         let logsHash = allLogs.prefix(100).map { "\($0.id)-\($0.timestamp)" }.joined().hashValue
 
         guard protocolsHash != lastProtocolsHash || logsHash != lastLogsHash else {

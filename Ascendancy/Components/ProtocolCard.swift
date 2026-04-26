@@ -5,7 +5,7 @@ struct ProtocolCard: View {
     var onLogDose: (() -> Void)? = nil
     
     var activeLevel: Double {
-        PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs)
+        PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs ?? [])
     }
     
     var daysOfSupply: Double? {
