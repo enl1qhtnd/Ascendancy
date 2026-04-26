@@ -276,15 +276,28 @@ struct ProfileSettingsView: View {
     }
 
     private var iCloudSyncRow: some View {
+        let supportsCloudKitSync = AppDistribution.supportsCloudKitSync
+
         HStack {
-            Label("iCloud Sync", systemImage: "icloud.fill")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.white.opacity(0.8))
+            VStack(alignment: .leading, spacing: 3) {
+                Label("iCloud Sync", systemImage: "icloud.fill")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.white.opacity(supportsCloudKitSync ? 0.8 : 0.35))
+
+                if !supportsCloudKitSync {
+                    Text("Unavailable in sideloaded builds")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.28))
+                }
+            }
+
             Spacer()
-            Text("Enabled")
+
+            Text(supportsCloudKitSync ? "Enabled" : "Disabled")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.green.opacity(0.85))
+                .foregroundStyle(supportsCloudKitSync ? .green.opacity(0.85) : .white.opacity(0.3))
         }
+        .accessibilityElement(children: .combine)
     }
 
     private func exportBackup() {
