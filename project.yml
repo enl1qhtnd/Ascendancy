@@ -58,6 +58,24 @@ targets:
         CFBundleDisplayName: Ascendancy
         NSHealthShareUsageDescription: "Ascendancy uses Apple Health to display your health metrics in one place."
         NSHealthUpdateUsageDescription: "Ascendancy may write health data to help track your progress."
+        LSSupportsOpeningDocumentsInPlace: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Ascendancy Backup
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - de.enl1qhtnd.asce.backup
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: de.enl1qhtnd.asce.backup
+            UTTypeDescription: Ascendancy Backup
+            UTTypeConformsTo:
+              - public.json
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - ascendancybackup
+              public.mime-type:
+                - application/json
+        UIBackgroundModes:
+          - remote-notification
         UILaunchScreen:
           UIColorName: ""
           UIImageName: ""
@@ -78,6 +96,10 @@ targets:
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.access:
           - health-records
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.de.enl1qhtnd.asce
+        com.apple.developer.icloud-services:
+          - CloudKit
     dependencies:
       - sdk: HealthKit.framework
       - sdk: UserNotifications.framework

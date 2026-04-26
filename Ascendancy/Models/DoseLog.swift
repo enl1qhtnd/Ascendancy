@@ -15,11 +15,13 @@ final class DoseLog {
     var protocol_: CompoundProtocol?
     
     init(
-        protocol_: CompoundProtocol,
+        protocol_: CompoundProtocol?,
         actualDoseAmount: Double,
         doseUnit: DoseUnit,
         timestamp: Date = Date(),
-        notes: String = ""
+        notes: String = "",
+        protocolName: String? = nil,
+        protocolCategory: String? = nil
     ) {
         self.id = UUID()
         self.protocol_ = protocol_
@@ -27,8 +29,8 @@ final class DoseLog {
         self.doseUnitRaw = doseUnit.rawValue
         self.timestamp = timestamp
         self.notes = notes
-        self.protocolName = protocol_.name
-        self.protocolCategory = protocol_.categoryRaw
+        self.protocolName = protocolName ?? protocol_?.name ?? ""
+        self.protocolCategory = protocolCategory ?? protocol_?.categoryRaw ?? ""
     }
     
     var doseUnit: DoseUnit {

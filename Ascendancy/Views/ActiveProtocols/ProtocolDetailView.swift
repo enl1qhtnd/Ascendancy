@@ -26,8 +26,9 @@ struct ProtocolDetailView: View {
             endDate: Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date(),
             resolution: 200
         )
-        currentLevel = PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs)
-        stableInfo = PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: protocol_.doseLogs)
+        let logs = protocol_.doseLogs ?? []
+        currentLevel = PharmacokineticsEngine.currentLevel(for: protocol_, logs: logs)
+        stableInfo = PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: logs)
     }
     
     private func schedulePKRecalc() {
@@ -149,14 +150,14 @@ struct ProtocolDetailView: View {
             Text(
                 String(
                     format: String(localized: "This will permanently delete this protocol and all %lld logged doses. This cannot be undone."),
-                    protocol_.doseLogs.count
+                    protocol_.doseLogs?.count ?? 0
                 )
             )
         }
         .task {
             recalculatePK()
         }
-        .onChange(of: protocol_.doseLogs.count) {
+        .onChange(of: protocol_.doseLogs?.count ?? 0) {
             schedulePKRecalc()
         }
     }
@@ -356,7 +357,8 @@ struct ProtocolDetailView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "Dose History")
             
-            if protocol_.doseLogs.isEmpty {
+            let logs = protocol_.doseLogs ?? []
+            if logs.isEmpty {
                 Text("No doses logged yet")
                     .font(.system(size: 13))
                     .foregroundStyle(.white.opacity(0.3))
@@ -374,8 +376,8 @@ struct ProtocolDetailView: View {
                 }
                 .glassCard()
                 
-                if protocol_.doseLogs.count > 8 {
-                    Text(String(format: String(localized: "View all %lld entries in Logs tab"), protocol_.doseLogs.count))
+                if logs.count > 8 {
+                    Text(String(format: String(localized: "View all %lld entries in Logs tab"), logs.count))
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.35))
                         .frame(maxWidth: .infinity, alignment: .center)

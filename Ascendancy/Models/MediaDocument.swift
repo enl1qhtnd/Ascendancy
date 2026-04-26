@@ -4,11 +4,11 @@ import SwiftUI
 
 @Model
 final class MediaDocument {
-    var id: UUID
-    var title: String
+    var id: UUID = UUID()
+    var title: String = "Untitled"
     @Attribute(.externalStorage) var imageData: Data?
     var fileExtension: String?
-    var dateAdded: Date
+    var dateAdded: Date = Date()
     
     init(id: UUID = UUID(), title: String = "Untitled", imageData: Data? = nil, fileExtension: String? = nil, dateAdded: Date = Date()) {
         self.id = id
