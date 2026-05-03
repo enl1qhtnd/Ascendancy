@@ -9,6 +9,9 @@ struct ContentView: View {
         sort: CompoundProtocol.listSortDescriptors
     )
     private var activeProtocols: [CompoundProtocol]
+
+    @Query(sort: \DoseLog.timestamp, order: .reverse)
+    private var allLogs: [DoseLog]
     
     @State private var selectedTab: Tab = .home
     
@@ -55,6 +58,9 @@ struct ContentView: View {
                 }
         }
         .tint(.white)
+        .onChange(of: widgetSnapshotFingerprint) { _, _ in
+            WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
+        }
         .onChange(of: selectedTab) { _, _ in
             Haptics.selection()
         }
@@ -64,7 +70,38 @@ struct ContentView: View {
         }
         .task {
             ProtocolSortMigration.normalizeIfNeeded(in: context)
+            WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
         }
+    }
+
+    private var widgetSnapshotFingerprint: String {
+        let protocolPart = activeProtocols.map { protocol_ in
+            [
+                protocol_.id.uuidString,
+                protocol_.name,
+                protocol_.categoryRaw,
+                protocol_.doseAmount.description,
+                protocol_.doseUnitRaw,
+                protocol_.scheduleData?.base64EncodedString() ?? "",
+                protocol_.startDate.timeIntervalSince1970.description,
+                protocol_.statusRaw,
+                protocol_.inventoryCount.description,
+                protocol_.inventoryLowThreshold.description,
+                protocol_.inventoryUnitLabel,
+                protocol_.remindersEnabled.description,
+                protocol_.sortOrder.description
+            ].joined(separator: ",")
+        }.joined(separator: "|")
+        let logPart = allLogs.prefix(200).map { log in
+            [
+                log.id.uuidString,
+                log.protocol_?.id.uuidString ?? "",
+                log.timestamp.timeIntervalSince1970.description,
+                log.actualDoseAmount.description,
+                log.doseUnitRaw
+            ].joined(separator: ",")
+        }.joined(separator: "|")
+        return protocolPart + "::" + logPart
     }
     
     private func scheduleAllReminders() {

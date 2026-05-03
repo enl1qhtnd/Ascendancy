@@ -102,9 +102,14 @@ targets:
           - iCloud.de.enl1qhtnd.asce
         com.apple.developer.icloud-services:
           - CloudKit
+        com.apple.security.application-groups:
+          - group.de.enl1qhtnd.asce
     dependencies:
+      - target: AscendancyWidget
+        embed: true
       - sdk: HealthKit.framework
       - sdk: UserNotifications.framework
+      - sdk: WidgetKit.framework
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO
@@ -112,6 +117,40 @@ targets:
         CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+
+  AscendancyWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: AscendancyWidget
+        excludes:
+          - Info.plist
+          - AscendancyWidget.entitlements
+      - path: Ascendancy/Shared/AscendancyWidgetShared.swift
+    info:
+      path: AscendancyWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Ascendancy
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: AscendancyWidget/AscendancyWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.de.enl1qhtnd.asce
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: WidgetKit.framework
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+        PRODUCT_BUNDLE_IDENTIFIER: de.enl1qhtnd.asce.widget
+        INFOPLIST_FILE: AscendancyWidget/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
 
   AscendancyTests:
     type: bundle.unit-test
@@ -131,6 +170,7 @@ schemes:
     build:
       targets:
         Ascendancy: all
+        AscendancyWidget: all
         AscendancyTests: testing
     run:
       config: Debug
