@@ -47,9 +47,16 @@ final class HealthKitService: ObservableObject {
     func requestAuthorization() async {
         guard HKHealthStore.isHealthDataAvailable() else { return }
 
+        let writeTypes: Set<HKSampleType> = [
+            HKObjectType.quantityType(forIdentifier: .bodyMass)!,
+            HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!,
+            HKObjectType.quantityType(forIdentifier: .height)!,
+            HKObjectType.quantityType(forIdentifier: .bodyMassIndex)!
+        ]
+
         let readTypes: Set = [
             HKObjectType.quantityType(forIdentifier: .bodyMass)!,
-            HKObjectType.quantityType(forIdentifier: .heartRate)!,
+            HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
             HKObjectType.quantityType(forIdentifier: .stepCount)!,
             HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!,
             HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
@@ -58,7 +65,7 @@ final class HealthKitService: ObservableObject {
         ]
 
         do {
-            try await store.requestAuthorization(toShare: [], read: readTypes)
+            try await store.requestAuthorization(toShare: writeTypes, read: readTypes)
             await MainActor.run { isAuthorized = true }
             await fetchAll()
         } catch {
@@ -138,10 +145,10 @@ final class HealthKitService: ObservableObject {
         return await fetchSamples(type: type, unit: unit, days: days)
     }
 
-    // MARK: - Heart Rate
+    // MARK: - Heart Rate (Resting)
 
     private func fetchHeartRate(days: Int) async -> [HealthMetricPoint] {
-        guard let type = HKQuantityType.quantityType(forIdentifier: .heartRate) else { return [] }
+        guard let type = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else { return [] }
         let unit = HKUnit(from: "count/min")
         return await fetchSamples(type: type, unit: unit, days: days)
     }
