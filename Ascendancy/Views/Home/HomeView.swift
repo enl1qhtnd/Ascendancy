@@ -484,6 +484,13 @@ struct DayScheduleSheet: View {
         DoseScheduleDayHelper.mergedRows(protocols: protocols, logs: logs, on: selectedDay)
     }
 
+    private func actualLog(for p: CompoundProtocol) -> DoseLog? {
+        logs
+            .filter { $0.protocol_?.id == p.id && Calendar.current.isDate($0.timestamp, inSameDayAs: selectedDay) }
+            .sorted { $0.timestamp < $1.timestamp }
+            .last
+    }
+
     private var dayLabel: String {
         let cal = Calendar.current
         if cal.isDateInToday(selectedDay) { return String(localized: "Today") }
@@ -574,8 +581,13 @@ struct DayScheduleSheet: View {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 10) {
                             ForEach(doses, id: \.0.id) { pair in
-                                let (p, date) = pair
+                                let (p, scheduledDate) = pair
                                 let done = DoseScheduleDayHelper.isLogged(p, on: selectedDay, logs: logs)
+                                let logEntry = done ? actualLog(for: p) : nil
+                                let displayTime = logEntry?.timestamp ?? scheduledDate
+                                let displayDose = logEntry.map {
+                                    "\($0.actualDoseAmount.formatted(.number.precision(.fractionLength(0...2)))) \($0.doseUnit.rawValue)"
+                                } ?? "\(p.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(p.doseUnit.rawValue)"
                                 HStack(spacing: 14) {
                                     CategoryIcon(category: p.category, size: 38)
 
@@ -583,14 +595,14 @@ struct DayScheduleSheet: View {
                                         Text(p.name)
                                             .font(.system(size: 15, weight: .semibold))
                                             .foregroundStyle(.white)
-                                        Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(p.doseUnit.rawValue)")
+                                        Text(displayDose)
                                             .font(.system(size: 12, design: .rounded))
                                             .foregroundStyle(.white.opacity(0.5))
                                     }
 
                                     Spacer()
 
-                                    Text(date, format: .dateTime.hour().minute())
+                                    Text(displayTime, format: .dateTime.hour().minute())
                                         .font(.system(size: 18, weight: .bold, design: .rounded))
                                         .foregroundStyle(.white)
 
