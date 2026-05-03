@@ -7,7 +7,7 @@ struct ActiveProtocolsView: View {
     @Environment(\.modelContext) private var context
     
     @State private var showNewProtocol = false
-    @State private var selectedFilter: FilterOption = .all
+    @State private var selectedFilter: FilterOption = .active
     @State private var protocolToLog: CompoundProtocol? = nil
     
     enum FilterOption: String, CaseIterable {
