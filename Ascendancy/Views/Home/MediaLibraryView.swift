@@ -14,6 +14,7 @@ struct MediaLibraryView: View {
     
     // File Picker
     @State private var showFileImporter = false
+    @State private var importErrorMessage: String?
     // Edit Mode
     @State private var isEditing = false
     @State private var selectedIds: Set<UUID> = []
@@ -88,7 +89,10 @@ struct MediaLibraryView: View {
                 Task {
                     do {
                         if let data = try await newItem?.loadTransferable(type: Data.self) {
-                            let doc = MediaDocument(imageData: data, fileExtension: "jpg")
+                            // No Photos-framework access is declared; derive a date-based title
+                            // rather than leaving it as "Untitled".
+                            let title = "Photo - \(Date.now.formatted(date: .abbreviated, time: .omitted))"
+                            let doc = MediaDocument(title: title, imageData: data, fileExtension: "jpg")
                             context.insert(doc)
                             try context.save()
                             selectedItem = nil
@@ -100,54 +104,24 @@ struct MediaLibraryView: View {
                     }
                 }
             }
-            // File Importer
-            .fileImporter(
-                isPresented: $showFileImporter,
-                allowedContentTypes: [.pdf, .jpeg, .png, .text, .plainText],
-                allowsMultipleSelection: false
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    guard let url = urls.first else { return }
-                    // Must attempt read even when startAccessing returns false (some providers/locations);
-                    // only call stop when start succeeded.
-                    let didStartAccess = url.startAccessingSecurityScopedResource()
-                    defer {
-                        if didStartAccess {
-                            url.stopAccessingSecurityScopedResource()
-                        }
-                    }
-                    // Read synchronously while security scope is active; defer runs after this block.
-                    let readResult: Result<(Data, String, String), Error> = {
-                        do {
-                            let data = try Data(contentsOf: url)
-                            let title = url.deletingPathExtension().lastPathComponent
-                            let ext = url.pathExtension.lowercased()
-                            return .success((data, title, ext))
-                        } catch {
-                            return .failure(error)
-                        }
-                    }()
-                    Task { @MainActor in
-                        switch readResult {
-                        case .success(let (data, title, ext)):
-                            do {
-                                let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
-                                context.insert(doc)
-                                try context.save()
-                                Haptics.success()
-                            } catch {
-                                print("[MediaLibraryView] Failed to save imported file: \(error)")
-                                Haptics.error()
-                            }
-                        case .failure(let error):
-                            print("[MediaLibraryView] Failed to read imported file: \(error)")
-                            Haptics.error()
-                        }
-                    }
-                case .failure(let error):
-                    print("Error importing file: \(error.localizedDescription)")
+            // File Importer — uses a custom UIViewControllerRepresentable so we can set
+            // directoryURL to the iCloud Drive root, preventing the picker from defaulting
+            // to the app's iCloud container (which backup pickers use).
+            .background(
+                MediaDocumentPicker(
+                    isPresented: $showFileImporter,
+                    allowedContentTypes: [.pdf, .jpeg, .png, .text, .plainText]
+                ) { url in
+                    importFile(from: url)
                 }
+            )
+            .alert("Import Failed", isPresented: Binding(
+                get: { importErrorMessage != nil },
+                set: { if !$0 { importErrorMessage = nil } }
+            )) {
+                Button("OK") { importErrorMessage = nil }
+            } message: {
+                Text(importErrorMessage ?? "")
             }
             // Photo Picker
             .photosPicker(
@@ -352,7 +326,27 @@ struct MediaLibraryView: View {
     }
     
     // MARK: - Helpers
-    
+
+    /// Reads the file at `url` into a `MediaDocument` and saves it.
+    /// Must be called on the main thread (UIDocumentPickerDelegate callbacks are main-thread).
+    private func importFile(from url: URL) {
+        let didStart = url.startAccessingSecurityScopedResource()
+        defer { if didStart { url.stopAccessingSecurityScopedResource() } }
+        do {
+            let data = try Data(contentsOf: url)
+            let title = url.deletingPathExtension().lastPathComponent
+            let ext = url.pathExtension.lowercased()
+            let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
+            context.insert(doc)
+            try context.save()
+            Haptics.success()
+        } catch {
+            print("[MediaLibraryView] Import failed: \(error)")
+            importErrorMessage = error.localizedDescription
+            Haptics.error()
+        }
+    }
+
     private func deleteSelected() {
         for doc in documents where selectedIds.contains(doc.id) {
             context.delete(doc)
@@ -421,6 +415,81 @@ struct ImagePreviewSheet: View {
                     .background(document.fileExtension == "pdf" ? Color.white.opacity(0.8).clipShape(Capsule()) : Color.clear.clipShape(Capsule()))
                     .padding(.bottom, 40)
             }
+        }
+    }
+}
+
+// MARK: - Media Document Picker (UIViewControllerRepresentable)
+
+/// Wraps `UIDocumentPickerViewController` so we can set `directoryURL` to the generic
+/// iCloud Drive root. This prevents the picker from inheriting the stored "last directory"
+/// that comes from the backup pickers (which use the app's iCloud container).
+private struct MediaDocumentPicker: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    let allowedContentTypes: [UTType]
+    let onPick: (URL) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        // Zero-size host; we present the picker from it when isPresented becomes true.
+        UIViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        if !isPresented {
+            // Dismiss if still presented (e.g. parent programmatically hides).
+            if let picker = context.coordinator.activePicker {
+                picker.dismiss(animated: true)
+                context.coordinator.activePicker = nil
+            }
+            return
+        }
+        guard context.coordinator.activePicker == nil else { return }
+
+        // Defer one runloop so the host UIViewController is fully installed in the window.
+        DispatchQueue.main.async {
+            guard context.coordinator.activePicker == nil else { return }
+
+            let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes)
+            picker.allowsMultipleSelection = false
+            picker.delegate = context.coordinator
+
+            // Point the picker at the generic iCloud Drive root (com~apple~CloudDocs),
+            // which is the parent-folder sibling of the app's iCloud container.
+            // This overrides whatever "last used directory" the system stored for the app,
+            // so the media picker never opens inside the Ascendancy app folder by default.
+            if let appContainer = FileManager.default.url(forUbiquityContainerIdentifier: nil) {
+                let iCloudDriveRoot = appContainer
+                    .deletingLastPathComponent()                          // …/Mobile Documents/
+                    .appendingPathComponent("com~apple~CloudDocs", isDirectory: true)
+                picker.directoryURL = iCloudDriveRoot
+            }
+
+            context.coordinator.activePicker = picker
+            uiViewController.present(picker, animated: true)
+        }
+    }
+
+    // MARK: Coordinator
+
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let parent: MediaDocumentPicker
+        weak var activePicker: UIDocumentPickerViewController?
+
+        init(parent: MediaDocumentPicker) { self.parent = parent }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController,
+                            didPickDocumentsAt urls: [URL]) {
+            activePicker = nil
+            parent.isPresented = false
+            guard let url = urls.first else { return }
+            parent.onPick(url)
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            activePicker = nil
+            parent.isPresented = false
         }
     }
 }
