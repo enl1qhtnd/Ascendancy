@@ -12,6 +12,8 @@
 		0732CC309DB6110209EA57B3 /* PharmacokineticsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */; };
 		16335BC9E4B0CFEDFC9460D2 /* InventoryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5143D96D2D035BC05F8A0702 /* InventoryServiceTests.swift */; };
 		17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA10A4DF8F52F6987FDED74 /* Haptics.swift */; };
+		21911F1C3C784648D3E16705 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 832B19363D9860314C846AFB /* SwiftUI.framework */; };
+		22FD5FA4C8F5E41C22D733A6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E943DE3BA041C48D41E1CB23 /* WidgetKit.framework */; };
 		286C4F6CE9A6DE18F67A0866 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E687B55949AB305F50D6D9 /* ContentView.swift */; };
 		29CCCCF8EC1DFEEE3E340608 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49F7B62635E513713286AC9 /* UserNotifications.framework */; };
 		2B7FB6DC4064E75E5A37686E /* CompactLineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */; };
@@ -24,11 +26,14 @@
 		419802A40D2A48C9DB04C813 /* AscendancyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */; };
 		4B6EDFFB6F3F58F5AFFF1B71 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BA6310E729F2A550463DBF /* ProfileSettingsView.swift */; };
 		51787F8B855F308F09CDDBD6 /* DoseScheduleDayHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EBDDB2AEFCBD0DE2C6CBC47 /* DoseScheduleDayHelperTests.swift */; };
+		54CBC776F6BA791EB1F9BDEB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E943DE3BA041C48D41E1CB23 /* WidgetKit.framework */; };
 		61D14C698656A40E99E542AE /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */; };
 		62D31CFE451B774CA52D54CB /* NumericInputParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */; };
 		6653E0ED655E13F6DA82E973 /* ActiveProtocolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7023DB9310CC4807E12747E /* ActiveProtocolsView.swift */; };
 		6BC35CEE7E081E580742552A /* MediaDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2ADC4DCBCCEF7F9772EA1B /* MediaDocument.swift */; };
 		6C74EFCF6BCDEA76EDCD3E94 /* AppDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB403BEA2972D0A47A6EE70 /* AppDistribution.swift */; };
+		6F87105D4C492BA730060A4E /* AscendancyWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7BCB7852D7B183E789540E33 /* AscendancyWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		72E21929F5A4E6B7A73465B8 /* AscendancyWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB303C8BADD431530DDE28F /* AscendancyWidget.swift */; };
 		8087766E2527E9A40A53F9FF /* BackupServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B0C3DE684D5774D637C756 /* BackupServiceTests.swift */; };
 		82F29BB7C5FA3532FE2F97F7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 3C98F898585CF09A997A2980 /* Localizable.xcstrings */; };
 		83BB10880DFF12EB75256446 /* BackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D4BB9D6878EA201CD9D8EF /* BackupService.swift */; };
@@ -44,8 +49,10 @@
 		BC2116C17DF473527B482566 /* StableLevelsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CC2E4AF72A85A70858AFBE /* StableLevelsRow.swift */; };
 		C342B4DF0B540296A3E33267 /* NumericInputParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55635D5336458AE2E4ACBA28 /* NumericInputParserTests.swift */; };
 		C493D31283F9C8CB9FEA8D9D /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE28E9CCD47FACD9715D659 /* LogsView.swift */; };
+		C4D99B0D86FED9683818C28F /* AscendancyWidgetShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */; };
 		C81AAAD75D7D8407EB7F9DB8 /* CompoundProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DACB7D32AF388822C44CBA2A /* CompoundProtocolTests.swift */; };
 		DB395041AA1DF932A7F85CE8 /* ReconstitutionCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456CAA284E6491C885BD03D /* ReconstitutionCalculatorView.swift */; };
+		DE566F0208C7CCBFD6E1ECBE /* WidgetSnapshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */; };
 		EA5AEF0C13ECA24026A7E1D9 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7491664CDAEFC424DA2EA42C /* SampleData.swift */; };
 		EDC527476581D9EF759666DB /* MetricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2E063B5D552E426D1DB65F /* MetricsView.swift */; };
 		EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89B0BD57D843CD85E9D767F /* HealthKitService.swift */; };
@@ -53,9 +60,17 @@
 		F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E21E1EEBA077B63AA3EF21 /* DoseLog.swift */; };
 		F650C9D7F7116CD30A2243C6 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D9822F41BE6C633EEF926D /* HealthKit.framework */; };
 		F808BE8B61A4C1E934CC73CC /* ProtocolSortMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DF0B30B9BDF831137152559 /* ProtocolSortMigrationTests.swift */; };
+		FD25131C11336AB8318D66DA /* AscendancyWidgetShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B0FB07AC3D354B98581C0398 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 82AC1D2DD86A3716D3737527 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7DDDEB0FB961426F7065E39F;
+			remoteInfo = AscendancyWidget;
+		};
 		C760621D529491F447EDC0BC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 82AC1D2DD86A3716D3737527 /* Project object */;
@@ -65,9 +80,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0E67914524206C635FF471B9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6F87105D4C492BA730060A4E /* AscendancyWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		007256FD5EE26B17C2FD75DB /* InventoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryService.swift; sourceTree = "<group>"; };
-		0090B1793090D09039E40C2B /* AscendancyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AscendancyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0090B1793090D09039E40C2B /* AscendancyTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AscendancyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F8B5F834A6240C13D8455A6 /* WeekDotRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekDotRow.swift; sourceTree = "<group>"; };
 		15B0C3DE684D5774D637C756 /* BackupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupServiceTests.swift; sourceTree = "<group>"; };
 		266B29E6AE254621809FF5E2 /* PharmacokineticsEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PharmacokineticsEngineTests.swift; sourceTree = "<group>"; };
@@ -87,13 +116,17 @@
 		55635D5336458AE2E4ACBA28 /* NumericInputParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericInputParserTests.swift; sourceTree = "<group>"; };
 		5B5DD5E683F9C6BC857AA996 /* Ascendancy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ascendancy.entitlements; sourceTree = "<group>"; };
 		5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigration.swift; sourceTree = "<group>"; };
-		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
+		6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotService.swift; sourceTree = "<group>"; };
+		6FB303C8BADD431530DDE28F /* AscendancyWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyWidget.swift; sourceTree = "<group>"; };
 		715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		7491664CDAEFC424DA2EA42C /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		7BCB7852D7B183E789540E33 /* AscendancyWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AscendancyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BD62E51AB218CC22A874B27 /* CompoundProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompoundProtocol.swift; sourceTree = "<group>"; };
 		7EBDDB2AEFCBD0DE2C6CBC47 /* DoseScheduleDayHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseScheduleDayHelperTests.swift; sourceTree = "<group>"; };
 		816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolDetailView.swift; sourceTree = "<group>"; };
+		832B19363D9860314C846AFB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		86CC2E4AF72A85A70858AFBE /* StableLevelsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StableLevelsRow.swift; sourceTree = "<group>"; };
 		86E13013A319611BDDBCBC28 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		8B2E063B5D552E426D1DB65F /* MetricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsView.swift; sourceTree = "<group>"; };
@@ -105,6 +138,7 @@
 		A89B0BD57D843CD85E9D767F /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		B456CAA284E6491C885BD03D /* ReconstitutionCalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconstitutionCalculatorView.swift; sourceTree = "<group>"; };
 		B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizedStringKey+Catalog.swift"; sourceTree = "<group>"; };
+		BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyWidgetShared.swift; sourceTree = "<group>"; };
 		BC2ADC4DCBCCEF7F9772EA1B /* MediaDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDocument.swift; sourceTree = "<group>"; };
 		BF64565FF22E04CBDDCD7C21 /* AppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon.png; sourceTree = "<group>"; };
 		C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactLineChart.swift; sourceTree = "<group>"; };
@@ -114,23 +148,50 @@
 		DACB7D32AF388822C44CBA2A /* CompoundProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompoundProtocolTests.swift; sourceTree = "<group>"; };
 		DBA10A4DF8F52F6987FDED74 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E69361A890000C4B18E31236 /* NewProtocolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProtocolView.swift; sourceTree = "<group>"; };
+		E943DE3BA041C48D41E1CB23 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		F1DCCE948632457FA826A335 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4BA6310E729F2A550463DBF /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		306C7696BAFB5288D06504AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21911F1C3C784648D3E16705 /* SwiftUI.framework in Frameworks */,
+				22FD5FA4C8F5E41C22D733A6 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC56717430518EC4F8684742 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				F650C9D7F7116CD30A2243C6 /* HealthKit.framework in Frameworks */,
 				29CCCCF8EC1DFEEE3E340608 /* UserNotifications.framework in Frameworks */,
+				54CBC776F6BA791EB1F9BDEB /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1B69726397CEB0E3DB748978 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		2680285692EBB4AF20B711A1 /* AscendancyWidget */ = {
+			isa = PBXGroup;
+			children = (
+				6FB303C8BADD431530DDE28F /* AscendancyWidget.swift */,
+			);
+			path = AscendancyWidget;
+			sourceTree = "<group>";
+		};
 		31346AF244DFA117CE022E9E /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -147,6 +208,7 @@
 			children = (
 				5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */,
 				0090B1793090D09039E40C2B /* AscendancyTests.xctest */,
+				7BCB7852D7B183E789540E33 /* AscendancyWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -166,6 +228,7 @@
 				C99D0B3D94795F971EF786F5 /* Extensions */,
 				31346AF244DFA117CE022E9E /* Models */,
 				D5654A067FA08933B316AB51 /* Services */,
+				1B69726397CEB0E3DB748978 /* Shared */,
 				E4C9EF4267380295BD1FF52F /* Views */,
 			);
 			path = Ascendancy;
@@ -220,6 +283,7 @@
 			children = (
 				52E26BDA6A76B63ED4BFDE06 /* Ascendancy */,
 				DAA5AAA7276CA3414EE7372F /* AscendancyTests */,
+				2680285692EBB4AF20B711A1 /* AscendancyWidget */,
 				E9E590CDD1DE0DA607913138 /* Frameworks */,
 				3467FA9BFBA505F0460C8924 /* Products */,
 			);
@@ -238,6 +302,7 @@
 				3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */,
 				D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */,
 				5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */,
+				6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -281,7 +346,9 @@
 			isa = PBXGroup;
 			children = (
 				49D9822F41BE6C633EEF926D /* HealthKit.framework */,
+				832B19363D9860314C846AFB /* SwiftUI.framework */,
 				D49F7B62635E513713286AC9 /* UserNotifications.framework */,
+				E943DE3BA041C48D41E1CB23 /* WidgetKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -302,6 +369,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		7DDDEB0FB961426F7065E39F /* AscendancyWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5E8C22983CD3A8CF9A3F728A /* Build configuration list for PBXNativeTarget "AscendancyWidget" */;
+			buildPhases = (
+				3DCE844027FC8B1BFF5340F8 /* Sources */,
+				306C7696BAFB5288D06504AF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AscendancyWidget;
+			packageProductDependencies = (
+			);
+			productName = AscendancyWidget;
+			productReference = 7BCB7852D7B183E789540E33 /* AscendancyWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		7F6B6F815A643C7748021618 /* Ascendancy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 50580743A4339B1AF450BB0B /* Build configuration list for PBXNativeTarget "Ascendancy" */;
@@ -309,10 +394,12 @@
 				DC5AD28CBA17CA98777C9C36 /* Sources */,
 				9B52DF7263912D69D2884052 /* Resources */,
 				FC56717430518EC4F8684742 /* Frameworks */,
+				0E67914524206C635FF471B9 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				97D58DE298EC16B599B580D2 /* PBXTargetDependency */,
 			);
 			name = Ascendancy;
 			packageProductDependencies = (
@@ -346,7 +433,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2640;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = C5D9252B6C7BE813622B0AE5 /* Build configuration list for PBXProject "Ascendancy" */;
 			developmentRegion = en;
@@ -364,6 +453,7 @@
 			targets = (
 				7F6B6F815A643C7748021618 /* Ascendancy */,
 				A49B978912668D7B77BE847D /* AscendancyTests */,
+				7DDDEB0FB961426F7065E39F /* AscendancyWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -383,6 +473,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3DCE844027FC8B1BFF5340F8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72E21929F5A4E6B7A73465B8 /* AscendancyWidget.swift in Sources */,
+				FD25131C11336AB8318D66DA /* AscendancyWidgetShared.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DC5AD28CBA17CA98777C9C36 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -390,6 +489,7 @@
 				6653E0ED655E13F6DA82E973 /* ActiveProtocolsView.swift in Sources */,
 				6C74EFCF6BCDEA76EDCD3E94 /* AppDistribution.swift in Sources */,
 				419802A40D2A48C9DB04C813 /* AscendancyApp.swift in Sources */,
+				C4D99B0D86FED9683818C28F /* AscendancyWidgetShared.swift in Sources */,
 				83BB10880DFF12EB75256446 /* BackupService.swift in Sources */,
 				2B7FB6DC4064E75E5A37686E /* CompactLineChart.swift in Sources */,
 				2E173DD1218BF6768F9AB726 /* CompoundProtocol.swift in Sources */,
@@ -420,6 +520,7 @@
 				EA5AEF0C13ECA24026A7E1D9 /* SampleData.swift in Sources */,
 				BC2116C17DF473527B482566 /* StableLevelsRow.swift in Sources */,
 				F143965C11C560355E108698 /* WeekDotRow.swift in Sources */,
+				DE566F0208C7CCBFD6E1ECBE /* WidgetSnapshotService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,6 +541,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		97D58DE298EC16B599B580D2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7DDDEB0FB961426F7065E39F /* AscendancyWidget */;
+			targetProxy = B0FB07AC3D354B98581C0398 /* PBXContainerItemProxy */;
+		};
 		BDBBD93D0CB71BCDE0CC1E49 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7F6B6F815A643C7748021618 /* Ascendancy */;
@@ -487,6 +593,26 @@
 			};
 			name = Debug;
 		};
+		5F93B4F22FF67EF68A86C233 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = AscendancyWidget/AscendancyWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AscendancyWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.enl1qhtnd.asce.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		68549C34B74E75725519B927 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -526,7 +652,6 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -543,13 +668,32 @@
 				PRODUCT_BUNDLE_IDENTIFIER = de.enl1qhtnd.asce;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
+		};
+		9764CAF750E5C9A1B14FCD57 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = AscendancyWidget/AscendancyWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AscendancyWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.enl1qhtnd.asce.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		9C245D57BBE0F9983B906B0B /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -629,7 +773,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -653,7 +796,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = de.enl1qhtnd.asce;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -669,6 +811,15 @@
 			buildConfigurations = (
 				5618C6B78B5068ABA5DAB67B /* Debug */,
 				A204224EBD14C777617BC7C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5E8C22983CD3A8CF9A3F728A /* Build configuration list for PBXNativeTarget "AscendancyWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9764CAF750E5C9A1B14FCD57 /* Debug */,
+				5F93B4F22FF67EF68A86C233 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
