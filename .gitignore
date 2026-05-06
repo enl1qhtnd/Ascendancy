@@ -69,6 +69,3 @@ TestResults/
 *.mobileprovision
 *.provisionprofile
 ExportOptions.plist
-
-BUILD.md
-AGENTS.md
