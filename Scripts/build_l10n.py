@@ -295,6 +295,7 @@ KEYS = [
     # Keys below must appear here to be emitted into Localizable.xcstrings (overrides alone are not enough).
     "Active Levels",
     "This Week",
+    "Weekly",
     "Active Compound Levels",
     "Body Weight",
     "Resting Heart Rate",
@@ -472,6 +473,7 @@ DE = {
     "Log doses to see active level graph": "Dosen protokollieren für den Verlauf",
     "No doses logged yet": "Noch keine Dosen",
     "This Week": "Diese Woche",
+    "Weekly": "Wöchentlich",
     "Today's Dose": "Heutige Dosis",
     "No doses today": "Heute keine Dosen",
     "next": "als Nächstes",
@@ -634,6 +636,7 @@ ES = {
     "Pictures & Documents": "Fotos y documentos",
     "Today's Dose": "Dosis de hoy",
     "This Week": "Esta semana",
+    "Weekly": "Semanal",
     "Dose Schedule": "Calendario de dosis",
     "Nothing on this day": "Nada en este día",
     "No active protocols": "Sin protocolos activos",
@@ -825,6 +828,7 @@ FR = {
     "Pictures & Documents": "Photos et documents",
     "Today's Dose": "Dose du jour",
     "This Week": "Cette semaine",
+    "Weekly": "Hebdomadaire",
     "Dose Schedule": "Calendrier des doses",
     "Nothing on this day": "Rien ce jour-là",
     "No active protocols": "Aucun protocole actif",
@@ -1017,6 +1021,7 @@ IT = {
     "Pictures & Documents": "Foto e documenti",
     "Today's Dose": "Dose di oggi",
     "This Week": "Questa settimana",
+    "Weekly": "Settimanale",
     "Dose Schedule": "Programma dosi",
     "Nothing on this day": "Niente in questo giorno",
     "No active protocols": "Nessun protocollo attivo",
@@ -1197,6 +1202,7 @@ JA = {
         "Only %@ %@ remaining.": "残り %@ %@ のみです。",
         "Today's Dose": "今日の服用",
         "This Week": "今週",
+        "Weekly": "週合計",
         "Dose Schedule": "服用スケジュール",
         "Reconstitution Calculator": "溶解計算",
         "Tips": "ヒント",
@@ -1279,6 +1285,7 @@ KO = {
         "Only %@ %@ remaining.": "%@ %@만 남았습니다.",
         "Today's Dose": "오늘의 복용",
         "This Week": "이번 주",
+        "Weekly": "주간",
         "Dose Schedule": "복용 일정",
         "Reconstitution Calculator": "용해 계산기",
         "Tips": "팁",
@@ -1361,6 +1368,7 @@ ZH_HANS = {
         "Only %@ %@ remaining.": "仅剩 %@ %@。",
         "Today's Dose": "今日剂量",
         "This Week": "本周",
+        "Weekly": "每周",
         "Dose Schedule": "用药计划",
         "Reconstitution Calculator": "复溶计算器",
         "Tips": "提示",
@@ -1415,9 +1423,10 @@ ZH_HANT = {
         "Connect Apple Health": "連接健康",
         "Connect Health": "連接健康",
         "Reconstitution Calculator": "重溶計算機",
+        "Weekly": "每週",
 }
 
-PT_BR = {"Home": "Início", "Logs": "Registros", "Search logs...": "Buscar registros…", "Metrics": "Métricas"}
+PT_BR = {"Home": "Início", "Logs": "Registros", "Search logs...": "Buscar registros…", "Metrics": "Métricas", "Weekly": "Semanal"}
 
 RU = {
         "Home": "Главная",
@@ -1469,6 +1478,7 @@ RU = {
         "Only %@ %@ remaining.": "Осталось только %@ %@.",
         "Today's Dose": "Доза сегодня",
         "This Week": "На этой неделе",
+        "Weekly": "За неделю",
         "Dose Schedule": "График доз",
         "Reconstitution Calculator": "Калькулятор реконституции",
         "Tips": "Советы",
@@ -1518,6 +1528,7 @@ AR = {
         "Time for your scheduled doses": "حان وقت جرعاتك المجدولة",
         "Low Inventory: %@": "مخزون منخفض: %@",
         "Only %@ %@ remaining.": "يتبقى فقط %@ %@.",
+        "Weekly": "أسبوعيًا",
 }
 
 HI = {
@@ -1560,6 +1571,7 @@ HI = {
         "No data": "कोई डेटा नहीं",
         "Combined": "संयुक्त",
         "Pictures & Documents": "चित्र और दस्तावेज़",
+        "Weekly": "साप्ताहिक",
 }
 
 NL = {
@@ -1602,6 +1614,7 @@ NL = {
         "No data": "Geen gegevens",
         "Combined": "Gecombineerd",
         "Pictures & Documents": "Foto’s en documenten",
+        "Weekly": "Wekelijks",
 }
 
 PL = {
@@ -1644,6 +1657,7 @@ PL = {
         "No data": "Brak danych",
         "Combined": "Łącznie",
         "Pictures & Documents": "Zdjęcia i dokumenty",
+        "Weekly": "Tygodniowo",
 }
 
 TR = {
@@ -1686,6 +1700,7 @@ TR = {
         "No data": "Veri yok",
         "Combined": "Birleşik",
         "Pictures & Documents": "Fotoğraflar ve belgeler",
+        "Weekly": "Haftalık",
 }
 
 IDENTITY_TRANSLATIONS = {

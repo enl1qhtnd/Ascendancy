@@ -11,7 +11,7 @@ struct WeekDotRow: View {
     var weekDays: [Date] {
         let today = calendar.startOfDay(for: Date())
         let weekday = calendar.component(.weekday, from: today) // 1=Sun
-        let startOffset = -(weekday - 2) // Monday start
+        let startOffset = -(weekday - 1) // Sunday start
         return (0..<7).compactMap {
             calendar.date(byAdding: .day, value: startOffset + $0, to: today)
         }

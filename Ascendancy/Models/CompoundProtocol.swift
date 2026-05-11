@@ -353,6 +353,28 @@ final class CompoundProtocol {
     var halfLifeInHours: Double {
         halfLifeValue * halfLifeUnit.toHours
     }
+
+    /// Number of doses per week derived from the schedule.
+    var dosesPerWeek: Double {
+        let sched = schedule
+        switch sched.type {
+        case .daily:
+            return 7.0 * Double(max(1, sched.timesOfDay.count))
+        case .everyXDays:
+            return 7.0 / Double(max(1, sched.intervalDays))
+        case .specificWeekdays:
+            return Double(sched.weekdays.count)
+        case .timesPerWeek:
+            return Double(max(0, sched.timesPerWeek))
+        case .custom:
+            return 7.0
+        }
+    }
+
+    /// Calculated total weekly dose in the protocol's `doseUnit`.
+    var weeklyDose: Double {
+        doseAmount * dosesPerWeek
+    }
     
     var isLowInventory: Bool {
         inventoryCount <= inventoryLowThreshold && inventoryCount > 0
