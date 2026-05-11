@@ -7,9 +7,9 @@ struct ActiveProtocolsView: View {
     @Environment(\.modelContext) private var context
     
     @State private var showNewProtocol = false
-    @State private var selectedFilter: FilterOption = .active
+    @State private var selectedFilter: FilterOption = .all
     @State private var protocolToLog: CompoundProtocol? = nil
-    @State private var navTarget: UUID? = nil
+    @State private var navPath: [UUID] = []
     
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -30,7 +30,7 @@ struct ActiveProtocolsView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
@@ -58,18 +58,19 @@ struct ActiveProtocolsView: View {
                                 protocolRow(p)
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                    .listRowInsets(EdgeInsets())
                             }
-                            .onMove(perform: move)
-
-                            Color.clear
-                                .frame(height: 12)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets())
+                            // Reordering only makes sense against the full,
+                            // unfiltered ordering — restrict it to the "All"
+                            // filter so sub-views can't accidentally rewrite
+                            // global sortOrder from a partial list.
+                            .onMove(perform: selectedFilter == .all ? move : nil)
                         }
                         .listStyle(.plain)
+                        .listRowSpacing(12)
                         .scrollContentBackground(.hidden)
+                        .contentMargins(.horizontal, 16, for: .scrollContent)
+                        .contentMargins(.bottom, 24, for: .scrollContent)
                         .environment(\.defaultMinListRowHeight, 0)
                     }
                 }
@@ -100,7 +101,7 @@ struct ActiveProtocolsView: View {
             .sheet(item: $protocolToLog) { p in
                 LogDoseSheet(protocol_: p)
             }
-            .navigationDestination(item: $navTarget) { id in
+            .navigationDestination(for: UUID.self) { id in
                 if let p = protocols.first(where: { $0.id == id }) {
                     ProtocolDetailView(protocol_: p)
                 }
@@ -110,8 +111,12 @@ struct ActiveProtocolsView: View {
     
     @ViewBuilder
     private func protocolRow(_ p: CompoundProtocol) -> some View {
+        // Outer Button drives navigation via the NavigationStack path. This
+        // avoids List's automatic chevron + row-tap behavior that NavigationLink
+        // would introduce, while still letting the inner Log Dose Button win
+        // its own taps (SwiftUI routes the tap to the innermost Button).
         Button {
-            navTarget = p.id
+            navPath.append(p.id)
         } label: {
             ProtocolCard(protocol_: p) {
                 protocolToLog = p

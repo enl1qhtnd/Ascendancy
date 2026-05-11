@@ -96,14 +96,19 @@ struct ProtocolCard: View {
                         Haptics.tap()
                         onLogDose()
                     }) {
-                        Label("Log Dose", systemImage: "plus.circle.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(Color.white.opacity(0.12))
-                            .clipShape(Capsule())
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text(catalogKey: "Log Dose")
+                                .font(.system(size: 12, weight: .semibold))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Color.white.opacity(0.12))
+                        .clipShape(Capsule())
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
