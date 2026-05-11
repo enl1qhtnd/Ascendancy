@@ -9,6 +9,7 @@ struct ActiveProtocolsView: View {
     @State private var showNewProtocol = false
     @State private var selectedFilter: FilterOption = .active
     @State private var protocolToLog: CompoundProtocol? = nil
+    @State private var navTarget: UUID? = nil
     
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -52,15 +53,24 @@ struct ActiveProtocolsView: View {
                     if filtered.isEmpty {
                         emptyState
                     } else {
-                        ScrollView(showsIndicators: false) {
-                            LazyVStack(spacing: 12) {
-                                ForEach(filtered) { p in
-                                    protocolRow(p)
-                                }
+                        List {
+                            ForEach(filtered) { p in
+                                protocolRow(p)
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 24)
+                            .onMove(perform: move)
+
+                            Color.clear
+                                .frame(height: 12)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets())
                         }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .environment(\.defaultMinListRowHeight, 0)
                     }
                 }
             }
@@ -90,7 +100,7 @@ struct ActiveProtocolsView: View {
             .sheet(item: $protocolToLog) { p in
                 LogDoseSheet(protocol_: p)
             }
-            .navigationDestination(for: UUID.self) { id in
+            .navigationDestination(item: $navTarget) { id in
                 if let p = protocols.first(where: { $0.id == id }) {
                     ProtocolDetailView(protocol_: p)
                 }
@@ -100,40 +110,34 @@ struct ActiveProtocolsView: View {
     
     @ViewBuilder
     private func protocolRow(_ p: CompoundProtocol) -> some View {
-        let link = NavigationLink(value: p.id) {
+        Button {
+            navTarget = p.id
+        } label: {
             ProtocolCard(protocol_: p) {
                 protocolToLog = p
             }
         }
         .buttonStyle(.plain)
-        
-        if selectedFilter == .all {
-            link
-                .draggable(p.id.uuidString)
-                .dropDestination(for: String.self) { items, _ in
-                    guard let s = items.first,
-                          let draggedId = UUID(uuidString: s),
-                          draggedId != p.id else { return false }
-                    applyReorder(draggedId: draggedId, targetId: p.id)
-                    return true
-                }
-        } else {
-            link
-        }
     }
-    
-    private func applyReorder(draggedId: UUID, targetId: UUID) {
-        guard draggedId != targetId else { return }
-        var ids = protocols.map(\.id)
-        guard let from = ids.firstIndex(of: draggedId), let to = ids.firstIndex(of: targetId) else { return }
-        ids.remove(at: from)
-        let insertAt = from < to ? to - 1 : to
-        ids.insert(draggedId, at: insertAt)
-        let orderById = Dictionary(uniqueKeysWithValues: ids.enumerated().map { ($0.element, $0.offset) })
-        for proto in protocols {
-            if let o = orderById[proto.id] {
-                proto.sortOrder = o
+
+    private func move(from source: IndexSet, to destination: Int) {
+        var reordered = filtered
+        reordered.move(fromOffsets: source, toOffset: destination)
+
+        let filteredIds = Set(filtered.map(\.id))
+        var iter = reordered.makeIterator()
+        var newGlobal: [CompoundProtocol] = []
+        newGlobal.reserveCapacity(protocols.count)
+        for p in protocols {
+            if filteredIds.contains(p.id) {
+                if let next = iter.next() { newGlobal.append(next) }
+            } else {
+                newGlobal.append(p)
             }
+        }
+
+        for (idx, proto) in newGlobal.enumerated() {
+            if proto.sortOrder != idx { proto.sortOrder = idx }
         }
         do {
             try context.save()
