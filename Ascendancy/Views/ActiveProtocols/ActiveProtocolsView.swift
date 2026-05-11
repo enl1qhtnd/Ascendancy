@@ -10,6 +10,8 @@ struct ActiveProtocolsView: View {
     @State private var selectedFilter: FilterOption = .all
     @State private var protocolToLog: CompoundProtocol? = nil
     @State private var navPath: [UUID] = []
+
+    private let protocolCardCornerRadius: CGFloat = 18
     
     enum FilterOption: String, CaseIterable {
         case all = "All"
@@ -123,6 +125,11 @@ struct ActiveProtocolsView: View {
             }
         }
         .buttonStyle(.plain)
+        .clipShape(RoundedRectangle(cornerRadius: protocolCardCornerRadius, style: .continuous))
+        .contentShape(
+            .dragPreview,
+            RoundedRectangle(cornerRadius: protocolCardCornerRadius, style: .continuous)
+        )
     }
 
     private func move(from source: IndexSet, to destination: Int) {
