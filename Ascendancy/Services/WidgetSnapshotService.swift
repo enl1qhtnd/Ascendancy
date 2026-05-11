@@ -90,20 +90,23 @@ enum WidgetSnapshotService {
     private static func makeInventorySnapshot(for protocol_: CompoundProtocol) -> AscendancyWidgetInventoryItem {
         let daysRemainingText = InventoryService.shared.daysOfSupply(for: protocol_).map { days in
             let roundedDays = max(0, Int(days.rounded(.down)))
-            return roundedDays == 1 ? "1 day" : "\(roundedDays) days"
+            return roundedDays == 1
+                ? String(localized: "1 day")
+                : String(format: String(localized: "%lld days"), roundedDays)
         }
+        let unitLabel = String(localized: String.LocalizationValue(stringLiteral: protocol_.inventoryDisplayUnitLabel))
 
         return AscendancyWidgetInventoryItem(
             protocolId: protocol_.id,
             protocolName: displayName(for: protocol_),
             categoryRaw: protocol_.categoryRaw,
-            remainingText: "\(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.inventoryDisplayUnitLabel)",
+            remainingText: "\(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...1)))) \(unitLabel)",
             daysRemainingText: daysRemainingText
         )
     }
 
     private static func displayName(for protocol_: CompoundProtocol) -> String {
         let trimmedName = protocol_.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedName.isEmpty ? "Unnamed protocol" : trimmedName
+        return trimmedName.isEmpty ? String(localized: "Unnamed protocol") : trimmedName
     }
 }

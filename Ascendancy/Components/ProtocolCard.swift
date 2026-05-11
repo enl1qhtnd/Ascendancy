@@ -83,7 +83,7 @@ struct ProtocolCard: View {
                 
                 if let days = daysOfSupply {
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text(String(localized: "\(Int(days))d supply"))
+                        Text(String(format: String(localized: "%lldd supply"), Int(days)))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.6))
                     }

@@ -24,6 +24,9 @@ xcuserdata/
 # Uncomment the line below if you want to exclude the generated project file:
 # Ascendancy.xcodeproj/
 
+# Python
+Scripts/__pycache__/
+
 # Swift Package Manager
 .build/
 .swiftpm/

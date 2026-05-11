@@ -151,12 +151,12 @@ struct NewProtocolView: View {
                         // Inventory
                         formSection("Inventory") {
                             VStack(spacing: 14) {
-                                FormField(label: "Starting Count (\(administrationForm.inventoryPluralLabel))", placeholder: "e.g. 3") {
+                                FormField(label: startingCountLabel, placeholder: "e.g. 3") {
                                     TextField("", text: $inventoryCount)
                                         .keyboardType(.decimalPad)
                                         .foregroundStyle(.white)
                                 }
-                                FormField(label: "Amount per \(administrationForm.inventorySingularLabel) (\(doseUnit.rawValue))", placeholder: "e.g. 40") {
+                                FormField(label: amountPerUnitLabel, placeholder: "e.g. 40") {
                                     TextField("", text: $formDosage)
                                         .keyboardType(.decimalPad)
                                         .foregroundStyle(.white)
@@ -223,6 +223,16 @@ struct NewProtocolView: View {
     }
     
     // MARK: - Helpers
+
+    private var startingCountLabel: String {
+        let unit = String(localized: String.LocalizationValue(stringLiteral: administrationForm.inventoryPluralLabel))
+        return String(format: String(localized: "Starting Count (%@)"), unit)
+    }
+
+    private var amountPerUnitLabel: String {
+        let unit = String(localized: String.LocalizationValue(stringLiteral: administrationForm.inventorySingularLabel))
+        return String(format: String(localized: "Amount per %@ (%@)"), unit, doseUnit.rawValue)
+    }
     
     private func formSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {

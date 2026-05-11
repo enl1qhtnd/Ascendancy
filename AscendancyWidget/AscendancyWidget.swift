@@ -174,7 +174,7 @@ private struct MediumDoseWidget: View {
                         }
                     } else {
                         SectionTitle(icon: "sparkles", title: "Status")
-                        Text(snapshot == nil ? "Waiting for app data" : "Schedule is clear")
+                        Text(catalogKey: snapshot == nil ? "Waiting for app data" : "Schedule is clear")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.white.opacity(0.55))
                             .lineLimit(2)
@@ -238,7 +238,10 @@ private struct LargeDoseWidget: View {
 
                     Spacer(minLength: 0)
 
-                    Text("Updated \(snapshot.generatedAt, style: .time)")
+                    Text(String(
+                        format: String(localized: "Updated %@"),
+                        snapshot.generatedAt.formatted(date: .omitted, time: .shortened)
+                    ))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.white.opacity(0.32))
                 }
@@ -269,7 +272,7 @@ private struct WidgetHeader: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(.white.opacity(0.62))
                 .textCase(.uppercase)
@@ -320,7 +323,7 @@ private struct ProgressSummary: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("Today")
+                Text(catalogKey: "Today")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.5))
                 Spacer(minLength: 4)
@@ -358,7 +361,7 @@ private struct SectionTitle: View {
         HStack(spacing: 5) {
             Image(systemName: icon)
                 .font(.system(size: 10, weight: .semibold))
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 10, weight: .bold))
                 .textCase(.uppercase)
                 .tracking(0.55)
@@ -440,11 +443,11 @@ private struct EmptyWidgetState: View {
             Image(systemName: icon)
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.35))
-            Text(title)
+            Text(catalogKey: title)
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.82))
                 .lineLimit(2)
-            Text(subtitle)
+            Text(catalogKey: subtitle)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.white.opacity(0.45))
                 .lineLimit(2)
@@ -461,20 +464,24 @@ private extension AscendancyWidgetSnapshot {
 }
 
 private func todaySummary(_ snapshot: AscendancyWidgetSnapshot) -> String {
-    guard snapshot.todayDoseCount > 0 else { return "No doses today" }
-    return "\(snapshot.todayLoggedCount)/\(snapshot.todayDoseCount) logged"
+    guard snapshot.todayDoseCount > 0 else { return String(localized: "No doses today") }
+    return String(
+        format: String(localized: "%1$lld/%2$lld logged"),
+        snapshot.todayLoggedCount,
+        snapshot.todayDoseCount
+    )
 }
 
 private func statusLabel(for dose: AscendancyWidgetDose, now: Date) -> String {
     let calendar = Calendar.current
     if calendar.isDate(dose.scheduledAt, inSameDayAs: now), dose.scheduledAt <= now, !dose.isLoggedToday {
-        return "Due"
+        return String(localized: "Due")
     }
     if calendar.isDate(dose.scheduledAt, inSameDayAs: now) {
-        return "Today"
+        return String(localized: "Today")
     }
     if calendar.isDateInTomorrow(dose.scheduledAt) {
-        return "Tomorrow"
+        return String(localized: "Tomorrow")
     }
     return dose.scheduledAt.formatted(.dateTime.weekday(.abbreviated))
 }
@@ -485,7 +492,7 @@ private func primaryTimeLabel(for date: Date, now: Date) -> String {
         return date.formatted(.dateTime.hour().minute())
     }
     if calendar.isDateInTomorrow(date) {
-        return "Tomorrow"
+        return String(localized: "Tomorrow")
     }
     return date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
 }
@@ -496,7 +503,10 @@ private func secondaryDateLabel(for date: Date, now: Date) -> String {
         return date.formatted(.dateTime.hour().minute())
     }
     if calendar.isDateInTomorrow(date) {
-        return "Tomorrow " + date.formatted(.dateTime.hour().minute())
+        return String(
+            format: String(localized: "Tomorrow %@"),
+            date.formatted(.dateTime.hour().minute())
+        )
     }
     return date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
 }
@@ -531,5 +541,11 @@ private func categoryIcon(for rawValue: String) -> String {
     case "TRT": return "cross.vial.fill"
     case "Custom": return "testtube.2"
     default: return "cross.vial.fill"
+    }
+}
+
+private extension Text {
+    init(catalogKey string: String) {
+        self.init(LocalizedStringKey(string))
     }
 }

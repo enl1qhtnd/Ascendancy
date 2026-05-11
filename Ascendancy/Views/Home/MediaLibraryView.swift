@@ -91,7 +91,8 @@ struct MediaLibraryView: View {
                         if let data = try await newItem?.loadTransferable(type: Data.self) {
                             // No Photos-framework access is declared; derive a date-based title
                             // rather than leaving it as "Untitled".
-                            let title = "Photo - \(Date.now.formatted(date: .abbreviated, time: .omitted))"
+                            let dateText = Date.now.formatted(date: .abbreviated, time: .omitted)
+                            let title = String(format: String(localized: "Photo - %@"), dateText)
                             let doc = MediaDocument(title: title, imageData: data, fileExtension: "jpg")
                             context.insert(doc)
                             try context.save()
