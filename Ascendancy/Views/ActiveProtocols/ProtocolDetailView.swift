@@ -201,6 +201,7 @@ struct ProtocolDetailView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 InfoRow(label: "Dose", value: "\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
+                InfoRow(label: "Weekly", value: "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
                 InfoRow(label: "Half-life", value: "\(protocol_.halfLifeValue.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.halfLifeUnit.rawValue)")
                 InfoRow(label: "Time", value: protocol_.schedule.timesOfDay.first.map { $0.formatted(date: .omitted, time: .shortened) } ?? "—")
                 if let end = protocol_.endDate {

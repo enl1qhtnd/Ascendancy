@@ -45,12 +45,14 @@ struct ProtocolCard: View {
             // Info row: schedule, next dose
             HStack(spacing: 16) {
                 InfoBit(icon: "calendar.badge.clock", label: "Schedule", value: protocol_.schedule.description)
-                
+
                 if let next = protocol_.nextDoseDate() {
                     InfoBit(icon: "clock.arrow.circlepath", label: "Next Dose", value: relativeTime(next))
                 }
-                
+
                 InfoBit(icon: "timer", label: "Half-life", value: "\(protocol_.halfLifeValue.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.halfLifeUnit.rawValue)")
+
+                InfoBit(icon: "calendar", label: "Weekly", value: "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
             }
             
             AscendancyDivider()
