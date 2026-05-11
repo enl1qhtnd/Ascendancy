@@ -5325,9 +5325,27 @@ def build_localizable() -> dict:
     return strings
 
 
+def _canonicalize(value):
+    """Return a copy of *value* with all dict keys recursively sorted.
+
+    Matches Xcode's string-catalog editor canonical form: alphabetical key
+    order at every level (top-level "sourceLanguage"/"strings"/"version",
+    individual string keys, and per-string "localizations" maps).
+    """
+    if isinstance(value, dict):
+        return {k: _canonicalize(value[k]) for k in sorted(value.keys())}
+    if isinstance(value, list):
+        return [_canonicalize(v) for v in value]
+    return value
+
+
 def write_catalog(path: str, doc: dict) -> None:
+    canonical = _canonicalize(doc)
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=2)
+        # Match Xcode's string-catalog editor output: space on both sides of
+        # the key/value colon so re-saving from the GUI does not churn the
+        # file.
+        json.dump(canonical, f, ensure_ascii=False, indent=2, separators=(",", " : "))
         f.write("\n")
 
 
@@ -5421,7 +5439,7 @@ def main() -> None:
     asc = os.path.join(ROOT, "Ascendancy")
     write_catalog(
         os.path.join(asc, "Localizable.xcstrings"),
-        {"sourceLanguage": "en", "strings": build_localizable(), "version": "1.0"},
+        {"sourceLanguage": "en", "strings": build_localizable(), "version": "1.1"},
     )
     write_catalog(os.path.join(asc, "InfoPlist.xcstrings"), build_infoplist())
     print("Wrote Localizable.xcstrings with", len(KEYS), "keys")
