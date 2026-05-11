@@ -193,7 +193,7 @@ struct ProtocolDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             TileHeader(icon: "calendar.badge.clock", title: "Schedule")
             
-            Text(protocol_.schedule.description)
+            Text(scheduleTypeText)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white)
             
@@ -201,15 +201,32 @@ struct ProtocolDetailView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 InfoRow(label: "Dose", value: "\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
-                InfoRow(label: "Weekly", value: "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
+                InfoRow(label: "Weekly", value: weeklyDoseText)
                 InfoRow(label: "Half-life", value: "\(protocol_.halfLifeValue.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.halfLifeUnit.rawValue)")
-                InfoRow(label: "Time", value: protocol_.schedule.timesOfDay.first.map { $0.formatted(date: .omitted, time: .shortened) } ?? "—")
+                InfoRow(label: "Time", value: doseTimeText)
                 if let end = protocol_.endDate {
                     InfoRow(label: "End date", value: end.formatted(.dateTime.month(.abbreviated).day().year()))
                 }
             }
         }
         .glassCardFilling(cornerRadius: 16, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
+    }
+
+    private var scheduleTypeText: String {
+        guard protocol_.schedule.type != .custom else { return String(localized: "Custom") }
+        return protocol_.schedule.description
+    }
+
+    private var doseTimeText: String {
+        if protocol_.schedule.type == .custom {
+            return protocol_.schedule.description
+        }
+        return protocol_.schedule.timesOfDay.first.map { $0.formatted(date: .omitted, time: .shortened) } ?? "—"
+    }
+
+    private var weeklyDoseText: String {
+        guard protocol_.schedule.type != .custom else { return "—" }
+        return "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)"
     }
     
     // MARK: - Inventory Card

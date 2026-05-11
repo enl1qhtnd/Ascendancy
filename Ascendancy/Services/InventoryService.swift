@@ -56,7 +56,7 @@ final class InventoryService {
         case .timesPerWeek:
             dosesPerDay = Double(sched.timesPerWeek) / 7.0
         case .custom:
-            dosesPerDay = 1.0
+            return nil
         }
 
         guard dosesPerDay > 0, protocol_.doseAmount > 0 else { return nil }
