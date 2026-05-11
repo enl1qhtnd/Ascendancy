@@ -309,6 +309,7 @@
     },
     "CFBundleShortVersionString" : {
       "comment" : "Marketing version (sync with project.yml MARKETING_VERSION).",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -410,6 +411,7 @@
     },
     "CFBundleVersion" : {
       "comment" : "Build number (sync with project.yml CURRENT_PROJECT_VERSION).",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

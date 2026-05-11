@@ -5305,7 +5305,15 @@ def build_locale_map() -> dict[str, dict[str, str]]:
 LOCALE_MAP = build_locale_map()
 
 
-def build_localizable() -> dict:
+def build_localizable(existing: dict | None = None) -> dict:
+    """Assemble the ``strings`` map for Localizable.xcstrings.
+
+    Script-managed keys (the ones in ``KEYS``) get fresh translations from
+    ``LOCALE_MAP``. Keys that already exist in the catalog but aren't in
+    ``KEYS`` — typically auto-extracted entries Xcode adds during a GUI build
+    (e.g. ``""``, ``"–"``, ``"· %@"``) — are preserved verbatim so a GUI
+    build doesn't keep re-adding them and producing diff churn.
+    """
     strings: dict = {}
     seen_symbols: set[str] = set()
     for key in KEYS:
@@ -5322,31 +5330,143 @@ def build_localizable() -> dict:
             locs[loc] = {"stringUnit": {"state": "translated", "value": val}}
         entry["localizations"] = locs
         strings[key] = entry
+
+    if existing:
+        managed = set(KEYS)
+        for key, value in existing.get("strings", {}).items():
+            if key not in managed:
+                strings[key] = value
     return strings
 
 
-def _canonicalize(value):
-    """Return a copy of *value* with all dict keys recursively sorted.
+def _load_existing_catalog(path: str) -> dict | None:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
-    Matches Xcode's string-catalog editor canonical form: alphabetical key
-    order at every level (top-level "sourceLanguage"/"strings"/"version",
-    individual string keys, and per-string "localizations" maps).
+
+import subprocess
+import tempfile
+
+
+_SWIFT_SORTER_SOURCE = """
+import Foundation
+let data = FileHandle.standardInput.readDataToEndOfFile()
+guard let text = String(data: data, encoding: .utf8) else { exit(1) }
+var keys = text.components(separatedBy: "\\0")
+if keys.last == "" { keys.removeLast() }
+let sorted = keys.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+let out = sorted.joined(separator: "\\0") + "\\0"
+FileHandle.standardOutput.write(out.data(using: .utf8) ?? Data())
+"""
+
+
+def _swift_sorted(keys: list[str]) -> list[str]:
+    """Sort *keys* using ``NSString.localizedStandardCompare`` (the same
+    Finder-style collation Xcode's string-catalog editor uses).
+
+    Falls back to plain ``sorted`` if ``swift`` is unavailable so the script
+    still functions outside an Xcode environment.
     """
-    if isinstance(value, dict):
-        return {k: _canonicalize(value[k]) for k in sorted(value.keys())}
-    if isinstance(value, list):
-        return [_canonicalize(v) for v in value]
-    return value
+    if not keys:
+        return []
+    # ``swift -`` reads source from stdin, so we can't also pipe data through
+    # stdin. Drop the script to a temp file and run ``swift <file>``, piping
+    # NUL-delimited keys into stdin of that invocation.
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".swift", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(_SWIFT_SORTER_SOURCE)
+        script_path = f.name
+    try:
+        result = subprocess.run(
+            ["swift", script_path],
+            input=("\0".join(keys) + "\0").encode("utf-8"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return sorted(keys)
+    finally:
+        try:
+            os.unlink(script_path)
+        except OSError:
+            pass
+    raw = result.stdout.decode("utf-8")
+    if raw.endswith("\0"):
+        raw = raw[:-1]
+    out = raw.split("\0")
+    if sorted(out) != sorted(keys):
+        return sorted(keys)
+    return out
+
+
+def _localized_locales(unit: dict) -> dict:
+    """Return *unit* with its ``localizations`` map sorted alphabetically by
+    locale code, matching Xcode's canonical output."""
+    if not isinstance(unit, dict) or "localizations" not in unit:
+        return unit
+    locs = unit["localizations"]
+    if not isinstance(locs, dict):
+        return unit
+    unit = dict(unit)
+    unit["localizations"] = {k: locs[k] for k in sorted(locs.keys())}
+    return unit
+
+
+def _canonicalize_strings(strings: dict) -> dict:
+    """Reorder the top-level ``strings`` map using Xcode collation and sort
+    every nested ``localizations`` map alphabetically."""
+    ordered_keys = _swift_sorted(list(strings.keys()))
+    return {k: _localized_locales(strings[k]) for k in ordered_keys}
+
+
+def _canonicalize_doc(doc: dict) -> dict:
+    """Top-level canonicalization: keep the original document keys sorted
+    alphabetically (``sourceLanguage`` < ``strings`` < ``version``) and run
+    string-catalog canonicalization on the ``strings`` map."""
+    out: dict = {}
+    for k in sorted(doc.keys()):
+        v = doc[k]
+        if k == "strings" and isinstance(v, dict):
+            out[k] = _canonicalize_strings(v)
+        else:
+            out[k] = v
+    return out
+
+
+def _expand_empty_dicts(text: str) -> str:
+    """Rewrite ``: {}`` to Xcode's multi-line empty-dict form.
+
+    ``json.dump`` collapses ``{}`` to a single line, but Xcode's string-
+    catalog editor writes it as::
+
+        "key" : {
+
+        }
+
+    Matching that avoids needless diff churn when the GUI rewrites the file.
+    Only empty dicts at the top-level ``strings`` entry depth (4-space
+    indent) are produced by the current writers, so it is safe to use a
+    fixed 4-space close indent.
+    """
+    return re.sub(r" : \{\}(?=,?\n)", " : {\n\n    }", text)
 
 
 def write_catalog(path: str, doc: dict) -> None:
-    canonical = _canonicalize(doc)
+    canonical = _canonicalize_doc(doc)
+    rendered = json.dumps(
+        canonical, ensure_ascii=False, indent=2, separators=(",", " : ")
+    )
+    rendered = _expand_empty_dicts(rendered)
     with open(path, "w", encoding="utf-8") as f:
         # Match Xcode's string-catalog editor output: space on both sides of
-        # the key/value colon so re-saving from the GUI does not churn the
-        # file.
-        json.dump(canonical, f, ensure_ascii=False, indent=2, separators=(",", " : "))
-        f.write("\n")
+        # the key/value colon and no trailing newline, so re-saving from the
+        # GUI does not churn the file.
+        f.write(rendered)
 
 
 def build_infoplist() -> dict:
@@ -5417,10 +5537,15 @@ def build_infoplist() -> dict:
         },
         "CFBundleShortVersionString": {
             "comment": "Marketing version (sync with project.yml MARKETING_VERSION).",
+            # Xcode marks this entry as "stale" because the source key lives
+            # in Info.plist, not in code. Pre-emit it so the GUI build doesn't
+            # rewrite the catalog every time.
+            "extractionState": "stale",
             "localizations": _version_locs(APP_MARKETING_VERSION),
         },
         "CFBundleVersion": {
             "comment": "Build number (sync with project.yml CURRENT_PROJECT_VERSION).",
+            "extractionState": "stale",
             "localizations": _version_locs(APP_BUILD_NUMBER),
         },
         "NSHealthShareUsageDescription": {
@@ -5437,9 +5562,15 @@ def build_infoplist() -> dict:
 
 def main() -> None:
     asc = os.path.join(ROOT, "Ascendancy")
+    loc_path = os.path.join(asc, "Localizable.xcstrings")
+    existing_loc = _load_existing_catalog(loc_path)
     write_catalog(
-        os.path.join(asc, "Localizable.xcstrings"),
-        {"sourceLanguage": "en", "strings": build_localizable(), "version": "1.1"},
+        loc_path,
+        {
+            "sourceLanguage": "en",
+            "strings": build_localizable(existing_loc),
+            "version": "1.1",
+        },
     )
     write_catalog(os.path.join(asc, "InfoPlist.xcstrings"), build_infoplist())
     print("Wrote Localizable.xcstrings with", len(KEYS), "keys")
