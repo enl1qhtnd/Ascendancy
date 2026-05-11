@@ -35,9 +35,9 @@ enum BackupError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyFile:
-            return "The selected backup file is empty."
+            return String(localized: "The selected backup file is empty.")
         case .unsupportedVersion(let version):
-            return "This backup was created with an unsupported format version (\(version))."
+            return String(format: String(localized: "This backup was created with an unsupported format version (%lld)."), version)
         }
     }
 }
@@ -48,7 +48,12 @@ struct BackupImportSummary {
     let documentCount: Int
 
     var message: String {
-        "Imported \(protocolCount) protocols, \(logCount) logs, and \(documentCount) files."
+        String(
+            format: String(localized: "Imported %1$lld protocols, %2$lld logs, and %3$lld files."),
+            protocolCount,
+            logCount,
+            documentCount
+        )
     }
 }
 

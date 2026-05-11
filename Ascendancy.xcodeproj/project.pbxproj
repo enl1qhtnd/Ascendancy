@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03852ACBB49F04BE84E66F86 /* DoseScheduleDayHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */; };
 		03F7B4D0F7F2D57D4C362D8D /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0D23A0F822E0EDF55949A5 /* GlassCard.swift */; };
+		06C8915D2C12CFF5700278A5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 3C98F898585CF09A997A2980 /* Localizable.xcstrings */; };
 		0732CC309DB6110209EA57B3 /* PharmacokineticsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */; };
 		16335BC9E4B0CFEDFC9460D2 /* InventoryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5143D96D2D035BC05F8A0702 /* InventoryServiceTests.swift */; };
 		17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA10A4DF8F52F6987FDED74 /* Haptics.swift */; };
@@ -374,6 +375,7 @@
 			buildConfigurationList = 5E8C22983CD3A8CF9A3F728A /* Build configuration list for PBXNativeTarget "AscendancyWidget" */;
 			buildPhases = (
 				3DCE844027FC8B1BFF5340F8 /* Sources */,
+				6027322F4A372EAFC5B37087 /* Resources */,
 				306C7696BAFB5288D06504AF /* Frameworks */,
 			);
 			buildRules = (
@@ -459,6 +461,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6027322F4A372EAFC5B37087 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				06C8915D2C12CFF5700278A5 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9B52DF7263912D69D2884052 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;

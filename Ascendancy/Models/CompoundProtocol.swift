@@ -212,12 +212,12 @@ struct DoseSchedule: Codable {
         case .daily:
             return String(localized: "Daily")
         case .everyXDays:
-            return String(localized: "Every \(intervalDays) days")
+            return String(format: String(localized: "Every %lld days"), intervalDays)
         case .specificWeekdays:
             let days = weekdays.sorted { $0.rawValue < $1.rawValue }.map { $0.localizedShort }.joined(separator: ", ")
             return days.isEmpty ? String(localized: "Specific days") : days
         case .timesPerWeek:
-            return String(localized: "\(timesPerWeek)x per week")
+            return String(format: String(localized: "%lldx per week"), timesPerWeek)
         case .custom:
             return customNotes.isEmpty ? String(localized: "Custom") : customNotes
         }
@@ -367,9 +367,15 @@ final class CompoundProtocol {
     }
 
     var restockButtonTitle: String {
-        let plural = administrationForm.inventoryPluralLabel
-        let capitalized = plural.prefix(1).uppercased() + plural.dropFirst()
-        return String(localized: "Restock \(capitalized)")
+        switch administrationForm {
+        case .vial: return String(localized: "Restock Vials")
+        case .pill: return String(localized: "Restock Pills")
+        case .capsule: return String(localized: "Restock Capsules")
+        case .syringe: return String(localized: "Restock Syringes")
+        case .patch: return String(localized: "Restock Patches")
+        case .cream: return String(localized: "Restock Creams")
+        case .custom: return String(localized: "Restock Units")
+        }
     }
 
     var sortedLogs: [DoseLog] {

@@ -190,10 +190,10 @@ struct ProfileSettingsView: View {
                 switch result {
                 case .success:
                     Haptics.success()
-                    backupAlert = BackupAlert(title: "Backup Exported", message: "Your backup file was created.")
+                    backupAlert = BackupAlert(title: String(localized: "Backup Exported"), message: String(localized: "Your backup file was created."))
                 case .failure(let error):
                     Haptics.error()
-                    backupAlert = BackupAlert(title: "Export Failed", message: error.localizedDescription)
+                    backupAlert = BackupAlert(title: String(localized: "Export Failed"), message: error.localizedDescription)
                 }
             }
             .fileImporter(
@@ -264,7 +264,7 @@ struct ProfileSettingsView: View {
     private func settingsActionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
-                Label(title, systemImage: systemImage)
+                Label(LocalizedStringKey(title), systemImage: systemImage)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))
                 Spacer()
@@ -293,7 +293,7 @@ struct ProfileSettingsView: View {
 
             Spacer()
 
-            Text(supportsCloudKitSync ? "Enabled" : "Disabled")
+            Text(catalogKey: supportsCloudKitSync ? "Enabled" : "Disabled")
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(supportsCloudKitSync ? .green.opacity(0.85) : .white.opacity(0.3))
         }
@@ -307,10 +307,10 @@ struct ProfileSettingsView: View {
             backupExportDocument = AscendancyBackupDocument(data: data)
             backupExportFilename = BackupService.defaultFileName()
             showBackupExporter = true
-        } catch {
-            Haptics.error()
-            backupAlert = BackupAlert(title: "Export Failed", message: error.localizedDescription)
-        }
+            } catch {
+                Haptics.error()
+                backupAlert = BackupAlert(title: String(localized: "Export Failed"), message: error.localizedDescription)
+            }
     }
 
     private func readBackupImportResult(_ result: Result<[URL], Error>) {
@@ -330,11 +330,11 @@ struct ProfileSettingsView: View {
                 showImportConfirmation = true
             } catch {
                 Haptics.error()
-                backupAlert = BackupAlert(title: "Import Failed", message: error.localizedDescription)
+                backupAlert = BackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
             }
         case .failure(let error):
             Haptics.error()
-            backupAlert = BackupAlert(title: "Import Failed", message: error.localizedDescription)
+            backupAlert = BackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
         }
     }
 
@@ -344,11 +344,11 @@ struct ProfileSettingsView: View {
             let summary = try BackupService.restore(from: pendingImportData, into: context)
             self.pendingImportData = nil
             Haptics.success()
-            backupAlert = BackupAlert(title: "Backup Imported", message: summary.message)
+            backupAlert = BackupAlert(title: String(localized: "Backup Imported"), message: summary.message)
         } catch {
             self.pendingImportData = nil
             Haptics.error()
-            backupAlert = BackupAlert(title: "Import Failed", message: error.localizedDescription)
+            backupAlert = BackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
         }
     }
 }
