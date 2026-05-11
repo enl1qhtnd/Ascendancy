@@ -115,7 +115,7 @@ struct NewProtocolView: View {
                                     .foregroundStyle(.white)
                                     
                                 case .custom:
-                                    FormField(label: "Schedule Description", placeholder: "e.g. Loading dose then weekly") {
+                                    FormField(label: "Dose Time", placeholder: "e.g. Pre-Workout") {
                                         TextField("", text: $customNotes)
                                             .foregroundStyle(.white)
                                     }
@@ -123,11 +123,13 @@ struct NewProtocolView: View {
                                 default:
                                     EmptyView()
                                 }
-                                
-                                DatePicker("Dose Time", selection: $doseTime, displayedComponents: .hourAndMinute)
-                                    .foregroundStyle(.white)
-                                    .tint(.white)
-                                    .colorScheme(.dark)
+
+                                if scheduleType != .custom {
+                                    DatePicker("Dose Time", selection: $doseTime, displayedComponents: .hourAndMinute)
+                                        .foregroundStyle(.white)
+                                        .tint(.white)
+                                        .colorScheme(.dark)
+                                }
 
                                 DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
                                     .foregroundStyle(.white)
@@ -285,7 +287,7 @@ struct NewProtocolView: View {
         schedule.intervalDays = intervalDays
         schedule.weekdays = Array(selectedWeekdays)
         schedule.timesPerWeek = timesPerWeek
-        schedule.timesOfDay = [doseTime]
+        schedule.timesOfDay = scheduleType == .custom ? [] : [doseTime]
         schedule.customNotes = customNotes
         return schedule
     }

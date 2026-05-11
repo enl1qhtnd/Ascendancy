@@ -206,6 +206,17 @@ final class InventoryServiceTests: XCTestCase {
         XCTAssertEqual(result!, 24.5, accuracy: 0.1)
     }
 
+    func test_daysOfSupply_custom_returnsNilBecauseFrequencyIsUnknown() async {
+        var sched = DoseSchedule()
+        sched.type = .custom
+        sched.customNotes = "Use only as needed"
+        let p = makeProtocol(form: .pill, doseAmount: 100.0, inventory: 7.0, schedule: sched)
+
+        let result = await InventoryService.shared.daysOfSupply(for: p)
+
+        XCTAssertNil(result)
+    }
+
     func test_daysOfSupply_withFormDosage_usesTotalAmount() async {
         // 40mg per pill, doseAmount = 10mg/day (1×), inventory = 4 pills
         // totalAmount = 4 * 40 = 160mg; dailyRequirement = 10; days = 16

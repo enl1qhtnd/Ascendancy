@@ -44,15 +44,15 @@ struct ProtocolCard: View {
             
             // Info row: schedule, next dose
             HStack(spacing: 16) {
-                InfoBit(icon: "calendar.badge.clock", label: "Schedule", value: protocol_.schedule.description)
+                InfoBit(icon: "calendar.badge.clock", label: "Schedule", value: scheduleTypeText)
 
-                if let next = protocol_.nextDoseDate() {
-                    InfoBit(icon: "clock.arrow.circlepath", label: "Next Dose", value: relativeTime(next))
+                if let nextDoseText {
+                    InfoBit(icon: "clock.arrow.circlepath", label: "Next Dose", value: nextDoseText)
                 }
 
                 InfoBit(icon: "timer", label: "Half-life", value: "\(protocol_.halfLifeValue.formatted(.number.precision(.fractionLength(0...1)))) \(protocol_.halfLifeUnit.rawValue)")
 
-                InfoBit(icon: "calendar", label: "Weekly", value: "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
+                InfoBit(icon: "calendar", label: "Weekly", value: weeklyDoseText)
             }
             
             AscendancyDivider()
@@ -119,6 +119,23 @@ struct ProtocolCard: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private var nextDoseText: String? {
+        if protocol_.schedule.type == .custom {
+            return protocol_.schedule.description
+        }
+        return protocol_.nextDoseDate().map { relativeTime($0) }
+    }
+
+    private var scheduleTypeText: String {
+        guard protocol_.schedule.type != .custom else { return String(localized: "Custom") }
+        return protocol_.schedule.description
+    }
+
+    private var weeklyDoseText: String {
+        guard protocol_.schedule.type != .custom else { return "—" }
+        return "\(protocol_.weeklyDose.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)"
     }
 }
 

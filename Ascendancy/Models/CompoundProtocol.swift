@@ -367,7 +367,7 @@ final class CompoundProtocol {
         case .timesPerWeek:
             return Double(max(0, sched.timesPerWeek))
         case .custom:
-            return 7.0
+            return 0
         }
     }
 
@@ -489,7 +489,7 @@ final class CompoundProtocol {
             return nextAnchoredWeeklySlot(timesPerWeek: sched.timesPerWeek)
 
         case .custom:
-            return nextAnchoredIntervalDate(intervalDays: sched.intervalDays)
+            return nil
         }
     }
 

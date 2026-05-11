@@ -276,6 +276,40 @@ final class CompoundProtocolTests: XCTestCase {
         XCTAssertLessThanOrEqual(daysUntil, 7.0)
     }
 
+    // MARK: - custom schedule
+
+    func test_nextDoseDate_custom_returnsNilBecauseScheduleHasNoConcreteTime() {
+        let cal = Calendar.current
+        var sched = DoseSchedule()
+        sched.type = .custom
+        sched.intervalDays = 1
+        sched.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+        sched.customNotes = "Take only when directed"
+
+        let p = makeProtocol(schedule: sched, startDate: Date().addingTimeInterval(-7 * 86400))
+
+        XCTAssertNil(p.nextDoseDate(from: Date()))
+    }
+
+    func test_dosesPerWeek_custom_isZeroBecauseFrequencyIsUnknown() {
+        var sched = DoseSchedule()
+        sched.type = .custom
+        sched.customNotes = "Loading dose then clinician-defined follow-up"
+
+        let p = makeProtocol(schedule: sched)
+
+        XCTAssertEqual(p.dosesPerWeek, 0)
+        XCTAssertEqual(p.weeklyDose, 0)
+    }
+
+    func test_scheduleDescription_customShowsUserDefinedDoseTime() {
+        var sched = DoseSchedule()
+        sched.type = .custom
+        sched.customNotes = "Pre-Workout"
+
+        XCTAssertEqual(sched.description, "Pre-Workout")
+    }
+
     // MARK: - Schedule decoding round-trip
 
     func test_scheduleEncoding_roundTrip() {
