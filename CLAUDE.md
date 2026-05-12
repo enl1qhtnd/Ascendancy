@@ -54,10 +54,10 @@ CI (`.github/workflows/build.yml`) runs the build, tests, and IPA packaging on `
 ### Targets (defined in `project.yml`)
 
 - **Ascendancy** (app) — main SwiftUI app, bundle id `de.enl1qhtnd.asce`.
-- **AscendancyWidget** (app extension) — WidgetKit extension, bundle id `de.enl1qhtnd.asce.widget`. It re-uses `Ascendancy/Shared/AscendancyWidgetShared.swift` (the only file shared via direct source inclusion).
-- **AscendancyTests** (XCTest) — depends on the app target with `@testable import Ascendancy`.
+- **AscendancyWidget** (app extension) — WidgetKit extension, bundle id `de.enl1qhtnd.asce.widget`, built with `APPLICATION_EXTENSION_API_ONLY = YES`. Keep widget code extension-safe (no `UIApplication`, no app-only APIs). It re-uses `Ascendancy/Shared/AscendancyWidgetShared.swift` (the only file shared via direct source inclusion) and supports `.systemSmall` / `.systemMedium` / `.systemLarge` families.
+- **AscendancyTests** (XCTest) — depends on the app target with `@testable import Ascendancy`. Existing suites cover backup, scheduling, inventory, PK engine, numeric parsing, sort migration, and model behavior.
 
-The app and widget communicate via the App Group `group.de.enl1qhtnd.asce`. CloudKit sync uses container `iCloud.de.enl1qhtnd.asce` (private DB).
+The app and widget communicate via the App Group `group.de.enl1qhtnd.asce`. CloudKit sync uses container `iCloud.de.enl1qhtnd.asce` (private DB). The three entitlements files (`Ascendancy/Ascendancy.entitlements`, `AscendancyWidget/AscendancyWidget.entitlements`, and the `application-groups` list in `project.yml`) must stay aligned.
 
 ### App entry & data layer
 
@@ -86,25 +86,31 @@ The app and widget communicate via the App Group `group.de.enl1qhtnd.asce`. Clou
 
 The widget never accesses SwiftData directly. The flow is:
 
-1. App computes a snapshot via `WidgetSnapshotService.publish(protocols:logs:)` (called from `ContentView` when `widgetSnapshotFingerprint` changes, and on `task`).
+1. App computes a snapshot via `WidgetSnapshotService.publish(protocols:logs:)` (called from `ContentView` when `widgetSnapshotFingerprint` changes, and on `task`). Snapshot content: next scheduled dose, today's logged/total progress, upcoming doses, low-inventory items. `WidgetSnapshotService.publish` is a no-op under XCTest (gated on `AppDistribution.isRunningTests`) so unit tests don't write to the App Group.
 2. `AscendancyWidgetShared.saveSnapshot` writes JSON to the App Group container (`AscendancyWidgetSnapshot.json`).
 3. The widget reads via `AscendancyWidgetShared.loadSnapshot()` and `WidgetCenter.shared.reloadTimelines(ofKind:)` is invoked from the app.
 
-If you add fields the widget needs to read, extend the `AscendancyWidgetSnapshot` Codable struct in `Shared/AscendancyWidgetShared.swift` (compiled into both targets) — do not import app-target types into the widget.
+If you add fields the widget needs to read, extend the `AscendancyWidgetSnapshot` Codable struct in `Shared/AscendancyWidgetShared.swift` (compiled into both targets) — do not import app-target types into the widget. Widget UI strings are currently inline SwiftUI literals; if you need widget localization, explicitly add widget-side catalog resources in `project.yml`.
+
+App Groups require a signed install to exercise fully. `CODE_SIGNING_ALLOWED=NO` builds validate compilation and embedding only, not real app-group persistence.
 
 ### Services layer
 
-`Ascendancy/Services/` holds singletons / enums for cross-cutting concerns: `HealthKitService` (ObservableObject, `@Published` arrays for body weight / HR / steps / etc.), `NotificationService` (`actor`, schedules merged dose reminders via `scheduleAll(protocols:)` — overlapping dose times are coalesced into one notification), `InventoryService` (`@MainActor`, decrements on dose log respecting `formDosage` and form type — vials are restocked manually; `daysOfSupply` powers low-stock UI and widget rows), `BackupService` (`@MainActor` enum, exports/imports `.ascendancybackup` JSON via `FileDocument` — restore wipes all existing `DoseLog`, `MediaDocument`, and `CompoundProtocol` rows before inserting), `Haptics` (centralized generators, gated by `isEnabled`), `NumericInputParser` (locale-tolerant decimal parsing — use this everywhere the user types a number).
+`Ascendancy/Services/` holds singletons / enums for cross-cutting concerns: `HealthKitService` (ObservableObject, `@Published` arrays for body weight / HR / steps / etc.), `NotificationService` (`actor`, schedules merged dose reminders via `scheduleAll(protocols:)` — overlapping dose times are coalesced into one notification), `InventoryService` (`@MainActor`, decrements on dose log respecting `formDosage` and form type — vials are restocked manually; `daysOfSupply` powers low-stock UI and widget rows), `BackupService` (`@MainActor` enum, exports/imports `.ascendancybackup` JSON via `FileDocument` — restore wipes all existing `DoseLog`, `MediaDocument`, and `CompoundProtocol` rows before inserting, and also restores profile defaults), `Haptics` (centralized generators, gated by `isEnabled`), `NumericInputParser` (locale-tolerant decimal parsing — use this everywhere the user types a number).
+
+Canonical flow for logging a dose: create `DoseLog` → `InventoryService.decrement(...)` → save context → optionally fire a low-inventory notification. Schedule-related changes typically need coordinated updates across `DoseSchedule`, `CompoundProtocol.nextDoseDate`, `DoseScheduleDayHelper`, the protocol create/edit UI, `NotificationService`, `WidgetSnapshotService`, and tests.
 
 ### Localization
 
 The app supports 17 locales. `Localizable.xcstrings` and `InfoPlist.xcstrings` are **generated** from `Scripts/build_l10n.py` — do not hand-edit the catalogs. To add or change a string:
 
 1. Add the English source string to the `KEYS` list (and any per-locale overrides) in `Scripts/build_l10n.py`.
-2. Run `python3 Scripts/build_l10n.py` to regenerate both catalogs.
-3. Use the string in code via `String(localized: "…")`, `Text("…")`, or the `Text(catalogKey:)` / `LocalizedStringKey.catalog(_:)` helpers in `Extensions/LocalizedStringKey+Catalog.swift` for runtime keys.
+2. For Info.plist copy (HealthKit usage descriptions, etc.) update `build_infoplist()` in the same script instead.
+3. Run `python3 Scripts/build_l10n.py` to regenerate both catalogs. Do not hand-edit `.xcstrings` for keys owned by the script — the next run will overwrite them.
+4. Use the string in code via `String(localized: "…")`, `Text("…")`, or the `Text(catalogKey:)` / `LocalizedStringKey.catalog(_:)` helpers in `Extensions/LocalizedStringKey+Catalog.swift` for runtime keys.
+5. When adding a new region, update both `project.yml` `knownRegions` and the `LOCALES` list in `build_l10n.py`.
 
-In `project.yml` the catalogs are wired via explicit `buildPhase: resources` entries (XcodeGen's top-level `resources:` doesn't apply correctly here) — keep that shape if you add another catalog.
+In `project.yml` the catalogs are wired via explicit `buildPhase: resources` entries (XcodeGen's top-level `resources:` doesn't apply correctly here) — keep that shape if you add another catalog. The Swift compile phase under `Ascendancy/` deliberately excludes `**/*.xcstrings` so the catalogs aren't compiled as Swift.
 
 ## Conventions
 
@@ -113,3 +119,5 @@ In `project.yml` the catalogs are wired via explicit `buildPhase: resources` ent
 - Deployment target is iOS 17.0; Swift 5.9. SwiftUI + SwiftData first — avoid bringing in UIKit unless mirroring an Apple sample (e.g. `Components/PDFKitView.swift` wraps PDFKit).
 - Color per `CompoundCategory` comes from `category.uiColor` — that is the canonical source for any new UI surface that colors by category.
 - Source files live under `Ascendancy/{Models,Services,Views,Components,Extensions,Shared}`. XcodeGen picks them up automatically; just `xcodegen generate` after adding a file.
+- This is a health-adjacent tracking app. Avoid medical claims, dosing recommendations, diagnostic language, or wording that promises health outcomes in user-facing strings.
+- Don't commit `build/`, DerivedData, result bundles, or local signing/export files.
