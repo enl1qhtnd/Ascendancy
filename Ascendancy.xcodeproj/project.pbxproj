@@ -41,6 +41,7 @@
 		85FFF5A948F08A6DE4051B1D /* LogDoseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30CCBB636DA6275330BC4632 /* LogDoseSheet.swift */; };
 		87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */; };
 		8AA5D694F85CC81A575EEEAE /* AppIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = BF64565FF22E04CBDDCD7C21 /* AppIcon.png */; };
+		945C91F4A7013143885774C6 /* ImageDataThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C6FFF68F9CF75874E285D /* ImageDataThumbnail.swift */; };
 		99E3A7C5640F1CF46BC6FC23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1DCCE948632457FA826A335 /* Assets.xcassets */; };
 		A642BAB34B44330D2BA3BAD4 /* NewProtocolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69361A890000C4B18E31236 /* NewProtocolView.swift */; };
 		A825C497562DDB101CBDF33E /* MediaLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 277F18BF52DE52C477F567C3 /* MediaLibraryView.swift */; };
@@ -61,6 +62,7 @@
 		F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E21E1EEBA077B63AA3EF21 /* DoseLog.swift */; };
 		F650C9D7F7116CD30A2243C6 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D9822F41BE6C633EEF926D /* HealthKit.framework */; };
 		F808BE8B61A4C1E934CC73CC /* ProtocolSortMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DF0B30B9BDF831137152559 /* ProtocolSortMigrationTests.swift */; };
+		FB7CB3C84A36B544B1326D2B /* PKDataFingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522FFEDBC059E315FDB19DAB /* PKDataFingerprint.swift */; };
 		FD25131C11336AB8318D66DA /* AscendancyWidgetShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */; };
 /* End PBXBuildFile section */
 
@@ -114,6 +116,7 @@
 		4B758D17E127E95E0E437746 /* DoseScheduleDayHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseScheduleDayHelper.swift; sourceTree = "<group>"; };
 		4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyApp.swift; sourceTree = "<group>"; };
 		5143D96D2D035BC05F8A0702 /* InventoryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryServiceTests.swift; sourceTree = "<group>"; };
+		522FFEDBC059E315FDB19DAB /* PKDataFingerprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKDataFingerprint.swift; sourceTree = "<group>"; };
 		55635D5336458AE2E4ACBA28 /* NumericInputParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericInputParserTests.swift; sourceTree = "<group>"; };
 		5B5DD5E683F9C6BC857AA996 /* Ascendancy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ascendancy.entitlements; sourceTree = "<group>"; };
 		5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigration.swift; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 		DBA10A4DF8F52F6987FDED74 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E69361A890000C4B18E31236 /* NewProtocolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewProtocolView.swift; sourceTree = "<group>"; };
 		E943DE3BA041C48D41E1CB23 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		EC4C6FFF68F9CF75874E285D /* ImageDataThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataThumbnail.swift; sourceTree = "<group>"; };
 		F1DCCE948632457FA826A335 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4BA6310E729F2A550463DBF /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -302,6 +306,7 @@
 				919C7B9D2F90573DF7222DCB /* NotificationService.swift */,
 				3A969EA4D08E8B2CA2417D14 /* NumericInputParser.swift */,
 				D06D69AEB509A27981496512 /* PharmacokineticsEngine.swift */,
+				522FFEDBC059E315FDB19DAB /* PKDataFingerprint.swift */,
 				5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */,
 				6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */,
 			);
@@ -359,6 +364,7 @@
 			children = (
 				C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */,
 				2D0D23A0F822E0EDF55949A5 /* GlassCard.swift */,
+				EC4C6FFF68F9CF75874E285D /* ImageDataThumbnail.swift */,
 				6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */,
 				38183C22CFB8F2B9AABBCBB9 /* ProtocolCard.swift */,
 				86CC2E4AF72A85A70858AFBE /* StableLevelsRow.swift */,
@@ -510,6 +516,7 @@
 				17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */,
 				EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */,
 				ADA97C66C505A722EB128C28 /* HomeView.swift in Sources */,
+				945C91F4A7013143885774C6 /* ImageDataThumbnail.swift in Sources */,
 				380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */,
 				87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */,
 				85FFF5A948F08A6DE4051B1D /* LogDoseSheet.swift in Sources */,
@@ -521,6 +528,7 @@
 				AB1FD607E1B227D3110E58CF /* NotificationService.swift in Sources */,
 				62D31CFE451B774CA52D54CB /* NumericInputParser.swift in Sources */,
 				3A1DD03F7D890F2E60784405 /* PDFKitView.swift in Sources */,
+				FB7CB3C84A36B544B1326D2B /* PKDataFingerprint.swift in Sources */,
 				0732CC309DB6110209EA57B3 /* PharmacokineticsEngine.swift in Sources */,
 				4B6EDFFB6F3F58F5AFFF1B71 /* ProfileSettingsView.swift in Sources */,
 				B70FD61CBBB7740AC2C5B5C4 /* ProtocolCard.swift in Sources */,

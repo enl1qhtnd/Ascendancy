@@ -162,12 +162,21 @@ struct MediaLibraryView: View {
                                     .foregroundStyle(.red.opacity(0.8))
                                     .font(.system(size: 20))
                             )
-                    } else if let data = doc.imageData, let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: iconSize, height: iconSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else if let data = doc.imageData {
+                        ImageDataThumbnail(
+                            id: "\(doc.id.uuidString)-\(data.count)",
+                            data: data,
+                            size: CGSize(width: iconSize, height: iconSize),
+                            cornerRadius: 10
+                        ) {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    Image(systemName: "doc.fill")
+                                        .foregroundStyle(.white.opacity(0.5))
+                                        .font(.system(size: 20))
+                                )
+                        }
                     } else {
                         // Fallback generic doc
                         RoundedRectangle(cornerRadius: 10)

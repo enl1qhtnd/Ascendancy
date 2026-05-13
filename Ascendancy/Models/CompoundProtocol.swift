@@ -505,17 +505,39 @@ extension CompoundProtocol {
         SortDescriptor(\CompoundProtocol.name)
     ]
 
-    /// Cached stable level info (recalculated when logs change)
-    private static var stableLevelCache: [UUID: (logsCount: Int, info: StableLevelInfo)] = [:]
+    private struct StableLevelCacheKey: Hashable {
+        let startDate: Date
+        let halfLifeValue: Double
+        let halfLifeUnitRaw: String
+        let logsCount: Int
+        let logsHash: Int
+
+        init(protocol_: CompoundProtocol, logs: [DoseLog]) {
+            self.startDate = protocol_.startDate
+            self.halfLifeValue = protocol_.halfLifeValue
+            self.halfLifeUnitRaw = protocol_.halfLifeUnitRaw
+            self.logsCount = logs.count
+
+            var hasher = Hasher()
+            for log in logs.sorted(by: { $0.id.uuidString < $1.id.uuidString }) {
+                hasher.combine(log.id)
+                hasher.combine(log.timestamp)
+            }
+            self.logsHash = hasher.finalize()
+        }
+    }
+
+    /// Cached stable level info (recalculated when the dependent protocol or log fields change)
+    private static var stableLevelCache: [UUID: (key: StableLevelCacheKey, info: StableLevelInfo)] = [:]
 
     func cachedStableLevelInfo() -> StableLevelInfo {
         let logs = doseLogs ?? []
-        let logsCount = logs.count
-        if let cached = Self.stableLevelCache[id], cached.logsCount == logsCount {
+        let key = StableLevelCacheKey(protocol_: self, logs: logs)
+        if let cached = Self.stableLevelCache[id], cached.key == key {
             return cached.info
         }
         let info = PharmacokineticsEngine.stableLevelInfo(for: self, logs: logs)
-        Self.stableLevelCache[id] = (logsCount, info)
+        Self.stableLevelCache[id] = (key, info)
         return info
     }
 

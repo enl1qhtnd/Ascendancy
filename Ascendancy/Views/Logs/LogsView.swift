@@ -11,10 +11,13 @@ struct LogsView: View {
     
     @State private var searchText = ""
     @State private var selectedProtocolFilter: CompoundProtocol? = nil
-    @State private var showLogSheet = false
     @State private var selectedLogForEdit: DoseLog? = nil
-    
-    var filteredLogs: [DoseLog] {
+
+    private var activeProtocols: [CompoundProtocol] {
+        protocols.filter { $0.status == .active }
+    }
+
+    private var filteredLogs: [DoseLog] {
         logs.filter { log in
             let logName = log.protocol_?.name ?? log.protocolName
             let matchesSearch = searchText.isEmpty ||
@@ -24,25 +27,19 @@ struct LogsView: View {
             return matchesSearch && matchesProtocol
         }
     }
-    
-    var groupedLogs: [(String, [DoseLog])] {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        
-        let groups = Dictionary(grouping: filteredLogs) { log in
-            formatter.string(from: log.timestamp)
+
+    private func groupedLogs(from logs: [DoseLog]) -> [(Date, [DoseLog])] {
+        let calendar = Calendar.current
+        let groups = Dictionary(grouping: logs) { log in
+            calendar.startOfDay(for: log.timestamp)
         }
-        return groups.sorted { a, b in
-            let df = DateFormatter()
-            df.dateStyle = .medium
-            let d1 = df.date(from: a.key) ?? Date.distantPast
-            let d2 = df.date(from: b.key) ?? Date.distantPast
-            return d1 > d2
-        }
+        return groups.sorted { $0.key > $1.key }
     }
     
     var body: some View {
+        let visibleLogs = filteredLogs
+        let logSections = groupedLogs(from: visibleLogs)
+
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
@@ -54,7 +51,7 @@ struct LogsView: View {
                             FilterChip(label: "All", isSelected: selectedProtocolFilter == nil) {
                                 selectedProtocolFilter = nil
                             }
-                            ForEach(protocols.filter { $0.status == .active }) { p in
+                            ForEach(activeProtocols) { p in
                                 FilterChip(label: p.name.components(separatedBy: " ").first ?? p.name,
                                            isSelected: selectedProtocolFilter?.id == p.id) {
                                     selectedProtocolFilter = (selectedProtocolFilter?.id == p.id) ? nil : p
@@ -65,11 +62,11 @@ struct LogsView: View {
                         .padding(.vertical, 10)
                     }
                     
-                    if filteredLogs.isEmpty {
+                    if visibleLogs.isEmpty {
                         emptyState
                     } else {
                         List {
-                            ForEach(groupedLogs, id: \.0) { dateString, dayLogs in
+                            ForEach(logSections, id: \.0) { day, dayLogs in
                                 Section {
                                     ForEach(dayLogs) { log in
                                         LogEntryRow(log: log)
@@ -95,7 +92,7 @@ struct LogsView: View {
                                             }
                                     }
                                 } header: {
-                                    Text(dateString)
+                                    Text(day.formatted(date: .abbreviated, time: .omitted))
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundStyle(.white.opacity(0.4))
                                         .textCase(.uppercase)
@@ -117,7 +114,7 @@ struct LogsView: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Text("\(filteredLogs.count)")
+                    Text("\(visibleLogs.count)")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.4))
                         .padding(.horizontal, 8)

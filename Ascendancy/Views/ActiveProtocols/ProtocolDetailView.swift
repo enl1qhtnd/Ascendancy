@@ -17,6 +17,11 @@ struct ProtocolDetailView: View {
     @State private var currentLevel: Double = 0
     @State private var stableInfo: StableLevelInfo = StableLevelInfo(percentage: 0, hoursOnProtocol: 0, halfLivesElapsed: 0)
     @State private var pkRecalcTask: Task<Void, Never>? = nil
+    @State private var lastPKDataFingerprint: Int? = nil
+
+    private var pkDataFingerprint: Int {
+        PKDataFingerprint.single(protocol_)
+    }
     
     private func recalculatePK() {
         activeLevelData = PharmacokineticsEngine.activeLevel(
@@ -31,10 +36,17 @@ struct ProtocolDetailView: View {
         stableInfo = PharmacokineticsEngine.stableLevelInfo(for: protocol_, logs: logs)
     }
     
-    private func schedulePKRecalc() {
+    private func schedulePKRecalc(delay: Duration = .milliseconds(300)) {
+        let fingerprint = pkDataFingerprint
+        guard fingerprint != lastPKDataFingerprint else {
+            return
+        }
+
+        lastPKDataFingerprint = fingerprint
+
         pkRecalcTask?.cancel()
         pkRecalcTask = Task {
-            try? await Task.sleep(for: .milliseconds(300))
+            try? await Task.sleep(for: delay)
             guard !Task.isCancelled else { return }
             recalculatePK()
         }
@@ -155,10 +167,13 @@ struct ProtocolDetailView: View {
             )
         }
         .task {
-            recalculatePK()
+            schedulePKRecalc(delay: .zero)
         }
-        .onChange(of: protocol_.doseLogs?.count ?? 0) {
+        .onChange(of: pkDataFingerprint) {
             schedulePKRecalc()
+        }
+        .onDisappear {
+            pkRecalcTask?.cancel()
         }
     }
     

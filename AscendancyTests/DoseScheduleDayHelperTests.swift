@@ -11,9 +11,11 @@ final class DoseScheduleDayHelperTests: XCTestCase {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: CompoundProtocol.self, DoseLog.self, configurations: config)
         context = ModelContext(container)
+        DoseScheduleDayHelper.clearCache()
     }
 
     override func tearDownWithError() throws {
+        DoseScheduleDayHelper.clearCache()
         context = nil
         container = nil
     }
@@ -151,6 +153,29 @@ final class DoseScheduleDayHelperTests: XCTestCase {
     func test_scheduledRows_emptyProtocols_returnsEmpty() {
         let rows = DoseScheduleDayHelper.scheduledRows(protocols: [], on: Date())
         XCTAssertTrue(rows.isEmpty)
+    }
+
+    func test_scheduledRows_reflectsScheduleEditsForSameProtocolAndDay() {
+        let cal = Calendar.current
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: Date())!
+        let nineAM = cal.date(bySettingHour: 9, minute: 0, second: 0, of: tomorrow)!
+
+        var daily = DoseSchedule()
+        daily.type = .daily
+        daily.timesOfDay = [nineAM]
+
+        let p = makeProtocol(schedule: daily)
+        let initialRows = DoseScheduleDayHelper.scheduledRows(protocols: [p], on: tomorrow)
+        XCTAssertEqual(initialRows.count, 1)
+
+        var custom = DoseSchedule()
+        custom.type = .custom
+        custom.customNotes = "Paused for travel"
+        p.schedule = custom
+        try? context.save()
+
+        let editedRows = DoseScheduleDayHelper.scheduledRows(protocols: [p], on: tomorrow)
+        XCTAssertTrue(editedRows.isEmpty)
     }
 
     // MARK: - mergedRows

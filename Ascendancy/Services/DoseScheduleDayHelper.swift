@@ -6,14 +6,39 @@ enum DoseScheduleDayHelper {
 
     // MARK: - Cache
 
+    private struct ProtocolFingerprint: Hashable {
+        let id: UUID
+        let scheduleData: Data?
+        let startDate: Date
+        let endDate: Date?
+        let statusRaw: String
+
+        init(_ protocol_: CompoundProtocol) {
+            self.id = protocol_.id
+            self.scheduleData = protocol_.scheduleData
+            self.startDate = protocol_.startDate
+            self.endDate = protocol_.endDate
+            self.statusRaw = protocol_.statusRaw
+        }
+    }
+
     private struct CacheKey: Hashable {
-        let protocolIds: Set<UUID>
+        let protocols: [ProtocolFingerprint]
         let logsHash: Int
         let dayStart: Date
 
         init(protocols: [CompoundProtocol], logs: [DoseLog], day: Date) {
-            self.protocolIds = Set(protocols.map { $0.id })
-            self.logsHash = logs.map { "\($0.id)-\($0.timestamp)" }.joined().hashValue
+            self.protocols = protocols
+                .map(ProtocolFingerprint.init)
+                .sorted { $0.id.uuidString < $1.id.uuidString }
+
+            var hasher = Hasher()
+            for log in logs.sorted(by: { $0.id.uuidString < $1.id.uuidString }) {
+                hasher.combine(log.id)
+                hasher.combine(log.protocol_?.id)
+                hasher.combine(log.timestamp)
+            }
+            self.logsHash = hasher.finalize()
             self.dayStart = Calendar.current.startOfDay(for: day)
         }
     }

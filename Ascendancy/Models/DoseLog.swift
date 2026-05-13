@@ -41,11 +41,4 @@ final class DoseLog {
     var formattedDose: String {
         "\(actualDoseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(doseUnit.rawValue)"
     }
-    
-    var formattedTimestamp: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: timestamp)
-    }
 }

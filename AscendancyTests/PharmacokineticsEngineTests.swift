@@ -170,6 +170,23 @@ final class PharmacokineticsEngineTests: XCTestCase {
         XCTAssertEqual(info.hoursOnProtocol, 0)
     }
 
+    func test_cachedStableLevelInfo_reflectsSameCountLogTimestampEdits() {
+        let halfLifeHours = 24.0
+        let p = makeProtocol(halfLifeValue: halfLifeHours, startDate: Date())
+        let log = makeLog(for: p, amount: 10, hoursAgo: halfLifeHours * 2)
+        p.doseLogs?.append(log)
+        p.clearStableLevelCache()
+
+        let earlyInfo = p.cachedStableLevelInfo()
+        XCTAssertEqual(earlyInfo.percentage, 75.0, accuracy: 2.0)
+
+        log.timestamp = Date()
+        try? context.save()
+
+        let editedInfo = p.cachedStableLevelInfo()
+        XCTAssertLessThan(editedInfo.percentage, 10.0)
+    }
+
     // MARK: - hoursUntilBelow
 
     func test_hoursUntilBelow_zeroHalfLife_returnsNil() {

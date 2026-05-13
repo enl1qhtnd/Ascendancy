@@ -49,11 +49,51 @@ struct MetricsView: View {
     
     // Cached PK calculation
     @State private var combinedLevelData: [ActiveLevelDataPoint] = []
+    @State private var pkRecalcTask: Task<Void, Never>? = nil
+    @State private var lastPKDataFingerprint: Int? = nil
+
+    private var pkDataFingerprint: Int {
+        PKDataFingerprint.combined(protocols: activeProtocols, periodDays: periodDays)
+    }
     
     private func recalculateCombinedLevels() {
+        let periodDays = periodDays
         let startDate = Calendar.current.date(byAdding: .day, value: -periodDays, to: Date())
-        let pairs = activeProtocols.map { ($0, $0.doseLogs ?? []) }
-        combinedLevelData = PharmacokineticsEngine.combinedActiveLevel(protocols: pairs, startDate: startDate)
+        let snapshots = activeProtocols.map { protocol_ in
+            PKProtocolSnapshot(
+                startDate: protocol_.startDate,
+                halfLifeHours: protocol_.halfLifeInHours,
+                logs: (protocol_.doseLogs ?? [])
+                    .map { PKDoseLogSnapshot(timestamp: $0.timestamp, actualDoseAmount: $0.actualDoseAmount) }
+                    .sorted { $0.timestamp < $1.timestamp }
+            )
+        }
+
+        Task.detached(priority: .userInitiated) {
+            let newData = PharmacokineticsEngine.combinedActiveLevel(
+                snapshots: snapshots,
+                startDate: startDate
+            )
+            await MainActor.run {
+                combinedLevelData = newData
+            }
+        }
+    }
+
+    private func schedulePKRecalc(delay: Duration = .milliseconds(300)) {
+        let fingerprint = pkDataFingerprint
+        guard fingerprint != lastPKDataFingerprint else {
+            return
+        }
+
+        lastPKDataFingerprint = fingerprint
+
+        pkRecalcTask?.cancel()
+        pkRecalcTask = Task {
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled else { return }
+            recalculateCombinedLevels()
+        }
     }
     
     var avgSteps: Double {
@@ -266,13 +306,13 @@ struct MetricsView: View {
         }
         .task {
             await healthKit.requestAuthorization()
-            recalculateCombinedLevels()
+            schedulePKRecalc(delay: .zero)
         }
-        .onChange(of: selectedPeriod) {
-            recalculateCombinedLevels()
+        .onChange(of: pkDataFingerprint) {
+            schedulePKRecalc()
         }
-        .onChange(of: activeProtocols.count) {
-            recalculateCombinedLevels()
+        .onDisappear {
+            pkRecalcTask?.cancel()
         }
     }
     

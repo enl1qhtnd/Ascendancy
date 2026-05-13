@@ -3,6 +3,12 @@ import SwiftUI
 struct ProtocolCard: View {
     let protocol_: CompoundProtocol
     var onLogDose: (() -> Void)? = nil
+
+    private static let relativeFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter
+    }()
     
     var activeLevel: Double {
         PharmacokineticsEngine.currentLevel(for: protocol_, logs: protocol_.doseLogs ?? [])
@@ -116,9 +122,7 @@ struct ProtocolCard: View {
     }
     
     private func relativeTime(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
+        Self.relativeFormatter.localizedString(for: date, relativeTo: Date())
     }
 
     private var nextDoseText: String? {

@@ -14,7 +14,6 @@ struct HomeView: View {
 
     @StateObject private var healthKit = HealthKitService.shared
     @State private var showProfile = false
-    @State private var showLogSheet = false
     @State private var selectedProtocolForLog: CompoundProtocol? = nil
 
     @AppStorage("profileImageData") private var profileImageData: Data?
@@ -25,8 +24,11 @@ struct HomeView: View {
     @State private var pkRecalcTask: Task<Void, Never>? = nil
 
     // Track data version to avoid unnecessary recalculations
-    @State private var lastProtocolsHash: Int = 0
-    @State private var lastLogsHash: Int = 0
+    @State private var lastPKDataFingerprint: Int? = nil
+
+    private var pkDataFingerprint: Int {
+        PKDataFingerprint.combined(protocols: activeProtocols)
+    }
 
     private func recalculateCombinedLevels() {
         let snapshots = activeProtocols.map { protocol_ in
@@ -52,21 +54,17 @@ struct HomeView: View {
         }
     }
 
-    private func schedulePKRecalc() {
-        // Check if data actually changed
-        let protocolsHash = activeProtocols.map { "\($0.id)-\($0.doseLogs?.count ?? 0)" }.joined().hashValue
-        let logsHash = allLogs.prefix(100).map { "\($0.id)-\($0.timestamp)" }.joined().hashValue
-
-        guard protocolsHash != lastProtocolsHash || logsHash != lastLogsHash else {
+    private func schedulePKRecalc(delay: Duration = .milliseconds(300)) {
+        let fingerprint = pkDataFingerprint
+        guard fingerprint != lastPKDataFingerprint else {
             return // No change, skip recalculation
         }
 
-        lastProtocolsHash = protocolsHash
-        lastLogsHash = logsHash
+        lastPKDataFingerprint = fingerprint
 
         pkRecalcTask?.cancel()
         pkRecalcTask = Task {
-            try? await Task.sleep(for: .milliseconds(300))
+            try? await Task.sleep(for: delay)
             guard !Task.isCancelled else { return }
             recalculateCombinedLevels()
         }
@@ -114,13 +112,13 @@ struct HomeView: View {
         }
         .task {
             await healthKit.requestAuthorization()
-            recalculateCombinedLevels()
+            schedulePKRecalc(delay: .zero)
         }
-        .onChange(of: activeProtocols.count) {
+        .onChange(of: pkDataFingerprint) {
             schedulePKRecalc()
         }
-        .onChange(of: allLogs.count) {
-            schedulePKRecalc()
+        .onDisappear {
+            pkRecalcTask?.cancel()
         }
     }
     
@@ -235,115 +233,6 @@ struct ActiveProtocolsTile: View {
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
                     }
-                }
-            }
-        }
-        .glassCard()
-    }
-}
-
-// MARK: - Next Dose Tile
-
-struct NextDoseTile: View {
-    let protocol_: CompoundProtocol?
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            TileHeader(icon: "clock.arrow.circlepath", title: "Next Dose")
-            
-            if let p = protocol_, let nextDate = p.nextDoseDate() {
-                HStack(alignment: .center, spacing: 14) {
-                    CategoryIcon(category: p.category, size: 40)
-                    
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(p.name)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(.white)
-                        Text("\(p.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(p.doseUnit.rawValue)")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .trailing, spacing: 3) {
-                        Text(nextDate, format: .dateTime.hour().minute())
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text(relativeDate(nextDate))
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.45))
-                    }
-                }
-            } else {
-                Text("No upcoming doses scheduled")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.white.opacity(0.35))
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
-            }
-        }
-        .glassCard()
-    }
-    
-    private func relativeDate(_ date: Date) -> String {
-        if Calendar.current.isDateInToday(date) { return String(localized: "Today") }
-        if Calendar.current.isDateInTomorrow(date) { return String(localized: "Tomorrow") }
-        return date.formatted(.dateTime.weekday(.wide))
-    }
-}
-
-// MARK: - Bodyweight Tile
-
-struct BodyweightTile: View {
-    @ObservedObject var healthKit: HealthKitService
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            TileHeader(icon: "scalemass.fill", title: "Bodyweight")
-
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 2) {
-                    if let w = healthKit.latestWeight {
-                        HStack(alignment: .firstTextBaseline, spacing: 3) {
-                            Text(w.formatted(.number.precision(.fractionLength(1))))
-                                .font(.system(size: 30, weight: .bold, design: .rounded))
-                                .foregroundStyle(.white)
-                            Text("kg")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.5))
-                        }
-                        HStack(spacing: 3) {
-                            let trend = healthKit.weightTrend7Day
-                            Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
-                            Text(String(format: String(localized: "%1$+.1f kg (7d)"), locale: .current, trend))
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.45))
-                        }
-                    } else {
-                        Text("–")
-                            .font(.system(size: 30, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.3))
-                    }
-                }
-
-                Spacer()
-
-                // Mini sparkline
-                let recent = Array(healthKit.bodyWeightSamples.suffix(21))
-                if !recent.isEmpty {
-                    let levels = recent.map { point -> ActiveLevelDataPoint in
-                        ActiveLevelDataPoint(date: point.date, level: point.value)
-                    }
-                    CompactLineChart(
-                        dataPoints: levels,
-                        lineColor: .blue,
-                        showCurrentDot: false,
-                        height: 44
-                    )
-                    .frame(width: 100)
                 }
             }
         }
@@ -797,12 +686,30 @@ struct PicturesDocumentsTile: View {
                 
                 HStack(spacing: 8) {
                     ForEach(documents.prefix(4)) { doc in
-                        if let data = doc.imageData, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
+                        if let data = doc.imageData {
+                            ImageDataThumbnail(
+                                id: "\(doc.id.uuidString)-\(data.count)",
+                                data: data,
+                                size: CGSize(width: 54, height: 54),
+                                cornerRadius: 8
+                            ) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.04))
+                                    .overlay(
+                                        Image(systemName: "doc.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundStyle(.white.opacity(0.08))
+                                    )
+                            }
+                        } else {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill((doc.fileExtension == "pdf" ? Color.red : Color.white).opacity(0.08))
                                 .frame(width: 54, height: 54)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    Image(systemName: doc.fileExtension == "pdf" ? "doc.text.fill" : "doc.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundStyle((doc.fileExtension == "pdf" ? Color.red : Color.white).opacity(0.45))
+                                )
                         }
                     }
                     

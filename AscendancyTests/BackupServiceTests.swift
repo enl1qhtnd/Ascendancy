@@ -6,8 +6,8 @@ final class BackupServiceTests: XCTestCase {
 
     @MainActor
     func test_exportAndRestore_roundTripsProtocolsLogsDocumentsAndProfile() throws {
-        let (_, sourceContext) = try makeStore()
-        let (_, targetContext) = try makeStore()
+        let (sourceContainer, sourceContext) = try makeStore()
+        _ = sourceContainer
         let (sourceSuite, sourceDefaults) = try makeDefaults()
         let (targetSuite, targetDefaults) = try makeDefaults()
         defer {
@@ -68,6 +68,10 @@ final class BackupServiceTests: XCTestCase {
         sourceDefaults.set("Recovery", forKey: "userGoal")
         sourceDefaults.set(Data([9, 8, 7]), forKey: "profileImageData")
 
+        let data = try BackupService.exportData(from: sourceContext, userDefaults: sourceDefaults)
+        let (targetContainer, targetContext) = try makeStore()
+        _ = targetContainer
+
         targetContext.insert(CompoundProtocol(
             name: "Old",
             category: .medication,
@@ -79,7 +83,6 @@ final class BackupServiceTests: XCTestCase {
         targetDefaults.set("Old User", forKey: "userName")
         try targetContext.save()
 
-        let data = try BackupService.exportData(from: sourceContext, userDefaults: sourceDefaults)
         let summary = try BackupService.restore(from: data, into: targetContext, userDefaults: targetDefaults)
 
         XCTAssertEqual(summary.protocolCount, 1)
@@ -162,7 +165,7 @@ final class BackupServiceTests: XCTestCase {
 
     @MainActor
     private func makeStore() throws -> (ModelContainer, ModelContext) {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration("BackupServiceTests-\(UUID().uuidString)", isStoredInMemoryOnly: true)
         let container = try ModelContainer(
             for: CompoundProtocol.self,
             DoseLog.self,
