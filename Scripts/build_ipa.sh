@@ -8,12 +8,11 @@ APP_NAME="Ascendancy"
 PROJECT_FILE="$ROOT_DIR/Ascendancy.xcodeproj"
 SCHEME="Ascendancy"
 BUILD_DIR="$ROOT_DIR/build"
-INFO_PLIST="$ROOT_DIR/Ascendancy/Info.plist"
-
-VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$INFO_PLIST")"
+MARKETING_VERSION=$(grep "MARKETING_VERSION:" "$ROOT_DIR/project.yml" | sed 's/.*"\(.*\)".*/\1/')
+BUILD_VERSION=$(grep "CURRENT_PROJECT_VERSION:" "$ROOT_DIR/project.yml" | sed 's/.*"\(.*\)".*/\1/')
 APP_PATH="$BUILD_DIR/Release-iphoneos/$APP_NAME.app"
 PAYLOAD_DIR="$BUILD_DIR/Payload"
-IPA_NAME="${APP_NAME}_v${VERSION}.ipa"
+IPA_NAME="${APP_NAME}_v${MARKETING_VERSION}_b${BUILD_VERSION}.ipa"
 IPA_PATH="$BUILD_DIR/$IPA_NAME"
 
 cleanup() {
