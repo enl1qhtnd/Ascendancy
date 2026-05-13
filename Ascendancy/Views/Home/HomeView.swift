@@ -18,6 +18,7 @@ struct HomeView: View {
     @State private var selectedProtocolForLog: CompoundProtocol? = nil
 
     @AppStorage("profileImageData") private var profileImageData: Data?
+    @AppStorage("userName") private var userName: String = ""
 
     // Cached PK calculation
     @State private var combinedLevelData: [ActiveLevelDataPoint] = []
@@ -181,11 +182,14 @@ struct HomeView: View {
     
     private var greetingText: String {
         let hour = Calendar.current.component(.hour, from: Date())
+        let base: String
         switch hour {
-        case 0..<12: return String(localized: "Good morning")
-        case 12..<17: return String(localized: "Good afternoon")
-        default: return String(localized: "Good evening")
+        case 0..<12: base = String(localized: "Good morning")
+        case 12..<17: base = String(localized: "Good afternoon")
+        default: base = String(localized: "Good evening")
         }
+        let name = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? base : "\(base), \(name)"
     }
 }
 
