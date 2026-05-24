@@ -77,17 +77,16 @@ struct WeekDotRow: View {
         }
         if activeForDay.isEmpty { return .noDose }
         
-        let scheduled = DoseScheduleDayHelper.scheduledRows(protocols: activeForDay, on: day)
-        if scheduled.isEmpty {
-            return .complete
+        let rows = DoseScheduleDayHelper.mergedRows(protocols: activeForDay, logs: logs, on: day)
+        if rows.isEmpty { return .noDose }
+
+        let allLogged = rows.allSatisfy {
+            DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
         }
-        
-        let dayLogs = logs.filter {
-            calendar.startOfDay(for: $0.timestamp) == dayStart
-        }
-        
-        if dayLogs.isEmpty { return dayStart < today ? .missed : .future }
-        return .complete
+        if allLogged { return .complete }
+
+        if dayStart < today { return .missed }
+        return .future
     }
     
     private func circleColor(_ status: DayStatus) -> Color {
