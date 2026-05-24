@@ -288,17 +288,35 @@ struct EditDoseSheet: View {
 
     private func saveEdits() {
         guard let amount = NumericInputParser.parse(doseAmount), amount > 0 else { return }
+        guard let protocol_ = log.protocol_ else { return }
+
+        let previousAmount = log.actualDoseAmount
         log.actualDoseAmount = amount
         log.doseUnit = doseUnit
         log.timestamp = timestamp
         log.notes = notes
+
+        let warning = InventoryService.shared.adjustInventoryOnEdit(
+            for: protocol_,
+            previousAmount: previousAmount,
+            updatedDose: log
+        )
+
         do {
             try context.save()
-            Haptics.success()
-            dismiss()
         } catch {
             print("[EditDoseSheet] Failed to save edits: \(error)")
             Haptics.error()
+            return
         }
+
+        if case .some(let w) = warning, case .low = w {
+            Task { @MainActor in
+                await NotificationService.shared.sendLowInventoryAlert(for: protocol_)
+            }
+        }
+
+        Haptics.success()
+        dismiss()
     }
 }

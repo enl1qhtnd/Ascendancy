@@ -129,6 +129,9 @@ struct LogsView: View {
     }
     
     private func deleteLog(_ log: DoseLog) {
+        if let protocol_ = log.protocol_ {
+            InventoryService.shared.restoreInventory(for: protocol_, dose: log)
+        }
         context.delete(log)
         try? context.save()
     }

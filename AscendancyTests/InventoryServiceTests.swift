@@ -145,6 +145,71 @@ final class InventoryServiceTests: XCTestCase {
         XCTAssertEqual(p.inventoryCount, 0.0)
     }
 
+    // MARK: - restoreInventory
+
+    func test_restoreInventory_pill_addsOneUnit() async {
+        let p = makeProtocol(form: .pill, inventory: 10.0)
+        let log = makeLog(for: p, amount: 5.0)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        XCTAssertEqual(p.inventoryCount, 9.0)
+        await InventoryService.shared.restoreInventory(for: p, dose: log)
+        XCTAssertEqual(p.inventoryCount, 10.0)
+    }
+
+    func test_restoreInventory_syringe_addsActualDoseAmount() async {
+        let p = makeProtocol(form: .syringe, doseAmount: 2.5, inventory: 10.0)
+        let log = makeLog(for: p, amount: 1.5)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        await InventoryService.shared.restoreInventory(for: p, dose: log)
+        XCTAssertEqual(p.inventoryCount, 10.0, accuracy: 0.001)
+    }
+
+    func test_restoreInventory_vial_isNoOp() async {
+        let p = makeProtocol(form: .vial, inventory: 10.0)
+        let log = makeLog(for: p)
+        await InventoryService.shared.restoreInventory(for: p, dose: log)
+        XCTAssertEqual(p.inventoryCount, 10.0)
+    }
+
+    // MARK: - adjustInventoryOnEdit
+
+    func test_adjustInventoryOnEdit_syringe_appliesDelta() async {
+        let p = makeProtocol(form: .syringe, doseAmount: 2.5, inventory: 10.0)
+        let log = makeLog(for: p, amount: 1.5)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        log.actualDoseAmount = 2.0
+        await InventoryService.shared.adjustInventoryOnEdit(for: p, previousAmount: 1.5, updatedDose: log)
+        // Started at 10, logged 1.5 → 8.5, edit to 2.0 → 8.0
+        XCTAssertEqual(p.inventoryCount, 8.0, accuracy: 0.001)
+    }
+
+    func test_adjustInventoryOnEdit_pill_amountChangeIsNoOp() async {
+        let p = makeProtocol(form: .pill, inventory: 10.0)
+        let log = makeLog(for: p, amount: 5.0)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        log.actualDoseAmount = 100.0
+        await InventoryService.shared.adjustInventoryOnEdit(for: p, previousAmount: 5.0, updatedDose: log)
+        XCTAssertEqual(p.inventoryCount, 9.0)
+    }
+
+    func test_adjustInventoryOnEdit_withFormDosage_appliesFractionalDelta() async {
+        let p = makeProtocol(form: .pill, doseAmount: 10.0, inventory: 10.0, formDosage: 40.0)
+        let log = makeLog(for: p, amount: 10.0)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        log.actualDoseAmount = 20.0
+        await InventoryService.shared.adjustInventoryOnEdit(for: p, previousAmount: 10.0, updatedDose: log)
+        // 10mg → 0.25 units, 20mg → 0.5 units, net -0.25 → 9.5
+        XCTAssertEqual(p.inventoryCount, 9.5, accuracy: 0.001)
+    }
+
+    func test_adjustInventoryOnEdit_timestampOnlyChangeIsNoOp() async {
+        let p = makeProtocol(form: .syringe, doseAmount: 2.5, inventory: 10.0)
+        let log = makeLog(for: p, amount: 1.5)
+        await InventoryService.shared.decrementInventory(for: p, dose: log)
+        await InventoryService.shared.adjustInventoryOnEdit(for: p, previousAmount: 1.5, updatedDose: log)
+        XCTAssertEqual(p.inventoryCount, 8.5, accuracy: 0.001)
+    }
+
     // MARK: - addInventory
 
     func test_addInventory_increasesCount() async {
