@@ -234,6 +234,49 @@ final class CompoundProtocolTests: XCTestCase {
         XCTAssertEqual(cal.component(.weekday, from: next!), 2)  // Monday is closer
     }
 
+    func test_nextDoseDate_specificWeekdays_sameDayBeforeDoseTime_returnsToday() {
+        let cal = Calendar.current
+        var comps = DateComponents(); comps.weekday = 2  // Monday
+        guard let monday = cal.nextDate(after: Date().addingTimeInterval(-86400 * 7), matching: comps, matchingPolicy: .nextTimePreservingSmallerComponents) else { return }
+
+        let doseTime = cal.date(bySettingHour: 9, minute: 0, second: 0, of: monday)!
+        let queryTime = cal.date(bySettingHour: 7, minute: 0, second: 0, of: monday)!
+
+        var sched = DoseSchedule()
+        sched.type = .specificWeekdays
+        sched.weekdays = [.monday]
+        sched.timesOfDay = [doseTime]
+
+        let p = makeProtocol(schedule: sched)
+        let next = p.nextDoseDate(from: queryTime)
+
+        XCTAssertNotNil(next)
+        XCTAssertEqual(next, doseTime)
+        XCTAssertEqual(cal.component(.weekday, from: next!), 2)
+    }
+
+    func test_nextDoseDate_specificWeekdays_sameDayAfterDoseTime_skipsToNextOccurrence() {
+        let cal = Calendar.current
+        var comps = DateComponents(); comps.weekday = 2  // Monday
+        guard let monday = cal.nextDate(after: Date().addingTimeInterval(-86400 * 7), matching: comps, matchingPolicy: .nextTimePreservingSmallerComponents) else { return }
+
+        let doseTime = cal.date(bySettingHour: 9, minute: 0, second: 0, of: monday)!
+        let queryTime = cal.date(bySettingHour: 10, minute: 0, second: 0, of: monday)!
+
+        var sched = DoseSchedule()
+        sched.type = .specificWeekdays
+        sched.weekdays = [.monday]
+        sched.timesOfDay = [doseTime]
+
+        let p = makeProtocol(schedule: sched)
+        let next = p.nextDoseDate(from: queryTime)
+
+        XCTAssertNotNil(next)
+        XCTAssertGreaterThan(next!, queryTime)
+        let daysUntilNext = cal.dateComponents([.day], from: cal.startOfDay(for: queryTime), to: cal.startOfDay(for: next!)).day ?? -1
+        XCTAssertEqual(daysUntilNext, 7)
+    }
+
     func test_nextDoseDate_specificWeekdays_emptySet_returnsNil() {
         var sched = DoseSchedule()
         sched.type = .specificWeekdays

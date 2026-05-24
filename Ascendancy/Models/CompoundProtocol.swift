@@ -475,12 +475,12 @@ final class CompoundProtocol {
         case .specificWeekdays:
             let targetWeekdays = Set(sched.weekdays.map { $0.rawValue })
             guard !targetWeekdays.isEmpty else { return nil }
-            // Search forward up to 14 days for the next matching weekday
-            for offset in 1...14 {
+            for offset in 0...14 {
                 guard let candidate = cal.date(byAdding: .day, value: offset, to: date) else { continue }
                 let weekday = cal.component(.weekday, from: candidate)
                 if targetWeekdays.contains(weekday) {
-                    return applyDoseTime(to: candidate)
+                    let doseDate = applyDoseTime(to: candidate)
+                    if doseDate > date { return doseDate }
                 }
             }
             return nil
