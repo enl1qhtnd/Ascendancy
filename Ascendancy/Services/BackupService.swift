@@ -31,6 +31,7 @@ struct AscendancyBackupDocument: FileDocument {
 enum BackupError: LocalizedError {
     case emptyFile
     case unsupportedVersion(Int)
+    case invalidPastedBackup
 
     var errorDescription: String? {
         switch self {
@@ -38,6 +39,8 @@ enum BackupError: LocalizedError {
             return String(localized: "The selected backup file is empty.")
         case .unsupportedVersion(let version):
             return String(format: String(localized: "This backup was created with an unsupported format version (%lld)."), version)
+        case .invalidPastedBackup:
+            return String(localized: "Clipboard does not contain backup data.")
         }
     }
 }
@@ -67,6 +70,35 @@ enum BackupService {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd-HHmm"
         return "Ascendancy-Backup-\(formatter.string(from: createdAt)).ascendancybackup"
+    }
+
+    static func dataFromPastedString(_ string: String) throws -> Data {
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw BackupError.emptyFile }
+
+        let data: Data
+        if trimmed.hasPrefix("{") {
+            guard let jsonData = trimmed.data(using: .utf8) else {
+                throw BackupError.invalidPastedBackup
+            }
+            data = jsonData
+        } else if let decoded = Data(base64Encoded: trimmed, options: .ignoreUnknownCharacters) {
+            data = decoded
+        } else {
+            throw BackupError.invalidPastedBackup
+        }
+
+        guard !data.isEmpty else { throw BackupError.emptyFile }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let backup = try decoder.decode(BackupPayload.self, from: data)
+
+        guard backup.metadata.formatVersion <= currentFormatVersion else {
+            throw BackupError.unsupportedVersion(backup.metadata.formatVersion)
+        }
+
+        return data
     }
 
     static func exportData(from context: ModelContext, userDefaults: UserDefaults = .standard) throws -> Data {

@@ -137,6 +137,36 @@ final class BackupServiceTests: XCTestCase {
     }
 
     @MainActor
+    func test_dataFromPastedString_acceptsRawJSON() throws {
+        let (_, context) = try makeStore()
+        let data = try BackupService.exportData(from: context)
+        let json = try XCTUnwrap(String(data: data, encoding: .utf8))
+
+        let parsed = try BackupService.dataFromPastedString(json)
+        XCTAssertEqual(parsed, data)
+    }
+
+    @MainActor
+    func test_dataFromPastedString_acceptsBase64EncodedJSON() throws {
+        let (_, context) = try makeStore()
+        let data = try BackupService.exportData(from: context)
+        let encoded = data.base64EncodedString()
+
+        let parsed = try BackupService.dataFromPastedString(encoded)
+        XCTAssertEqual(parsed, data)
+    }
+
+    @MainActor
+    func test_dataFromPastedString_rejectsInvalidContent() {
+        XCTAssertThrowsError(try BackupService.dataFromPastedString("not backup data")) { error in
+            guard case BackupError.invalidPastedBackup = error else {
+                XCTFail("Expected invalidPastedBackup, got \(error)")
+                return
+            }
+        }
+    }
+
+    @MainActor
     func test_restoreRejectsUnsupportedFutureBackupFormat() throws {
         let (_, context) = try makeStore()
         let payload = """

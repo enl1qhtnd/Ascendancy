@@ -130,7 +130,12 @@ struct ProfileSettingsView: View {
                                 exportBackup()
                             }
                             AscendancyDivider()
-                            settingsActionRow(title: "Import Backup", systemImage: "square.and.arrow.down") {
+                            settingsActionRow(
+                                title: "Import Backup",
+                                systemImage: "square.and.arrow.down",
+                                longPressMinimumDuration: 5,
+                                longPressAction: pasteBackupFromClipboard
+                            ) {
                                 Haptics.tap()
                                 showBackupImporter = true
                             }
@@ -258,17 +263,38 @@ struct ProfileSettingsView: View {
         }
     }
 
-    private func settingsActionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack {
-                Label(LocalizedStringKey(title), systemImage: systemImage)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.8))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.white.opacity(0.3))
+    @ViewBuilder
+    private func settingsActionRow(
+        title: String,
+        systemImage: String,
+        longPressMinimumDuration: TimeInterval? = nil,
+        longPressAction: (() -> Void)? = nil,
+        action: @escaping () -> Void
+    ) -> some View {
+        if let longPressMinimumDuration, let longPressAction {
+            settingsActionLabel(title: title, systemImage: systemImage)
+                .contentShape(Rectangle())
+                .gesture(
+                    LongPressGesture(minimumDuration: longPressMinimumDuration)
+                        .onEnded { _ in longPressAction() }
+                        .exclusively(before: TapGesture().onEnded { action() })
+                )
+        } else {
+            Button(action: action) {
+                settingsActionLabel(title: title, systemImage: systemImage)
             }
+        }
+    }
+
+    private func settingsActionLabel(title: String, systemImage: String) -> some View {
+        HStack {
+            Label(LocalizedStringKey(title), systemImage: systemImage)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.8))
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.3))
         }
     }
 
@@ -308,6 +334,39 @@ struct ProfileSettingsView: View {
                 Haptics.error()
                 backupAlert = BackupAlert(title: String(localized: "Export Failed"), message: error.localizedDescription)
             }
+    }
+
+    private func pasteBackupFromClipboard() {
+        let pasteboard = UIPasteboard.general
+        let pastedString: String? = {
+            if let string = pasteboard.string {
+                return string
+            }
+            let jsonType = UTType.json.identifier
+            let plainTextType = UTType.plainText.identifier
+            if let data = pasteboard.data(forPasteboardType: jsonType) ?? pasteboard.data(forPasteboardType: plainTextType) {
+                return String(data: data, encoding: .utf8)
+            }
+            return nil
+        }()
+
+        guard let pastedString else {
+            Haptics.error()
+            backupAlert = BackupAlert(
+                title: String(localized: "Import Failed"),
+                message: String(localized: "Clipboard does not contain backup data.")
+            )
+            return
+        }
+
+        do {
+            pendingImportData = try BackupService.dataFromPastedString(pastedString)
+            Haptics.warning()
+            showImportConfirmation = true
+        } catch {
+            Haptics.error()
+            backupAlert = BackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
+        }
     }
 
     private func readBackupImportResult(_ result: Result<[URL], Error>) {

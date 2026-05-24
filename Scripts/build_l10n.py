@@ -163,6 +163,7 @@ KEYS = [
     "Low Inventory: %@",
     "Only %@ %@ remaining.",
     "The selected backup file is empty.",
+    "Clipboard does not contain backup data.",
     "This backup was created with an unsupported format version (%lld).",
     "Imported %1$lld protocols, %2$lld logs, and %3$lld files.",
     "1 day",
@@ -1789,6 +1790,7 @@ LOCALE_SUPPLEMENTS = {
         "Disabled": "Deaktiviert",
         "Backup Imported": "Backup importiert",
         "The selected backup file is empty.": "Die ausgewählte Backup-Datei ist leer.",
+        "Clipboard does not contain backup data.": "Die Zwischenablage enthält keine Backup-Daten.",
         "This backup was created with an unsupported format version (%lld).": "Dieses Backup wurde mit einer nicht unterstützten Formatversion (%lld) erstellt.",
         "Imported %1$lld protocols, %2$lld logs, and %3$lld files.": "%1$lld Protokolle, %2$lld Einträge und %3$lld Dateien importiert.",
         "1 day": "1 Tag",
@@ -1889,6 +1891,7 @@ LOCALE_SUPPLEMENTS = {
         "Disabled": "Desactivado",
         "Backup Imported": "Copia importada",
         "The selected backup file is empty.": "El archivo de copia seleccionado está vacío.",
+        "Clipboard does not contain backup data.": "El portapapeles no contiene datos de copia de seguridad.",
         "This backup was created with an unsupported format version (%lld).": "Esta copia se creó con una versión de formato no compatible (%lld).",
         "Imported %1$lld protocols, %2$lld logs, and %3$lld files.": "Se importaron %1$lld protocolos, %2$lld registros y %3$lld archivos.",
         "1 day": "1 día",
@@ -1989,6 +1992,7 @@ LOCALE_SUPPLEMENTS = {
         "Disabled": "Désactivé",
         "Backup Imported": "Sauvegarde importée",
         "The selected backup file is empty.": "Le fichier de sauvegarde sélectionné est vide.",
+        "Clipboard does not contain backup data.": "Le presse-papiers ne contient pas de données de sauvegarde.",
         "This backup was created with an unsupported format version (%lld).": "Cette sauvegarde a été créée avec une version de format non prise en charge (%lld).",
         "Imported %1$lld protocols, %2$lld logs, and %3$lld files.": "%1$lld protocoles, %2$lld journaux et %3$lld fichiers importés.",
         "1 day": "1 jour",
@@ -2089,6 +2093,7 @@ LOCALE_SUPPLEMENTS = {
         "Disabled": "Disabilitato",
         "Backup Imported": "Backup importato",
         "The selected backup file is empty.": "Il file di backup selezionato è vuoto.",
+        "Clipboard does not contain backup data.": "Gli appunti non contengono dati di backup.",
         "This backup was created with an unsupported format version (%lld).": "Questo backup è stato creato con una versione formato non supportata (%lld).",
         "Imported %1$lld protocols, %2$lld logs, and %3$lld files.": "Importati %1$lld protocolli, %2$lld registri e %3$lld file.",
         "1 day": "1 giorno",
@@ -2205,6 +2210,7 @@ LOCALE_SUPPLEMENTS = {
  'per dose': '用量あたり',
  'Low stock': '在庫僅少',
  'The selected backup file is empty.': '選択したバックアップ ファイルは空です。',
+ 'Clipboard does not contain backup data.': 'クリップボードにバックアップ データが含まれていません。',
  'This backup was created with an unsupported format version (%lld).': 'このバックアップは、サポートされていない形式バージョン (%lld) で作成されました。',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'インポートされた %1$lld プロトコル、%2$lld ログ、および %3$lld ファイル。',
  '1 day': '1日',
@@ -2452,6 +2458,7 @@ LOCALE_SUPPLEMENTS = {
  'per dose': '복용량 당',
  'Low stock': '재고 부족',
  'The selected backup file is empty.': '선택한 백업 파일이 비어 있습니다.',
+ 'Clipboard does not contain backup data.': '클립보드에 백업 데이터가 없습니다.',
  'This backup was created with an unsupported format version (%lld).': '이 백업은 지원되지 않는 형식 버전(%lld)으로 생성되었습니다.',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': '%1$lld 프로토콜, %2$lld 로그 및 %3$lld 파일을 가져왔습니다.',
  '1 day': '1일',
@@ -2676,6 +2683,7 @@ LOCALE_SUPPLEMENTS = {
  'per dose': '每剂量',
  'Low stock': '库存不足',
  'The selected backup file is empty.': '所选的备份文件为空。',
+ 'Clipboard does not contain backup data.': '剪贴板不包含备份数据。',
  'This backup was created with an unsupported format version (%lld).': '此备份是使用不受支持的格式版本 (%lld) 创建的。',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': '导入的 %1$lld 协议、%2$lld 日志和 %3$lld 文件。',
  '1 day': '1天',
@@ -2925,6 +2933,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': '庫存低：%@',
  'Only %@ %@ remaining.': '僅剩餘 %@ %@。',
  'The selected backup file is empty.': '所選的備份檔案為空。',
+ 'Clipboard does not contain backup data.': '剪貼簿不包含備份資料。',
  'This backup was created with an unsupported format version (%lld).': '此備份是使用不支援的格式版本 (%lld) 建立的。',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': '匯入的 %1$lld 協定、%2$lld 日誌和 %3$lld 檔案。',
  '1 day': '1天',
@@ -3262,6 +3271,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': 'Estoque baixo: %@',
  'Only %@ %@ remaining.': 'Apenas %@ %@ restantes.',
  'The selected backup file is empty.': 'O arquivo de backup selecionado está vazio.',
+ 'Clipboard does not contain backup data.': 'A área de transferência não contém dados de backup.',
  'This backup was created with an unsupported format version (%lld).': 'Este backup foi criado com uma versão de '
                                                                        'formato não compatível (%lld).',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'Protocolos %1$lld importados, logs %2$lld e arquivos '
@@ -3558,6 +3568,7 @@ LOCALE_SUPPLEMENTS = {
  'per dose': 'за дозу',
  'Low stock': 'Низкий запас',
  'The selected backup file is empty.': 'Выбранный файл резервной копии пуст.',
+ 'Clipboard does not contain backup data.': 'Буфер обмена не содержит данных резервной копии.',
  'This backup was created with an unsupported format version (%lld).': 'Эта резервная копия была создана с '
                                                                        'использованием неподдерживаемой версии формата '
                                                                        '(%lld).',
@@ -3864,6 +3875,7 @@ LOCALE_SUPPLEMENTS = {
  'per dose': 'لكل جرعة',
  'Low stock': 'مخزون منخفض',
  'The selected backup file is empty.': 'ملف النسخ الاحتياطي المحدد فارغ.',
+ 'Clipboard does not contain backup data.': 'لا يحتوي الحافظة على بيانات نسخ احتياطي.',
  'This backup was created with an unsupported format version (%lld).': 'تم إنشاء هذه النسخة الاحتياطية بإصدار تنسيق '
                                                                        'غير مدعوم (%lld).',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'بروتوكولات %1$lld المستوردة وسجلات %2$lld وملفات '
@@ -4179,6 +4191,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': 'कम इन्वेंटरी: %@',
  'Only %@ %@ remaining.': 'केवल %@ %@ शेष है।',
  'The selected backup file is empty.': 'चयनित बैकअप फ़ाइल खाली है.',
+ 'Clipboard does not contain backup data.': 'क्लिपबोर्ड में बैकअप डेटा नहीं है।',
  'This backup was created with an unsupported format version (%lld).': 'यह बैकअप एक असमर्थित प्रारूप संस्करण (%lld) के '
                                                                        'साथ बनाया गया था।',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'आयातित %1$lld प्रोटोकॉल, %2$lld लॉग और %3$lld फ़ाइलें।',
@@ -4484,6 +4497,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': 'Lage voorraad: %@',
  'Only %@ %@ remaining.': 'Er zijn nog maar %@ %@ over.',
  'The selected backup file is empty.': 'Het geselecteerde back-upbestand is leeg.',
+ 'Clipboard does not contain backup data.': 'Het klembord bevat geen back-upgegevens.',
  'This backup was created with an unsupported format version (%lld).': 'Deze back-up is gemaakt met een '
                                                                        'niet-ondersteunde formaatversie (%lld).',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'Geïmporteerde %1$lld-protocollen, %2$lld-logboeken en '
@@ -4792,6 +4806,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': 'Niski poziom zapasów: %@',
  'Only %@ %@ remaining.': 'Pozostał tylko %@ %@.',
  'The selected backup file is empty.': 'Wybrany plik kopii zapasowej jest pusty.',
+ 'Clipboard does not contain backup data.': 'Schowek nie zawiera danych kopii zapasowej.',
  'This backup was created with an unsupported format version (%lld).': 'Ta kopia zapasowa została utworzona w '
                                                                        'nieobsługiwanym formacie (%lld).',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'Zaimportowane protokoły %1$lld, dzienniki %2$lld i '
@@ -5095,6 +5110,7 @@ LOCALE_SUPPLEMENTS = {
  'Low Inventory: %@': 'Düşük Envanter: %@',
  'Only %@ %@ remaining.': 'Yalnızca %@ %@ kaldı.',
  'The selected backup file is empty.': 'Seçilen yedekleme dosyası boş.',
+ 'Clipboard does not contain backup data.': 'Pano yedekleme verisi içermiyor.',
  'This backup was created with an unsupported format version (%lld).': 'Bu yedekleme, desteklenmeyen bir format '
                                                                        'sürümüyle (%lld) oluşturuldu.',
  'Imported %1$lld protocols, %2$lld logs, and %3$lld files.': 'İçe aktarılan %1$lld protokolleri, %2$lld günlükleri ve '
