@@ -128,6 +128,7 @@ targets:
           - Info.plist
           - AscendancyWidget.entitlements
       - path: Ascendancy/Shared/AscendancyWidgetShared.swift
+      - path: Ascendancy/Extensions/AscendancyTheme.swift
       - path: Ascendancy/Localizable.xcstrings
         buildPhase: resources
     info:

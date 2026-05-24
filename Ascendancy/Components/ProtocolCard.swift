@@ -38,7 +38,7 @@ struct ProtocolCard: View {
                 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(AscendancyTheme.dataValue(size: 14))
                         .foregroundStyle(.white)
                     Text("per dose")
                         .font(.system(size: 10))
@@ -71,15 +71,13 @@ struct ProtocolCard: View {
                             .font(.system(size: 10))
                             .foregroundStyle(protocol_.isLowInventory ? Color.orange : Color.white.opacity(0.4))
                         Text(catalogKey: "Inventory")
-                            .font(.system(size: 10, weight: .medium))
+                            .ascendancyFieldLabel(size: 10)
                             .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.4)
                     }
                     
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...1))))
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(protocol_.isLowInventory ? .orange : .white)
                         Text(catalogKey: protocol_.inventoryDisplayUnitLabel)
                             .font(.system(size: 11))
@@ -92,7 +90,7 @@ struct ProtocolCard: View {
                 if let days = daysOfSupply {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(String(format: String(localized: "%lldd supply"), Int(days)))
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.white.opacity(0.6))
                     }
                 }
@@ -155,13 +153,11 @@ private struct InfoBit: View {
                     .font(.system(size: 9))
                     .foregroundStyle(.white.opacity(0.35))
                 Text(catalogKey: label)
-                    .font(.system(size: 9, weight: .medium))
+                    .ascendancyFieldLabel(size: 9)
                     .foregroundStyle(.white.opacity(0.35))
-                    .textCase(.uppercase)
-                    .tracking(0.3)
             }
             Text(value)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(AscendancyTheme.dataLabel(size: 12, weight: .medium))
                 .foregroundStyle(.white.opacity(0.8))
                 .lineLimit(1)
         }

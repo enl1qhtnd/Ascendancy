@@ -126,12 +126,10 @@ struct HomeView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Date().formatted(.dateTime.weekday(.wide).month(.wide).day()))
-                    .font(.system(size: 12, weight: .medium))
+                    .ascendancyFieldLabel()
                     .foregroundStyle(.white.opacity(0.4))
-                    .textCase(.uppercase)
-                    .tracking(0.5)
                 Text(greetingText)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(AscendancyTheme.display(size: 28))
                     .foregroundStyle(.white)
             }
             Spacer()
@@ -206,7 +204,7 @@ struct ActiveProtocolsTile: View {
                 StatLabel(
                     value: "\(protocols.count)",
                     label: "Active",
-                    valueFont: .system(size: 32, weight: .bold, design: .rounded)
+                    valueFont: AscendancyTheme.dataValue(size: 32)
                 )
 
                 Spacer()
@@ -284,7 +282,7 @@ struct CompactTodaysDoseTile: View {
 
                 if rows.isEmpty {
                     Text("–")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.25))
                     Text("No doses today")
                         .font(.system(size: 11))
@@ -303,14 +301,14 @@ struct CompactTodaysDoseTile: View {
                                 doneCount,
                                 rows.count
                             ))
-                                .font(.system(size: 11, design: .rounded))
+                                .font(.system(size: 11))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                     }
 
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(time, format: .dateTime.hour().minute())
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: 22, weight: .semibold))
                             .foregroundStyle(.white)
                         Text("next")
                             .font(.system(size: 11))
@@ -332,14 +330,14 @@ struct CompactTodaysDoseTile: View {
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
                             Text(String(format: String(localized: "%lld/%lld today"), rows.count, rows.count))
-                                .font(.system(size: 11, design: .rounded))
+                                .font(.system(size: 11))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                     }
 
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text("Done")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: 22, weight: .semibold))
                             .foregroundStyle(.white)
                         Text(String(localized: "today"))
                             .font(.system(size: 11))
@@ -408,12 +406,10 @@ struct DayScheduleSheet: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Dose Schedule")
-                            .font(.system(size: 13, weight: .medium))
+                            .ascendancySectionHeading()
                             .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.5)
                         Text(dayLabel)
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .font(.system(size: 26, weight: .semibold))
                             .foregroundStyle(.white)
                             .animation(.easeInOut(duration: 0.15), value: dayLabel)
                     }
@@ -489,14 +485,14 @@ struct DayScheduleSheet: View {
                                             .font(.system(size: 15, weight: .semibold))
                                             .foregroundStyle(.white)
                                         Text(displayDose)
-                                            .font(.system(size: 12, design: .rounded))
+                                            .font(.system(size: 12))
                                             .foregroundStyle(.white.opacity(0.5))
                                     }
 
                                     Spacer()
 
                                     Text(displayTime, format: .dateTime.hour().minute())
-                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .font(.system(size: 18, weight: .bold))
                                         .foregroundStyle(.white)
 
                                     Image(systemName: done ? "checkmark.circle.fill" : "circle")
@@ -507,7 +503,7 @@ struct DayScheduleSheet: View {
                                 .opacity(done ? 0.55 : 1)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 14)
-                                .background(Color.white.opacity(0.06))
+                                .background(AscendancyTheme.surfaceRaised)
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -539,7 +535,7 @@ struct CompactBodyweightTile: View {
             if let w = healthKit.latestWeight {
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text(w.formatted(.number.precision(.fractionLength(1))))
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .font(.system(size: 26, weight: .semibold))
                         .foregroundStyle(.white)
                     Text("kg")
                         .font(.system(size: 13, weight: .medium))
@@ -560,7 +556,7 @@ struct CompactBodyweightTile: View {
                 }
             } else {
                 Text("–")
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .font(.system(size: 26, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.25))
                 Text("No data")
                     .font(.system(size: 11))
@@ -598,10 +594,8 @@ struct ActiveLevelsTile: View {
                 HStack(alignment: .bottom, spacing: 12) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Combined")
-                            .font(.system(size: 10, weight: .medium))
+                            .ascendancyFieldLabel(size: 10)
                             .foregroundStyle(.white.opacity(0.35))
-                            .textCase(.uppercase)
-                            .tracking(0.4)
                         Text(String(format: String(localized: "%lld compounds"), protocols.count))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(.white.opacity(0.7))
@@ -629,7 +623,7 @@ struct ActiveLevelsTile: View {
                                 .foregroundStyle(.white.opacity(0.5))
                                 .lineLimit(1)
                             Text(percentText(stable.percentage))
-                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(stable.isStable ? p.category.uiColor.opacity(0.8) : .white.opacity(0.35))
                         }
                     }
@@ -675,7 +669,7 @@ struct PicturesDocumentsTile: View {
                     HStack(spacing: 4) {
                         if !documents.isEmpty {
                             Text("\(documents.count)")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.system(size: 12, weight: .semibold))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
                         Image(systemName: "chevron.right")
@@ -694,7 +688,7 @@ struct PicturesDocumentsTile: View {
                                 cornerRadius: 8
                             ) {
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.04))
+                                    .fill(AscendancyTheme.surfaceInset)
                                     .overlay(
                                         Image(systemName: "doc.fill")
                                             .font(.system(size: 18))
@@ -716,7 +710,7 @@ struct PicturesDocumentsTile: View {
                     if documents.count < 4 {
                         ForEach(0..<(4 - min(documents.count, 4)), id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.white.opacity(0.04))
+                                .fill(AscendancyTheme.surfaceInset)
                                 .frame(width: 54, height: 54)
                                 .overlay(
                                     Image(systemName: "doc.fill")

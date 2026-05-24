@@ -250,7 +250,7 @@ struct MediaLibraryView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             Text("Pictures & Documents")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
         }
         
@@ -325,7 +325,7 @@ struct MediaLibraryView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.white.opacity(0.15))
             Text("No Files Yet")
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.5))
             Text("Tap + to add protocol photos,\nbloodwork results, or documents.")
                 .font(.system(size: 13))

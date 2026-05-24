@@ -25,7 +25,7 @@ struct CompactLineChart: View {
     var body: some View {
         if dataPoints.isEmpty {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.04))
+                .fill(AscendancyTheme.surfaceInset)
                 .frame(height: height)
                 .overlay(
                     Text("No data")
@@ -104,7 +104,7 @@ struct HealthMetricChart: View {
             HStack(alignment: .firstTextBaseline) {
                 if let latest = latestValue {
                     Text(latest.formatted(.number.precision(.fractionLength(0...1))))
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 28, weight: .semibold))
                         .foregroundStyle(.white)
                     Text(catalogKey: unit)
                         .font(.system(size: 14, weight: .medium))
@@ -117,13 +117,13 @@ struct HealthMetricChart: View {
                     .foregroundStyle(.white.opacity(0.3))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color.white.opacity(0.06))
+                    .background(AscendancyTheme.surfaceRaised)
                     .clipShape(Capsule())
             }
             
             if dataPoints.isEmpty {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(AscendancyTheme.surfaceInset)
                     .frame(height: 70)
                     .overlay(Text("No data").font(.system(size: 12)).foregroundStyle(.white.opacity(0.2)))
             } else {

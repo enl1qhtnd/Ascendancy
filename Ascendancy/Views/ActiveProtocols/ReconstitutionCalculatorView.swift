@@ -59,10 +59,7 @@ struct ReconstitutionCalculatorView: View {
                         // Inputs
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Inputs")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.white.opacity(0.4))
-                                .textCase(.uppercase)
-                                .tracking(0.8)
+                                .ascendancyCardHeading()
                             
                             VStack(spacing: 14) {
                                 inputField(label: "Peptide Name", placeholder: prefillName.isEmpty ? "e.g. BPC-157" : prefillName, text: $peptideName)
@@ -80,10 +77,7 @@ struct ReconstitutionCalculatorView: View {
                         // Results
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Results")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.white.opacity(0.4))
-                                .textCase(.uppercase)
-                                .tracking(0.8)
+                                .ascendancyCardHeading()
                             
                             if isValid, let conc = concentration, let vol = doseVolume, let units = doseVolumeInUnits {
                                 VStack(spacing: 12) {
@@ -116,7 +110,7 @@ struct ReconstitutionCalculatorView: View {
                                         GeometryReader { geo in
                                             ZStack(alignment: .leading) {
                                                 RoundedRectangle(cornerRadius: 4)
-                                                    .fill(Color.white.opacity(0.06))
+                                                    .fill(AscendancyTheme.surfaceRaised)
                                                 RoundedRectangle(cornerRadius: 4)
                                                     .fill(Color.teal.opacity(0.7))
                                                     .frame(width: geo.size.width * min(1, units / 100))
@@ -158,7 +152,7 @@ struct ReconstitutionCalculatorView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Reconstitution Calculator")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(.white)
                 }
             }
@@ -183,10 +177,7 @@ struct ReconstitutionCalculatorView: View {
     private func inputField(label: String, placeholder: String, unit: String? = nil, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(catalogKey: label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.45))
-                .textCase(.uppercase)
-                .tracking(0.4)
+                .ascendancyFieldLabel(size: 11)
             HStack {
                 TextField(placeholder, text: text)
                     .keyboardType(unit != nil ? .decimalPad : .default)
@@ -212,7 +203,7 @@ struct ReconstitutionCalculatorView: View {
                 .foregroundStyle(.white.opacity(0.6))
             Spacer()
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(.white)
         }
     }

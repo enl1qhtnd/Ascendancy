@@ -22,6 +22,7 @@
 		2E9FAC1A51FA74DA89D67856 /* PharmacokineticsEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 266B29E6AE254621809FF5E2 /* PharmacokineticsEngineTests.swift */; };
 		2EEDE6DEBB398B413A400017 /* ProtocolSortMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7AC52DE62143C0117D22B9 /* ProtocolSortMigration.swift */; };
 		373A8A73E74B2A86BA9A09C9 /* ProtocolDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */; };
+		37C4B571F54CB5C9E1ABC956 /* AscendancyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6F828F557692F3F3960105 /* AscendancyTheme.swift */; };
 		380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007256FD5EE26B17C2FD75DB /* InventoryService.swift */; };
 		3A1DD03F7D890F2E60784405 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */; };
 		419802A40D2A48C9DB04C813 /* AscendancyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E3605C6D9B178061AD547 /* AscendancyApp.swift */; };
@@ -62,6 +63,7 @@
 		F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E21E1EEBA077B63AA3EF21 /* DoseLog.swift */; };
 		F650C9D7F7116CD30A2243C6 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D9822F41BE6C633EEF926D /* HealthKit.framework */; };
 		F808BE8B61A4C1E934CC73CC /* ProtocolSortMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DF0B30B9BDF831137152559 /* ProtocolSortMigrationTests.swift */; };
+		FB3DAB2434745CF905B43E75 /* AscendancyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6F828F557692F3F3960105 /* AscendancyTheme.swift */; };
 		FB7CB3C84A36B544B1326D2B /* PKDataFingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522FFEDBC059E315FDB19DAB /* PKDataFingerprint.swift */; };
 		FD25131C11336AB8318D66DA /* AscendancyWidgetShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */; };
 /* End PBXBuildFile section */
@@ -123,6 +125,7 @@
 		5E2A6D74C823B37F4A2621D5 /* Ascendancy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Ascendancy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
 		6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotService.swift; sourceTree = "<group>"; };
+		6F6F828F557692F3F3960105 /* AscendancyTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyTheme.swift; sourceTree = "<group>"; };
 		6FB303C8BADD431530DDE28F /* AscendancyWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AscendancyWidget.swift; sourceTree = "<group>"; };
 		715BCBDC0656BCCE0333552D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		7491664CDAEFC424DA2EA42C /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
@@ -278,6 +281,7 @@
 		C99D0B3D94795F971EF786F5 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				6F6F828F557692F3F3960105 /* AscendancyTheme.swift */,
 				B73CB7CCB8099813BD6179B8 /* LocalizedStringKey+Catalog.swift */,
 			);
 			path = Extensions;
@@ -493,6 +497,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37C4B571F54CB5C9E1ABC956 /* AscendancyTheme.swift in Sources */,
 				72E21929F5A4E6B7A73465B8 /* AscendancyWidget.swift in Sources */,
 				FD25131C11336AB8318D66DA /* AscendancyWidgetShared.swift in Sources */,
 			);
@@ -505,6 +510,7 @@
 				6653E0ED655E13F6DA82E973 /* ActiveProtocolsView.swift in Sources */,
 				6C74EFCF6BCDEA76EDCD3E94 /* AppDistribution.swift in Sources */,
 				419802A40D2A48C9DB04C813 /* AscendancyApp.swift in Sources */,
+				FB3DAB2434745CF905B43E75 /* AscendancyTheme.swift in Sources */,
 				C4D99B0D86FED9683818C28F /* AscendancyWidgetShared.swift in Sources */,
 				83BB10880DFF12EB75256446 /* BackupService.swift in Sources */,
 				2B7FB6DC4064E75E5A37686E /* CompactLineChart.swift in Sources */,

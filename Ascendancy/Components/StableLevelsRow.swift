@@ -31,17 +31,14 @@ struct StableLevelsRow: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
                 Text(catalogKey: "Stable Levels")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.5))
-                    .textCase(.uppercase)
-                    .tracking(0.5)
+                    .ascendancyCardHeading()
                 
                 Spacer()
                 
                 // Percentage badge
                 HStack(spacing: 3) {
                     Text(percentText(info.percentage))
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(AscendancyTheme.dataValue(size: 15))
                         .foregroundStyle(info.isStable ? color : .white)
                     
                     if info.isStable {

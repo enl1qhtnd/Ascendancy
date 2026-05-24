@@ -48,15 +48,12 @@ struct LogDoseSheet: View {
                     // Dose input
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Dose")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
                         
                         HStack(spacing: 12) {
                             TextField(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2))), text: $doseAmount)
                                 .keyboardType(.decimalPad)
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .font(.system(size: 32, weight: .semibold))
                                 .foregroundStyle(.white)
                             
                             FormPicker(label: "", selection: $doseUnit, options: DoseUnit.allCases)
@@ -76,10 +73,7 @@ struct LogDoseSheet: View {
                     // Timestamp
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Date & Time")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
                         DatePicker("", selection: $timestamp)
                             .labelsHidden()
                             .foregroundStyle(.white)
@@ -92,10 +86,7 @@ struct LogDoseSheet: View {
                     // Notes
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes (Optional)")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
                         TextField("Add a note...", text: $notes, axis: .vertical)
                             .font(.system(size: 14))
                             .foregroundStyle(.white)
@@ -124,7 +115,7 @@ struct LogDoseSheet: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Log Dose")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -214,15 +205,12 @@ struct EditDoseSheet: View {
 
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Dose")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
 
                         HStack(spacing: 12) {
                             TextField("0", text: $doseAmount)
                                 .keyboardType(.decimalPad)
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .font(.system(size: 32, weight: .semibold))
                                 .foregroundStyle(.white)
 
                             FormPicker(label: "", selection: $doseUnit, options: DoseUnit.allCases)
@@ -233,10 +221,7 @@ struct EditDoseSheet: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Date & Time")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
                         DatePicker("", selection: $timestamp)
                             .labelsHidden()
                             .foregroundStyle(.white)
@@ -248,10 +233,7 @@ struct EditDoseSheet: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes (Optional)")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
+                            .ascendancyCardHeading()
                         TextField("Add a note...", text: $notes, axis: .vertical)
                             .font(.system(size: 14))
                             .foregroundStyle(.white)
@@ -280,7 +262,7 @@ struct EditDoseSheet: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Edit Dose")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {

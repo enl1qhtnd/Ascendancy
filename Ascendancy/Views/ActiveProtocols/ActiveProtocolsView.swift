@@ -7,7 +7,7 @@ struct ActiveProtocolsView: View {
     @Environment(\.modelContext) private var context
     
     @State private var showNewProtocol = false
-    @State private var selectedFilter: FilterOption = .all
+    @AppStorage("protocolListFilter") private var selectedFilter: FilterOption = .all
     @State private var protocolToLog: CompoundProtocol? = nil
     @State private var navPath: [UUID] = []
 
@@ -81,7 +81,7 @@ struct ActiveProtocolsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Protocols")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {

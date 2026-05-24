@@ -94,8 +94,8 @@ struct WeekDotRow: View {
         switch status {
         case .complete: return Color.green.opacity(0.8)
         case .missed: return Color.red.opacity(0.5)
-        case .noDose: return Color.white.opacity(0.06)
-        case .future: return Color.white.opacity(0.06)
+        case .noDose: return AscendancyTheme.surfaceRaised
+        case .future: return AscendancyTheme.surfaceRaised
         }
     }
     

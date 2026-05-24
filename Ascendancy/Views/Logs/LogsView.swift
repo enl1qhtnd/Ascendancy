@@ -93,10 +93,7 @@ struct LogsView: View {
                                     }
                                 } header: {
                                     Text(day.formatted(date: .abbreviated, time: .omitted))
-                                        .font(.system(size: 12, weight: .semibold))
-                                        .foregroundStyle(.white.opacity(0.4))
-                                        .textCase(.uppercase)
-                                        .tracking(0.5)
+                                        .ascendancyCardHeading()
                                 }
                             }
                         }
@@ -110,7 +107,7 @@ struct LogsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Logs")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -154,9 +151,17 @@ struct LogsView: View {
 
 struct LogEntryRow: View {
     let log: DoseLog
+    var showsDayHeading = false
     
     var categoryColor: Color {
         log.protocol_?.category.uiColor ?? Color(white: 0.5)
+    }
+
+    private var headingText: String {
+        if showsDayHeading {
+            return log.timestamp.formatted(date: .abbreviated, time: .omitted)
+        }
+        return log.protocol_?.name ?? log.protocolName
     }
     
     var body: some View {
@@ -164,7 +169,7 @@ struct LogEntryRow: View {
             // Time column
             VStack(alignment: .trailing, spacing: 2) {
                 Text(log.timestamp, format: .dateTime.hour().minute())
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.7))
             }
             .frame(width: 44)
@@ -176,14 +181,14 @@ struct LogEntryRow: View {
             
             // Content
             VStack(alignment: .leading, spacing: 3) {
-                Text(log.protocol_?.name ?? log.protocolName)
+                Text(headingText)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                 
                 HStack(spacing: 6) {
                     Text(log.formattedDose)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.55))
                     
                     if !log.notes.isEmpty {
@@ -203,7 +208,7 @@ struct LogEntryRow: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
-        .background(Color.white.opacity(0.04))
+        .background(AscendancyTheme.surfaceInset)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

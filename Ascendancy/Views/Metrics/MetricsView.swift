@@ -166,7 +166,7 @@ struct MetricsView: View {
                                                     .foregroundStyle(.white.opacity(0.7))
                                                 Spacer()
                                                 Text(level.formatted(.number.precision(.fractionLength(1))))
-                                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                                    .font(.system(size: 12, weight: .semibold))
                                                     .foregroundStyle(.white.opacity(0.6))
                                                 Text(p.doseUnit.rawValue)
                                                     .font(.system(size: 10))
@@ -210,7 +210,7 @@ struct MetricsView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(avgSteps.formatted(.number.precision(.fractionLength(0))))
-                                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        .font(.system(size: 28, weight: .semibold))
                                         .foregroundStyle(.white)
                                     Text("avg/day")
                                         .font(.system(size: 13))
@@ -231,7 +231,7 @@ struct MetricsView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(alignment: .firstTextBaseline) {
                                     Text(avgCalories.formatted(.number.precision(.fractionLength(0))))
-                                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        .font(.system(size: 28, weight: .semibold))
                                         .foregroundStyle(.white)
                                     Text("kcal avg/day")
                                         .font(.system(size: 13))
@@ -274,7 +274,7 @@ struct MetricsView: View {
                             metricCard(title: "Height", icon: "arrow.up.and.down", color: .teal) {
                                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                                     Text(h.value.formatted(.number.precision(.fractionLength(1))))
-                                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        .font(.system(size: 28, weight: .semibold))
                                         .foregroundStyle(.white)
                                     Text("cm")
                                         .font(.system(size: 13, weight: .medium))
@@ -297,7 +297,7 @@ struct MetricsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Metrics")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
             }

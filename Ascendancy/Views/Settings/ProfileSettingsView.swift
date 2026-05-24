@@ -163,7 +163,7 @@ struct ProfileSettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Profile & Settings")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -226,10 +226,7 @@ struct ProfileSettingsView: View {
     private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(catalogKey: title)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.4))
-                .textCase(.uppercase)
-                .tracking(0.8)
+                .ascendancyCardHeading()
             VStack(spacing: 12) {
                 content()
             }

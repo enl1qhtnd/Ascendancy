@@ -205,7 +205,7 @@ struct NewProtocolView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text(isEditMode ? "Edit Protocol" : "New Protocol")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -239,10 +239,7 @@ struct NewProtocolView: View {
     private func formSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(catalogKey: title)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.4))
-                .textCase(.uppercase)
-                .tracking(0.8)
+                .ascendancyCardHeading()
             
             VStack(spacing: 14) {
                 content()
@@ -394,10 +391,7 @@ struct FormField<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(catalogKey: label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.45))
-                .textCase(.uppercase)
-                .tracking(0.4)
+                .ascendancyFieldLabel(size: 11)
             content()
                 .font(.system(size: 15))
         }
@@ -414,10 +408,7 @@ struct FormPicker<T: Hashable & RawRepresentable>: View where T.RawValue == Stri
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(catalogKey: label)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.45))
-                .textCase(.uppercase)
-                .tracking(0.4)
+                .ascendancyFieldLabel(size: 11)
             
             Menu {
                 ForEach(options, id: \.rawValue) { option in

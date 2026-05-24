@@ -5,21 +5,11 @@ import SwiftUI
 struct GlassCard: ViewModifier {
     var cornerRadius: CGFloat = 16
     var padding: EdgeInsets = EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-    var tintOpacity: Double = 0.06
-    
+
     func body(content: Content) -> some View {
         content
             .padding(padding)
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(Color.white.opacity(tintOpacity))
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.5)
-                }
-            )
+            .ascendancyCardBackground(cornerRadius: cornerRadius)
     }
 }
 
@@ -33,16 +23,7 @@ extension View {
         self
             .padding(padding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(Color.white.opacity(0.06))
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.5)
-                }
-            )
+            .ascendancyCardBackground(cornerRadius: cornerRadius)
     }
 }
 
@@ -53,7 +34,7 @@ struct StatusBadge: View {
     
     var body: some View {
         Text(catalogKey: status.rawValue)
-            .font(.system(size: 10, weight: .semibold, design: .rounded))
+            .font(AscendancyTheme.meta(size: 10, weight: .medium))
             .foregroundStyle(statusColor)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -98,8 +79,8 @@ struct CategoryIcon: View {
 struct StatLabel: View {
     let value: String
     let label: String
-    var valueFont: Font = .system(size: 22, weight: .bold, design: .rounded)
-    var labelFont: Font = .system(size: 11, weight: .medium)
+    var valueFont: Font = AscendancyTheme.dataValue(size: 22)
+    var labelFont: Font = AscendancyTheme.dataLabel()
     var alignment: HorizontalAlignment = .leading
     
     var body: some View {
@@ -110,8 +91,7 @@ struct StatLabel: View {
             Text(catalogKey: label)
                 .font(labelFont)
                 .foregroundStyle(.white.opacity(0.5))
-                .textCase(.uppercase)
-                .tracking(0.5)
+                .tracking(AscendancyTheme.labelTracking)
         }
     }
 }
@@ -126,10 +106,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack {
             Text(catalogKey: title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.5))
-                .textCase(.uppercase)
-                .tracking(0.8)
+                .ascendancySectionHeading()
             Spacer()
             if let action {
                 Button(LocalizedStringKey(actionLabel), action: action)
@@ -153,10 +130,7 @@ struct TileHeader: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(iconColor)
             Text(catalogKey: title)
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.5))
-                .textCase(.uppercase)
-                .tracking(0.6)
+                .ascendancyCardHeading()
             Spacer()
         }
     }
@@ -170,7 +144,7 @@ struct PillTag: View {
     
     var body: some View {
         Text(catalogKey: text)
-            .font(.system(size: 11, weight: .medium))
+            .font(AscendancyTheme.dataLabel())
             .foregroundStyle(.white.opacity(0.7))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)

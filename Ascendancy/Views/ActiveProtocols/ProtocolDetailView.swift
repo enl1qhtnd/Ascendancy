@@ -100,7 +100,7 @@ struct ProtocolDetailView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(protocol_.name)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
                     .lineLimit(1)
             }
@@ -185,7 +185,7 @@ struct ProtocolDetailView: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(protocol_.name)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(.white)
                 HStack(spacing: 8) {
                     StatusBadge(status: protocol_.status)
@@ -209,7 +209,7 @@ struct ProtocolDetailView: View {
             TileHeader(icon: "calendar.badge.clock", title: "Schedule")
             
             Text(scheduleTypeText)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.white)
             
             AscendancyDivider()
@@ -253,7 +253,7 @@ struct ProtocolDetailView: View {
             
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...2))))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(protocol_.isLowInventory ? .orange : .white)
                 
                 Text(inventoryUnitSubtitle)
@@ -300,7 +300,7 @@ struct ProtocolDetailView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(currentLevel.formatted(.number.precision(.fractionLength(1))))
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .font(.system(size: 26, weight: .semibold))
                         .foregroundStyle(.white)
                     Text("Current estimated level")
                         .font(.system(size: 11))
@@ -401,9 +401,10 @@ struct ProtocolDetailView: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(protocol_.sortedLogs.prefix(8)) { log in
-                        LogEntryRow(log: log)
+                        LogEntryRow(log: log, showsDayHeading: true)
                         if log.id != protocol_.sortedLogs.prefix(8).last?.id {
-                            AscendancyDivider().padding(.leading, 44)
+                            AscendancyDivider()
+                                .padding(.horizontal, 12)
                         }
                     }
                 }
@@ -501,7 +502,7 @@ private struct InfoRow: View {
                 .foregroundStyle(.white.opacity(0.4))
             Spacer()
             Text(value)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.8))
         }
     }
@@ -532,13 +533,11 @@ private struct RestockInventorySheet: View {
                     // Current stock
                     VStack(spacing: 6) {
                         Text("Current Stock")
-                            .font(.system(size: 11, weight: .semibold))
+                            .ascendancyFieldLabel(size: 11)
                             .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...2))))
-                                .font(.system(size: 38, weight: .bold, design: .rounded))
+                                .font(.system(size: 38, weight: .semibold))
                                 .foregroundStyle(.white)
                             Text(protocol_.inventoryDisplayUnitLabel)
                                 .font(.system(size: 15))
@@ -551,10 +550,8 @@ private struct RestockInventorySheet: View {
                     // Stepper selector
                     VStack(spacing: 12) {
                         Text("Adjust Quantity")
-                            .font(.system(size: 11, weight: .semibold))
+                            .ascendancyFieldLabel(size: 11)
                             .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
-                            .tracking(0.8)
 
                         HStack(spacing: 0) {
                             Button {
@@ -577,7 +574,7 @@ private struct RestockInventorySheet: View {
 
                             VStack(spacing: 3) {
                                 Text(adjustment > 0 ? "+\(adjustment)" : "\(adjustment)")
-                                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                                    .font(.system(size: 44, weight: .semibold))
                                     .foregroundStyle(
                                         adjustment > 0 ? Color.green
                                         : adjustment < 0 ? Color.orange
@@ -612,10 +609,8 @@ private struct RestockInventorySheet: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(isDepletion ? "Depletion" : "Restock")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(AscendancyTheme.cardLabel(size: 11, weight: .medium))
                                     .foregroundStyle(isDepletion ? .orange : .green)
-                                    .textCase(.uppercase)
-                                    .tracking(0.8)
                                 HStack(spacing: 6) {
                                     Text(protocol_.inventoryCount.formatted(.number.precision(.fractionLength(0...2))))
                                         .foregroundStyle(.white.opacity(0.45))
@@ -628,7 +623,7 @@ private struct RestockInventorySheet: View {
                                     Text(protocol_.inventoryDisplayUnitLabel)
                                         .foregroundStyle(.white.opacity(0.4))
                                 }
-                                .font(.system(size: 16, design: .rounded))
+                                .font(.system(size: 16))
                             }
                             Spacer()
                         }
@@ -662,7 +657,7 @@ private struct RestockInventorySheet: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Adjust Inventory")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
