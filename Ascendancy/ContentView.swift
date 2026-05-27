@@ -13,13 +13,16 @@ struct ContentView: View {
     @Query(sort: \DoseLog.timestamp, order: .reverse)
     private var allLogs: [DoseLog]
     
-    @State private var selectedTab: Tab = .home
+    @State private var selectedTab: AppTab = .home
+    @State private var showLogDosePicker = false
+    @State private var lastPrimaryTab: AppTab = .home
     
-    enum Tab: String, CaseIterable {
-        case home = "Home"
-        case protocols = "Protocols"
-        case logs = "Logs"
-        case metrics = "Metrics"
+    enum AppTab: Hashable {
+        case home
+        case protocols
+        case logs
+        case metrics
+        case logDose
         
         var icon: String {
             switch self {
@@ -27,42 +30,47 @@ struct ContentView: View {
             case .protocols: return "cross.vial.fill"
             case .logs: return "list.bullet.rectangle.fill"
             case .metrics: return "chart.xyaxis.line"
+            case .logDose: return "plus"
+            }
+        }
+        
+        var title: String {
+            switch self {
+            case .home: return "Home"
+            case .protocols: return "Protocols"
+            case .logs: return "Logs"
+            case .metrics: return "Metrics"
+            case .logDose: return "Log Dose"
             }
         }
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            HomeView()
-                .tag(Tab.home)
-                .tabItem {
-                    Label("Home", systemImage: Tab.home.icon)
-                }
-            
-            ActiveProtocolsView()
-                .tag(Tab.protocols)
-                .tabItem {
-                    Label("Protocols", systemImage: Tab.protocols.icon)
-                }
-            
-            LogsView()
-                .tag(Tab.logs)
-                .tabItem {
-                    Label("Logs", systemImage: Tab.logs.icon)
-                }
-            
-            MetricsView()
-                .tag(Tab.metrics)
-                .tabItem {
-                    Label("Metrics", systemImage: Tab.metrics.icon)
-                }
+        Group {
+            if #available(iOS 18.0, *) {
+                modernTabView
+            } else {
+                legacyTabView
+            }
         }
         .tint(.white)
+        .sheet(isPresented: $showLogDosePicker) {
+            LogDoseFlowSheet(protocols: activeProtocols)
+        }
         .onChange(of: widgetSnapshotFingerprint) { _, _ in
             WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
         }
-        .onChange(of: selectedTab) { _, _ in
-            Haptics.selection()
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == .logDose {
+                Haptics.tap()
+                showLogDosePicker = true
+                selectedTab = oldValue == .logDose ? lastPrimaryTab : oldValue
+            } else if oldValue != .logDose {
+                lastPrimaryTab = newValue
+                Haptics.selection()
+            } else {
+                lastPrimaryTab = newValue
+            }
         }
         .onAppear {
             setupTabBarAppearance()
@@ -72,6 +80,77 @@ struct ContentView: View {
         .task {
             ProtocolSortMigration.normalizeIfNeeded(in: context)
             WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
+        }
+    }
+
+    @available(iOS 18.0, *)
+    private var modernTabView: some View {
+        TabView(selection: $selectedTab) {
+            Tab(AppTab.home.title, systemImage: AppTab.home.icon, value: AppTab.home) {
+                HomeView()
+            }
+            
+            Tab(AppTab.protocols.title, systemImage: AppTab.protocols.icon, value: AppTab.protocols) {
+                ActiveProtocolsView()
+            }
+            
+            Tab(AppTab.logs.title, systemImage: AppTab.logs.icon, value: AppTab.logs) {
+                LogsView()
+            }
+            
+            Tab(AppTab.metrics.title, systemImage: AppTab.metrics.icon, value: AppTab.metrics) {
+                MetricsView()
+            }
+            
+            Tab(value: AppTab.logDose, role: .search) {
+                Color.clear
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
+    }
+    
+    private var legacyTabView: some View {
+        TabView(selection: $selectedTab) {
+            HomeView()
+                .tag(AppTab.home)
+                .tabItem {
+                    Label(AppTab.home.title, systemImage: AppTab.home.icon)
+                }
+            
+            ActiveProtocolsView()
+                .tag(AppTab.protocols)
+                .tabItem {
+                    Label(AppTab.protocols.title, systemImage: AppTab.protocols.icon)
+                }
+            
+            LogsView()
+                .tag(AppTab.logs)
+                .tabItem {
+                    Label(AppTab.logs.title, systemImage: AppTab.logs.icon)
+                }
+            
+            MetricsView()
+                .tag(AppTab.metrics)
+                .tabItem {
+                    Label(AppTab.metrics.title, systemImage: AppTab.metrics.icon)
+                }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Button {
+                Haptics.tap()
+                showLogDosePicker = true
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 22, weight: .semibold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .padding(.trailing, 20)
+            .padding(.bottom, 56)
+            .accessibilityLabel("Log Dose")
         }
     }
 
@@ -115,23 +194,33 @@ struct ContentView: View {
     
     private func setupTabBarAppearance() {
         let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(white: 0.05, alpha: 1)
-        
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        appearance.backgroundColor = UIColor.black.withAlphaComponent(0.08)
+
         let normalAttribs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor(white: 0.5, alpha: 1)
         ]
         let selectedAttribs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.white
         ]
-        
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(white: 0.4, alpha: 1)
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttribs
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttribs
-        
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
+
+        let itemAppearances = [
+            appearance.stackedLayoutAppearance,
+            appearance.inlineLayoutAppearance,
+            appearance.compactInlineLayoutAppearance
+        ]
+        for itemAppearance in itemAppearances {
+            itemAppearance.normal.iconColor = UIColor(white: 0.4, alpha: 1)
+            itemAppearance.selected.iconColor = UIColor.white
+            itemAppearance.normal.titleTextAttributes = normalAttribs
+            itemAppearance.selected.titleTextAttributes = selectedAttribs
+        }
+
+        let tabBar = UITabBar.appearance()
+        tabBar.isTranslucent = true
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
     }
 }
 

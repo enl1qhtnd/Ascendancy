@@ -14,7 +14,6 @@ struct HomeView: View {
 
     @StateObject private var healthKit = HealthKitService.shared
     @State private var showProfile = false
-    @State private var selectedProtocolForLog: CompoundProtocol? = nil
 
     @AppStorage("profileImageData") private var profileImageData: Data?
     @AppStorage("userName") private var userName: String = ""
@@ -106,9 +105,6 @@ struct HomeView: View {
             .sheet(isPresented: $showProfile) {
                 ProfileSettingsView()
             }
-            .sheet(item: $selectedProtocolForLog) { p in
-                LogDoseSheet(protocol_: p)
-            }
         }
         .task {
             await healthKit.requestAuthorization()
@@ -135,25 +131,6 @@ struct HomeView: View {
             Spacer()
             
             HStack(spacing: 16) {
-                Menu {
-                    Text("Log Dose For...")
-                        .font(.caption)
-                    
-                    ForEach(activeProtocols) { p in
-                        Button {
-                            Haptics.selection()
-                            selectedProtocolForLog = p
-                        } label: {
-                            Label(p.name, systemImage: "plus.circle")
-                        }
-                    }
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 30))
-                        .foregroundStyle(.white.opacity(0.8))
-                        .symbolRenderingMode(.hierarchical)
-                }
-                
                 Button {
                     Haptics.tap()
                     showProfile = true

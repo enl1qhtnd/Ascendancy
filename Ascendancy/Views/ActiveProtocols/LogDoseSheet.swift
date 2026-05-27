@@ -1,29 +1,47 @@
 import SwiftUI
 import SwiftData
 
+enum LogDoseSheetPresentation {
+    static let height: CGFloat = 610
+}
+
 // MARK: - Log Dose Sheet
 
 struct LogDoseSheet: View {
     let protocol_: CompoundProtocol
+
+    var body: some View {
+        NavigationStack {
+            LogDoseSheetContent(protocol_: protocol_)
+        }
+        .presentationDetents([.height(LogDoseSheetPresentation.height)])
+        .presentationDragIndicator(.visible)
+    }
+}
+
+struct LogDoseSheetContent: View {
+    let protocol_: CompoundProtocol
+    var onBack: (() -> Void)? = nil
+    var onDismiss: (() -> Void)? = nil
+
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var doseAmount: String = ""
     @State private var doseUnit: DoseUnit = .mg
     @State private var timestamp = Date()
     @State private var notes = ""
-    
+
     var isValid: Bool {
         guard let amount = NumericInputParser.parse(doseAmount) else { return false }
         return amount > 0
     }
-    
+
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .top) {
-                Color.black.ignoresSafeArea()
-                
-                VStack(spacing: 20) {
+        ZStack(alignment: .top) {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 20) {
                     // Protocol info header
                     HStack(spacing: 12) {
                         CategoryIcon(category: protocol_.category, size: 44)
@@ -119,20 +137,36 @@ struct LogDoseSheet: View {
                         .foregroundStyle(.white)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        Haptics.tap()
-                        dismiss()
+                    if let onBack {
+                        Button {
+                            Haptics.tap()
+                            onBack()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 17, weight: .semibold))
+                        }
+                        .foregroundStyle(.white.opacity(0.6))
+                    } else {
+                        Button("Cancel") {
+                            Haptics.tap()
+                            close()
+                        }
+                        .foregroundStyle(.white.opacity(0.6))
                     }
-                    .foregroundStyle(.white.opacity(0.6))
                 }
             }
             .toolbarBackground(Color.black, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-        }
-        .presentationDetents([.height(610)])
-        .presentationDragIndicator(.visible)
     }
-    
+
+    private func close() {
+        if let onDismiss {
+            onDismiss()
+        } else {
+            dismiss()
+        }
+    }
+
     private func logDose() {
         guard let amount = NumericInputParser.parse(doseAmount) else { return }
         
@@ -160,7 +194,7 @@ struct LogDoseSheet: View {
         }
         
         Haptics.success()
-        dismiss()
+        close()
     }
 }
 

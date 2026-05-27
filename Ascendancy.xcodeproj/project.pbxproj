@@ -62,6 +62,7 @@
 		EA5AEF0C13ECA24026A7E1D9 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7491664CDAEFC424DA2EA42C /* SampleData.swift */; };
 		EDC527476581D9EF759666DB /* MetricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2E063B5D552E426D1DB65F /* MetricsView.swift */; };
 		EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89B0BD57D843CD85E9D767F /* HealthKitService.swift */; };
+		F006856FD4CDB268D289A400 /* LogDosePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9804DCE2E3A0637201CAE19C /* LogDosePickerSheet.swift */; };
 		F143965C11C560355E108698 /* WeekDotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8B5F834A6240C13D8455A6 /* WeekDotRow.swift */; };
 		F466AC96B2D2B7B04EB768F1 /* DoseLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E21E1EEBA077B63AA3EF21 /* DoseLog.swift */; };
 		F650C9D7F7116CD30A2243C6 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49D9822F41BE6C633EEF926D /* HealthKit.framework */; };
@@ -142,6 +143,7 @@
 		8B2E063B5D552E426D1DB65F /* MetricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsView.swift; sourceTree = "<group>"; };
 		8D2BFE70B7AC813F15CCA82A /* AppGroupSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSupportTests.swift; sourceTree = "<group>"; };
 		919C7B9D2F90573DF7222DCB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		9804DCE2E3A0637201CAE19C /* LogDosePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDosePickerSheet.swift; sourceTree = "<group>"; };
 		9A17A7B64CCF5912F712A327 /* AppGroupSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSupport.swift; sourceTree = "<group>"; };
 		9DF0B30B9BDF831137152559 /* ProtocolSortMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigrationTests.swift; sourceTree = "<group>"; };
 		9FE28E9CCD47FACD9715D659 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				A7023DB9310CC4807E12747E /* ActiveProtocolsView.swift */,
+				9804DCE2E3A0637201CAE19C /* LogDosePickerSheet.swift */,
 				30CCBB636DA6275330BC4632 /* LogDoseSheet.swift */,
 				E69361A890000C4B18E31236 /* NewProtocolView.swift */,
 				816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */,
@@ -534,6 +537,7 @@
 				945C91F4A7013143885774C6 /* ImageDataThumbnail.swift in Sources */,
 				380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */,
 				87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */,
+				F006856FD4CDB268D289A400 /* LogDosePickerSheet.swift in Sources */,
 				85FFF5A948F08A6DE4051B1D /* LogDoseSheet.swift in Sources */,
 				C493D31283F9C8CB9FEA8D9D /* LogsView.swift in Sources */,
 				6BC35CEE7E081E580742552A /* MediaDocument.swift in Sources */,
