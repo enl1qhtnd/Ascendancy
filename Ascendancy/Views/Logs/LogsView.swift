@@ -78,8 +78,9 @@ struct LogsView: View {
                                                     deleteLog(log)
                                                     Haptics.warning()
                                                 } label: {
-                                                    Label("Delete", systemImage: "trash")
+                                                    Label("Delete", systemImage: "trash.fill")
                                                 }
+                                                .tint(.red)
                                             }
                                             .swipeActions(edge: .leading) {
                                                 Button {
@@ -99,6 +100,7 @@ struct LogsView: View {
                         }
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
+                        .background(Color.black)
                     }
                 }
             }
