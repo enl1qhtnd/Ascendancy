@@ -16,6 +16,7 @@ struct MetricsView: View {
     }
     
     @State private var selectedPeriod: MetricPeriod = .month
+    @State private var isCompoundBreakdownExpanded = false
     
     var periodDays: Int {
         switch selectedPeriod {
@@ -152,7 +153,27 @@ struct MetricsView: View {
                                     height: 120
                                 )
                                 
-                                // Per-compound breakdown
+                                Button {
+                                    Haptics.tap()
+                                    withAnimation(.spring(response: 0.3)) {
+                                        isCompoundBreakdownExpanded.toggle()
+                                    }
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Text(catalogKey: "Detailed Compound Levels")
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundStyle(.white.opacity(0.6))
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundStyle(.white.opacity(0.4))
+                                            .rotationEffect(.degrees(isCompoundBreakdownExpanded ? 90 : 0))
+                                    }
+                                    .padding(.top, 8)
+                                    .padding(.bottom, -4)
+                                }
+                                .buttonStyle(.plain)
+                                
                                 VStack(spacing: 12) {
                                     ForEach(activeProtocols) { p in
                                         let logs = p.doseLogs ?? []
@@ -179,7 +200,9 @@ struct MetricsView: View {
                                         }
                                     }
                                 }
-                                .padding(.top, 8)
+                                .frame(maxHeight: isCompoundBreakdownExpanded ? .infinity : 0, alignment: .top)
+                                .clipped()
+                                .allowsHitTesting(isCompoundBreakdownExpanded)
                             }
                         }
                         
