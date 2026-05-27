@@ -135,7 +135,7 @@ struct HealthMetricChart: View {
                         )
                         .foregroundStyle(lineColor)
                         .lineStyle(StrokeStyle(lineWidth: 2))
-                        .interpolationMethod(.catmullRom)
+                        .interpolationMethod(.monotone)
                     }
                 }
                 .chartXAxis {
