@@ -20,6 +20,10 @@ struct ProfileSettingsView: View {
     @State private var pendingImportData: Data?
     @State private var showImportConfirmation = false
     @State private var backupAlert: BackupAlert?
+    @State private var widgetSharedContainerAvailable = AppGroupSupport.isSharedContainerAvailable
+    @State private var widgetAppGroupIdentifier = AppGroupSupport.appGroupIdentifier
+    @State private var widgetSnapshotExists = AppGroupSupport.diagnostics().snapshotExists
+    @State private var widgetSnapshotGeneratedAt = AppGroupSupport.diagnostics().snapshotGeneratedAt
     
     var body: some View {
         NavigationStack {
@@ -142,6 +146,11 @@ struct ProfileSettingsView: View {
                             AscendancyDivider()
                             iCloudSyncRow
                         }
+
+                        // Widget
+                        settingsSection("Widget") {
+                            widgetSharedContainerRow
+                        }
                         
                         // App info
                         settingsSection("About") {
@@ -225,6 +234,24 @@ struct ProfileSettingsView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
+            .onAppear {
+                refreshWidgetContainerStatus()
+            }
+        }
+    }
+
+    private func refreshWidgetContainerStatus() {
+        let diagnostics = AppGroupSupport.diagnostics()
+        widgetSharedContainerAvailable = diagnostics.isSharedContainerAvailable
+        widgetAppGroupIdentifier = diagnostics.identifier
+        widgetSnapshotExists = diagnostics.snapshotExists
+        widgetSnapshotGeneratedAt = diagnostics.snapshotGeneratedAt
+
+        if diagnostics.isSharedContainerAvailable && !diagnostics.snapshotExists {
+            WidgetSnapshotService.publish(from: context)
+            let refreshed = AppGroupSupport.diagnostics()
+            widgetSnapshotExists = refreshed.snapshotExists
+            widgetSnapshotGeneratedAt = refreshed.snapshotGeneratedAt
         }
     }
     
@@ -295,6 +322,62 @@ struct ProfileSettingsView: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 12))
                 .foregroundStyle(.white.opacity(0.3))
+        }
+    }
+
+    private var widgetSharedContainerRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Label("Shared Widget Container", systemImage: "square.stack.3d.up.fill")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white.opacity(widgetSharedContainerAvailable ? 0.8 : 0.35))
+
+                    if !widgetSharedContainerAvailable {
+                        Text(widgetSharedContainerHelpText)
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.28))
+                    }
+                }
+
+                Spacer()
+
+                Text(catalogKey: widgetSharedContainerAvailable ? "Available" : "Unavailable")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(widgetSharedContainerAvailable ? .green.opacity(0.85) : .white.opacity(0.3))
+            }
+
+            Text(widgetAppGroupIdentifier)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(.white.opacity(0.22))
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
+
+            if widgetSharedContainerAvailable {
+                Text(widgetSnapshotStatusText)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(widgetSnapshotExists ? .green.opacity(0.7) : .orange.opacity(0.75))
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var widgetSnapshotStatusText: String {
+        if let widgetSnapshotGeneratedAt {
+            String(
+                format: String(localized: "Widget snapshot updated %@"),
+                widgetSnapshotGeneratedAt.formatted(date: .omitted, time: .shortened)
+            )
+        } else {
+            String(localized: "Widget snapshot not published yet")
+        }
+    }
+
+    private var widgetSharedContainerHelpText: String {
+        if AppDistribution.isSideloaded {
+            String(localized: "Sign the app and widget extension with the same App Group entitlement")
+        } else {
+            String(localized: "App Group container is not accessible")
         }
     }
 

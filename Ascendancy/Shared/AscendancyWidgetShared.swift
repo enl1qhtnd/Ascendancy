@@ -2,35 +2,17 @@ import Foundation
 
 enum AscendancyWidgetShared {
     static let kind = "AscendancyWidget"
-    static let appGroupIdentifier = "group.de.enl1qhtnd.asce"
 
-    private static let snapshotFileName = "AscendancyWidgetSnapshot.json"
-
-    private static var snapshotURL: URL? {
-        FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier)?
-            .appendingPathComponent(snapshotFileName, isDirectory: false)
+    static var appGroupIdentifier: String {
+        AppGroupSupport.appGroupIdentifier
     }
 
     static func loadSnapshot() -> AscendancyWidgetSnapshot? {
-        guard let snapshotURL, FileManager.default.fileExists(atPath: snapshotURL.path) else { return nil }
-
-        do {
-            let data = try Data(contentsOf: snapshotURL)
-            return try JSONDecoder().decode(AscendancyWidgetSnapshot.self, from: data)
-        } catch {
-            print("[AscendancyWidgetShared] Failed to load widget snapshot: \(error)")
-            return nil
-        }
+        AppGroupSupport.loadWidgetSnapshot()
     }
 
     static func saveSnapshot(_ snapshot: AscendancyWidgetSnapshot) throws {
-        guard let snapshotURL else {
-            throw WidgetSnapshotError.missingAppGroupContainer(appGroupIdentifier)
-        }
-
-        let data = try JSONEncoder().encode(snapshot)
-        try data.write(to: snapshotURL, options: [.atomic])
+        try AppGroupSupport.saveWidgetSnapshot(snapshot)
     }
 }
 

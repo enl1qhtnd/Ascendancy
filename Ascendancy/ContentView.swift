@@ -67,6 +67,7 @@ struct ContentView: View {
         .onAppear {
             setupTabBarAppearance()
             scheduleAllReminders()
+            WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
         }
         .task {
             ProtocolSortMigration.normalizeIfNeeded(in: context)

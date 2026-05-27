@@ -11,6 +11,7 @@ BUILD_DIR="$ROOT_DIR/build"
 MARKETING_VERSION=$(grep "MARKETING_VERSION:" "$ROOT_DIR/project.yml" | sed 's/.*"\(.*\)".*/\1/')
 BUILD_VERSION=$(grep "CURRENT_PROJECT_VERSION:" "$ROOT_DIR/project.yml" | sed 's/.*"\(.*\)".*/\1/')
 APP_PATH="$BUILD_DIR/Release-iphoneos/$APP_NAME.app"
+WIDGET_PATH="$APP_PATH/PlugIns/AscendancyWidget.appex"
 PAYLOAD_DIR="$BUILD_DIR/Payload"
 IPA_NAME="${APP_NAME}_v${MARKETING_VERSION}_b${BUILD_VERSION}.ipa"
 IPA_PATH="$BUILD_DIR/$IPA_NAME"
@@ -30,6 +31,11 @@ xcodebuild clean build \
   CODE_SIGNING_REQUIRED=NO \
   CODE_SIGNING_ALLOWED=NO \
   SYMROOT="$BUILD_DIR"
+
+if [[ ! -d "$WIDGET_PATH" ]]; then
+  printf 'Expected widget extension at %s\n' "$WIDGET_PATH" >&2
+  exit 1
+fi
 
 mkdir -p "$PAYLOAD_DIR"
 cp -R "$APP_PATH" "$PAYLOAD_DIR/"
