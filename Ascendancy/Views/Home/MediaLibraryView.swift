@@ -80,8 +80,8 @@ struct MediaLibraryView: View {
             } message: {
                 Text("Enter a new name for this file.")
             }
-            // Full-screen preview sheet
-            .sheet(item: $previewDocument) { doc in
+            // Full-screen preview
+            .fullScreenCover(item: $previewDocument) { doc in
                 ImagePreviewSheet(document: doc)
             }
             // Photo picker onChange
@@ -378,20 +378,21 @@ struct MediaLibraryView: View {
 struct ImagePreviewSheet: View {
     let document: MediaDocument
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            
+
             if let data = document.imageData {
                 if document.fileExtension == "pdf" {
                     PDFKitView(pdfData: data)
-                        .edgesIgnoringSafeArea(.bottom) // let it go behind the bottom area
+                        .ignoresSafeArea(edges: .bottom)
                 } else if let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
-                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.horizontal, 16)
                 } else {
                     Image(systemName: "doc.fill")
                         .font(.system(size: 64))
@@ -402,29 +403,31 @@ struct ImagePreviewSheet: View {
                     .font(.system(size: 64))
                     .foregroundStyle(.white.opacity(0.3))
             }
-        }
-        .overlay(alignment: .topTrailing) {
-            Button {
-                Haptics.tap()
-                dismiss()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 28))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .padding(20)
-                    .background(Color.black.opacity(document.fileExtension == "pdf" ? 0.4 : 0).clipShape(Circle())) // ensure visible over pdf
+
+            VStack {
+                HStack {
+                    Spacer()
+                    Button {
+                        Haptics.tap()
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 36, height: 36)
+                            .background(AscendancyTheme.surfaceRaised)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
             }
-        }
-        .overlay(alignment: .bottom) {
-            if document.title != "Untitled" {
-                Text(document.title)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(document.fileExtension == "pdf" ? .black : .white.opacity(0.7))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(document.fileExtension == "pdf" ? Color.white.opacity(0.8).clipShape(Capsule()) : Color.clear.clipShape(Capsule()))
-                    .padding(.bottom, 40)
-            }
+            .padding(.horizontal, 20)
+            .padding(.top, 18)
         }
     }
 }
