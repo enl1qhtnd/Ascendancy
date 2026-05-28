@@ -220,10 +220,13 @@ private struct MediumDoseWidget: View {
                 SecondaryRow(kind: .inventory(item), size: size)
             }
         } else if let snapshot, !snapshot.upcomingDoses.dropFirst().isEmpty {
+            let remaining = Array(snapshot.upcomingDoses.dropFirst())
+            let displayed = Array(remaining.prefix(3))
             SectionTitle(icon: "calendar", title: "Up Next")
-            ForEach(Array(snapshot.upcomingDoses.dropFirst().prefix(2))) { dose in
+            ForEach(displayed) { dose in
                 SecondaryRow(kind: .dose(dose, now), size: size)
             }
+            MoreTodayLabel(remaining: remaining, displayed: displayed, now: now)
         } else {
             SectionTitle(icon: "sparkles", title: "Status")
             Text(catalogKey: snapshot == nil ? "Waiting for app data" : "Schedule is clear")
@@ -264,15 +267,18 @@ private struct LargeDoseWidget: View {
 
                     HStack(alignment: .top, spacing: 14) {
                         VStack(alignment: .leading, spacing: 8) {
-                            SectionTitle(icon: "calendar", title: "Upcoming")
+                            SectionTitle(icon: "calendar", title: "Up Next")
                             if snapshot.upcomingDoses.dropFirst().isEmpty {
                                 Text(catalogKey: "No more scheduled doses")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundStyle(.white.opacity(0.45))
                             } else {
-                                ForEach(Array(snapshot.upcomingDoses.dropFirst().prefix(3))) { dose in
+                                let remaining = Array(snapshot.upcomingDoses.dropFirst())
+                                let displayed = Array(remaining.prefix(3))
+                                ForEach(displayed) { dose in
                                     SecondaryRow(kind: .dose(dose, now), size: size)
                                 }
+                                MoreTodayLabel(remaining: remaining, displayed: displayed, now: now)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -293,13 +299,6 @@ private struct LargeDoseWidget: View {
                     }
 
                     Spacer(minLength: 0)
-
-                    Text(String(
-                        format: String(localized: "Updated %@"),
-                        snapshot.generatedAt.formatted(date: .omitted, time: .shortened)
-                    ))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.32))
                 }
             } else {
                 EmptyWidgetState(icon: "arrow.triangle.2.circlepath", title: "Open Ascendancy", subtitle: "The app will publish your dose summary for this widget", size: size)
@@ -536,6 +535,29 @@ private struct SectionTitle: View {
 private enum SecondaryRowKind {
     case dose(AscendancyWidgetDose, Date)
     case inventory(AscendancyWidgetInventoryItem)
+}
+
+private struct MoreTodayLabel: View {
+    let remaining: [AscendancyWidgetDose]
+    let displayed: [AscendancyWidgetDose]
+    let now: Date
+
+    private var extraToday: Int {
+        let calendar = Calendar.current
+        let displayedIDs = Set(displayed.map(\.id))
+        return remaining.filter { dose in
+            calendar.isDate(dose.scheduledAt, inSameDayAs: now) && !displayedIDs.contains(dose.id)
+        }.count
+    }
+
+    var body: some View {
+        if extraToday > 0 {
+            Text(String(format: String(localized: "+%lld more today"), extraToday))
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.5))
+                .tracking(AscendancyTheme.labelTracking)
+        }
+    }
 }
 
 private struct SecondaryRow: View {
