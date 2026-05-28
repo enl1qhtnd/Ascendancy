@@ -13,6 +13,9 @@ struct ProfileSettingsView: View {
     @State private var notificationsEnabled = true
     @State private var showReconCalc = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
+    @State private var showProfileImageOptions = false
+    @State private var showPhotoPicker = false
+    @State private var showExpandedProfileImage = false
     @State private var showBackupExporter = false
     @State private var backupExportDocument: AscendancyBackupDocument?
     @State private var backupExportFilename = ""
@@ -35,36 +38,69 @@ struct ProfileSettingsView: View {
                         
                         // Avatar / Name
                         VStack(spacing: 12) {
-                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                            Button {
+                                Haptics.tap()
+                                showProfileImageOptions = true
+                            } label: {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.white.opacity(0.08))
-                                        .frame(width: 72, height: 72)
+                                        .fill(AscendancyTheme.surfaceRaised)
+                                        .frame(width: 96, height: 96)
+                                        .overlay(
+                                            Circle()
+                                                .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+                                        )
                                     
                                     if let data = profileImageData, let uiImage = UIImage(data: data) {
                                         Image(uiImage: uiImage)
                                             .resizable()
                                             .scaledToFill()
-                                            .frame(width: 72, height: 72)
+                                            .frame(width: 86, height: 86)
                                             .clipShape(Circle())
                                     } else {
                                         Image(systemName: "person.fill")
-                                            .font(.system(size: 32))
-                                            .foregroundStyle(.white.opacity(0.4))
+                                            .font(.system(size: 38, weight: .semibold))
+                                            .foregroundStyle(.white.opacity(0.45))
                                     }
                                     
                                     // Small edit badge
                                     Circle()
                                         .fill(Color(white: 0.2))
-                                        .frame(width: 24, height: 24)
+                                        .frame(width: 28, height: 28)
+                                        .overlay(
+                                            Circle()
+                                                .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+                                        )
                                         .overlay(
                                             Image(systemName: "camera.fill")
-                                                .font(.system(size: 10))
+                                                .font(.system(size: 11, weight: .semibold))
                                                 .foregroundStyle(.white)
                                         )
-                                        .offset(x: 24, y: 24)
+                                        .offset(x: 32, y: 32)
                                 }
                             }
+                            .buttonStyle(.plain)
+                            .confirmationDialog("", isPresented: $showProfileImageOptions, titleVisibility: .hidden) {
+                                Button("Choose Photo") {
+                                    showPhotoPicker = true
+                                }
+
+                                if profileImageData != nil {
+                                    Button("Expand Photo") {
+                                        showExpandedProfileImage = true
+                                    }
+
+                                    Button("Remove Photo", role: .destructive) {
+                                        profileImageData = nil
+                                        selectedPhotoItem = nil
+                                    }
+                                }
+                            }
+                            .photosPicker(
+                                isPresented: $showPhotoPicker,
+                                selection: $selectedPhotoItem,
+                                matching: .images
+                            )
                             .onChange(of: selectedPhotoItem) { _, newItem in
                                 Task { @MainActor in
                                     if let data = try? await newItem?.loadTransferable(type: Data.self),
@@ -75,16 +111,7 @@ struct ProfileSettingsView: View {
                                     }
                                 }
                             }
-                            
-                            if profileImageData != nil {
-                                Button("Remove Photo", role: .destructive) {
-                                    profileImageData = nil
-                                    selectedPhotoItem = nil
-                                }
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(.red.opacity(0.8))
-                            }
-                            
+
                             if !userName.isEmpty {
                                 Text(userName)
                                     .font(.system(size: 18, weight: .semibold))
@@ -105,9 +132,7 @@ struct ProfileSettingsView: View {
                         
                         // Notifications
                         settingsSection("Notifications") {
-                            Toggle("Dose Reminders", isOn: $notificationsEnabled)
-                                .foregroundStyle(.white)
-                                .tint(.green)
+                            settingsToggleRow(title: "Dose Reminders", isOn: $notificationsEnabled)
                         }
                         
                         // Tools
@@ -176,7 +201,7 @@ struct ProfileSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Profile & Settings")
+                    Text("Preferences")
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
@@ -193,6 +218,9 @@ struct ProfileSettingsView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $showReconCalc) {
                 ReconstitutionCalculatorView()
+            }
+            .fullScreenCover(isPresented: $showExpandedProfileImage) {
+                expandedProfileImageView
             }
             .fileExporter(
                 isPresented: $showBackupExporter,
@@ -237,6 +265,46 @@ struct ProfileSettingsView: View {
             .onAppear {
                 refreshWidgetContainerStatus()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var expandedProfileImageView: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            if let data = profileImageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 16)
+            }
+
+            VStack {
+                HStack {
+                    Spacer()
+                    Button {
+                        Haptics.tap()
+                        showExpandedProfileImage = false
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 36, height: 36)
+                            .background(AscendancyTheme.surfaceRaised)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 18)
         }
     }
 
@@ -322,6 +390,18 @@ struct ProfileSettingsView: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 12))
                 .foregroundStyle(.white.opacity(0.3))
+        }
+    }
+
+    private func settingsToggleRow(title: String, isOn: Binding<Bool>) -> some View {
+        HStack {
+            Text(catalogKey: title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.8))
+            Spacer()
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(.green)
         }
     }
 

@@ -129,26 +129,35 @@ struct HomeView: View {
                     .foregroundStyle(.white)
             }
             Spacer()
-            
-            HStack(spacing: 16) {
-                Button {
-                    Haptics.tap()
-                    showProfile = true
-                } label: {
+
+            Button {
+                Haptics.tap()
+                showProfile = true
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(AscendancyTheme.surfaceRaised)
+                        .frame(width: 48, height: 48)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
+                        )
+
                     if let data = profileImageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 30, height: 30)
+                            .frame(width: 40, height: 40)
                             .clipShape(Circle())
                     } else {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 30))
-                            .foregroundStyle(.white.opacity(0.6))
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.55))
                             .symbolRenderingMode(.hierarchical)
                     }
                 }
             }
+            .buttonStyle(.plain)
         }
         .padding(.top, 8)
     }
