@@ -151,7 +151,7 @@ private struct SmallDoseWidget: View {
             if let snapshot {
                 if snapshot.activeProtocolCount == 0 {
                     EmptyWidgetState(icon: "cross.vial", title: "No active protocols", subtitle: "Add one in Ascendancy", size: size)
-                } else if let dose = snapshot.nextDose {
+                } else if let dose = snapshot.heroDose {
                     NextDoseHero(dose: dose, now: now, size: size)
                     Spacer(minLength: 0)
                     if snapshot.todayDoseCount > 0 {
@@ -180,7 +180,7 @@ private struct MediumDoseWidget: View {
                     WidgetHeader(title: "Next Dose", count: snapshot?.activeProtocolCount, size: size)
                     primaryContent
                     Spacer(minLength: 0)
-                    if let snapshot, snapshot.activeProtocolCount > 0, snapshot.nextDose != nil, snapshot.todayDoseCount > 0 {
+                    if let snapshot, snapshot.activeProtocolCount > 0, snapshot.heroDose != nil, snapshot.todayDoseCount > 0 {
                         ProgressStrip(snapshot: snapshot, size: size)
                     }
                 }
@@ -201,7 +201,7 @@ private struct MediumDoseWidget: View {
 
     @ViewBuilder
     private var primaryContent: some View {
-        if let snapshot, snapshot.activeProtocolCount > 0, let dose = snapshot.nextDose {
+        if let snapshot, snapshot.activeProtocolCount > 0, let dose = snapshot.heroDose {
             NextDoseHero(dose: dose, now: now, size: size)
         } else if let snapshot, snapshot.activeProtocolCount == 0 {
             EmptyWidgetState(icon: "cross.vial", title: "No active protocols", subtitle: "Add one in Ascendancy", size: size)
@@ -219,8 +219,8 @@ private struct MediumDoseWidget: View {
             ForEach(Array(snapshot.lowInventoryItems.prefix(2))) { item in
                 SecondaryRow(kind: .inventory(item), size: size)
             }
-        } else if let snapshot, !snapshot.upcomingDoses.dropFirst().isEmpty {
-            let remaining = Array(snapshot.upcomingDoses.dropFirst())
+        } else if let snapshot, !snapshot.secondaryUpcomingDoses.isEmpty {
+            let remaining = snapshot.secondaryUpcomingDoses
             let displayed = Array(remaining.prefix(3))
             SectionTitle(icon: "calendar", title: "Up Next")
             ForEach(displayed) { dose in
@@ -252,7 +252,7 @@ private struct LargeDoseWidget: View {
                     EmptyWidgetState(icon: "cross.vial", title: "No active protocols", subtitle: "Create a protocol to populate your widget", size: size)
                     Spacer(minLength: 0)
                 } else {
-                    if let dose = snapshot.nextDose {
+                    if let dose = snapshot.heroDose {
                         NextDoseHero(dose: dose, now: now, size: size)
                     } else {
                         EmptyWidgetState(icon: "checkmark.circle.fill", title: "All caught up", subtitle: todaySummary(snapshot), size: size)
@@ -268,12 +268,12 @@ private struct LargeDoseWidget: View {
                     HStack(alignment: .top, spacing: 14) {
                         VStack(alignment: .leading, spacing: 8) {
                             SectionTitle(icon: "calendar", title: "Up Next")
-                            if snapshot.upcomingDoses.dropFirst().isEmpty {
+                            if snapshot.secondaryUpcomingDoses.isEmpty {
                                 Text(catalogKey: "No more scheduled doses")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundStyle(.white.opacity(0.45))
                             } else {
-                                let remaining = Array(snapshot.upcomingDoses.dropFirst())
+                                let remaining = snapshot.secondaryUpcomingDoses
                                 let displayed = Array(remaining.prefix(3))
                                 ForEach(displayed) { dose in
                                     SecondaryRow(kind: .dose(dose, now), size: size)
@@ -675,6 +675,18 @@ private struct EmptyWidgetState: View {
 // MARK: - Helpers
 
 private extension AscendancyWidgetSnapshot {
+    var isDoneForToday: Bool {
+        todayDoseCount > 0 && todayLoggedCount >= todayDoseCount
+    }
+
+    var heroDose: AscendancyWidgetDose? {
+        isDoneForToday ? nil : nextDose
+    }
+
+    var secondaryUpcomingDoses: [AscendancyWidgetDose] {
+        isDoneForToday ? [] : Array(upcomingDoses.dropFirst())
+    }
+
     var todayProgress: Double {
         guard todayDoseCount > 0 else { return 1 }
         return Double(todayLoggedCount) / Double(todayDoseCount)
