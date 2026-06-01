@@ -141,6 +141,21 @@ final class CompoundProtocolTests: XCTestCase {
         XCTAssertGreaterThan(next!, Date())
     }
 
+    func test_nextDoseDate_daily_beforeStart_returnsStartDateDoseTime() {
+        let cal = Calendar.current
+        let doseTime = cal.date(bySettingHour: 9, minute: 0, second: 0, of: Date())!
+        var sched = DoseSchedule()
+        sched.type = .daily
+        sched.timesOfDay = [doseTime]
+
+        let start = cal.date(byAdding: .day, value: 5, to: Date())!
+        let p = makeProtocol(schedule: sched, startDate: start)
+        let next = p.nextDoseDate(from: Date())
+
+        XCTAssertNotNil(next)
+        XCTAssertEqual(next, cal.date(bySettingHour: 9, minute: 0, second: 0, of: start))
+    }
+
     // MARK: - nextDoseDate: everyXDays schedule
 
     func test_nextDoseDate_everyXDays_returnsFutureDate() {
@@ -208,11 +223,30 @@ final class CompoundProtocolTests: XCTestCase {
         sched.weekdays = [.monday]
         sched.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
 
-        let p = makeProtocol(schedule: sched)
+        let p = makeProtocol(schedule: sched, startDate: sundayBefore)
         let next = p.nextDoseDate(from: sundayBefore)
 
         XCTAssertNotNil(next)
         XCTAssertEqual(cal.component(.weekday, from: next!), 2)  // Monday
+    }
+
+    func test_nextDoseDate_specificWeekdays_beforeStart_usesFirstWeekdayOnOrAfterStart() {
+        let cal = Calendar.current
+        var sched = DoseSchedule()
+        sched.type = .specificWeekdays
+        sched.weekdays = [.monday, .wednesday, .friday]
+        sched.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+
+        var comps = DateComponents(); comps.weekday = 4  // Wednesday
+        guard let wednesday = cal.nextDate(after: Date(), matching: comps, matchingPolicy: .nextTimePreservingSmallerComponents) else { return }
+        let tuesdayBefore = cal.date(byAdding: .day, value: -1, to: wednesday)!
+
+        let p = makeProtocol(schedule: sched, startDate: wednesday)
+        let next = p.nextDoseDate(from: tuesdayBefore)
+
+        XCTAssertNotNil(next)
+        XCTAssertEqual(cal.component(.weekday, from: next!), 4)  // Wednesday (start day), not Monday
+        XCTAssertGreaterThanOrEqual(next!, wednesday)
     }
 
     func test_nextDoseDate_specificWeekdays_multipleDays_picksNearest() {
@@ -227,7 +261,7 @@ final class CompoundProtocolTests: XCTestCase {
         sched.weekdays = [.monday, .wednesday]
         sched.timesOfDay = []
 
-        let p = makeProtocol(schedule: sched)
+        let p = makeProtocol(schedule: sched, startDate: sunday)
         let next = p.nextDoseDate(from: sunday)
 
         XCTAssertNotNil(next)
@@ -247,7 +281,7 @@ final class CompoundProtocolTests: XCTestCase {
         sched.weekdays = [.monday]
         sched.timesOfDay = [doseTime]
 
-        let p = makeProtocol(schedule: sched)
+        let p = makeProtocol(schedule: sched, startDate: monday)
         let next = p.nextDoseDate(from: queryTime)
 
         XCTAssertNotNil(next)
@@ -268,7 +302,7 @@ final class CompoundProtocolTests: XCTestCase {
         sched.weekdays = [.monday]
         sched.timesOfDay = [doseTime]
 
-        let p = makeProtocol(schedule: sched)
+        let p = makeProtocol(schedule: sched, startDate: monday)
         let next = p.nextDoseDate(from: queryTime)
 
         XCTAssertNotNil(next)

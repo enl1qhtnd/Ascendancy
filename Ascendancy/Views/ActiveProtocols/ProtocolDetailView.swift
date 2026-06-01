@@ -117,18 +117,7 @@ struct ProtocolDetailView: View {
                         }
                     }
                     Divider()
-                    if protocol_.status == .archived {
-                        Button("Unarchive") { updateStatus(.active) }
-                        Divider()
-                        Button("Delete Permanently", role: .destructive) {
-                            Haptics.warning()
-                            showDeleteConfirmation = true
-                        }
-                    } else {
-                        Button("Pause") { updateStatus(.paused) }
-                        Button("Complete") { updateStatus(.completed) }
-                        Button("Archive", role: .destructive) { updateStatus(.archived) }
-                    }
+                    statusMenuActions
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .foregroundStyle(.white.opacity(0.7))
@@ -467,6 +456,30 @@ struct ProtocolDetailView: View {
         }
     }
     
+    @ViewBuilder
+    private var statusMenuActions: some View {
+        switch protocol_.status {
+        case .archived:
+            Button("Unarchive") { updateStatus(.active) }
+            Divider()
+            Button("Delete Permanently", role: .destructive) {
+                Haptics.warning()
+                showDeleteConfirmation = true
+            }
+        case .active:
+            Button("Pause") { updateStatus(.paused) }
+            Button("Complete") { updateStatus(.completed) }
+            Button("Archive", role: .destructive) { updateStatus(.archived) }
+        case .paused:
+            Button("Resume") { updateStatus(.active) }
+            Button("Complete") { updateStatus(.completed) }
+            Button("Archive", role: .destructive) { updateStatus(.archived) }
+        case .completed:
+            Button("Mark Active") { updateStatus(.active) }
+            Button("Archive", role: .destructive) { updateStatus(.archived) }
+        }
+    }
+
     private func updateStatus(_ status: ProtocolStatus) {
         protocol_.status = status
         do {
@@ -475,6 +488,14 @@ struct ProtocolDetailView: View {
         } catch {
             print("[ProtocolDetailView] Failed to save status update: \(error)")
             Haptics.error()
+            return
+        }
+        Task {
+            let descriptor = FetchDescriptor<CompoundProtocol>(
+                predicate: #Predicate { $0.statusRaw == "Active" }
+            )
+            let allActive = (try? context.fetch(descriptor)) ?? []
+            await NotificationService.shared.scheduleAll(protocols: allActive)
         }
     }
     

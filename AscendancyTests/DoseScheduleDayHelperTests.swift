@@ -155,6 +155,30 @@ final class DoseScheduleDayHelperTests: XCTestCase {
         XCTAssertTrue(rows.isEmpty)
     }
 
+    func test_scheduledRows_futureStartDate_notShownBeforeStart() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        var sched = DoseSchedule()
+        sched.type = .daily
+        sched.timesOfDay = [cal.date(bySettingHour: 8, minute: 0, second: 0, of: Date())!]
+
+        let start = cal.date(byAdding: .day, value: 3, to: today)!
+        let p = CompoundProtocol(
+            name: "Future Start",
+            category: .medication,
+            administrationForm: .pill,
+            doseAmount: 10,
+            doseUnit: .mg,
+            schedule: sched,
+            startDate: start
+        )
+        context.insert(p)
+        try? context.save()
+
+        let rows = DoseScheduleDayHelper.scheduledRows(protocols: [p], on: today)
+        XCTAssertTrue(rows.isEmpty)
+    }
+
     func test_scheduledRows_reflectsScheduleEditsForSameProtocolAndDay() {
         let cal = Calendar.current
         let tomorrow = cal.date(byAdding: .day, value: 1, to: Date())!

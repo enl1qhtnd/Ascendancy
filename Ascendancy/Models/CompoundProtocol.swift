@@ -462,6 +462,9 @@ final class CompoundProtocol {
 
         switch sched.type {
         case .daily:
+            let anchor = applyDoseTime(to: startDate)
+            if anchor > date { return anchor }
+
             var candidate = applyDoseTime(to: date)
             if candidate <= date {
                 candidate = cal.date(byAdding: .day, value: 1, to: candidate)
@@ -475,8 +478,9 @@ final class CompoundProtocol {
         case .specificWeekdays:
             let targetWeekdays = Set(sched.weekdays.map { $0.rawValue })
             guard !targetWeekdays.isEmpty else { return nil }
+            let searchStart = max(cal.startOfDay(for: date), cal.startOfDay(for: startDate))
             for offset in 0...14 {
-                guard let candidate = cal.date(byAdding: .day, value: offset, to: date) else { continue }
+                guard let candidate = cal.date(byAdding: .day, value: offset, to: searchStart) else { continue }
                 let weekday = cal.component(.weekday, from: candidate)
                 if targetWeekdays.contains(weekday) {
                     let doseDate = applyDoseTime(to: candidate)
