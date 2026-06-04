@@ -39,6 +39,10 @@ struct WeekDotRow: View {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 9, weight: .bold))
                                         .foregroundStyle(.white)
+                                } else if status == .partial {
+                                    Image(systemName: "minus")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(.white)
                                 } else if status == .missed {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 9, weight: .bold))
@@ -61,7 +65,7 @@ struct WeekDotRow: View {
     }
     
     private enum DayStatus {
-        case complete, missed, noDose, future
+        case complete, partial, missed, noDose, future
     }
     
     private func dayStatus(_ day: Date) -> DayStatus {
@@ -85,6 +89,11 @@ struct WeekDotRow: View {
         }
         if allLogged { return .complete }
 
+        let partiallyLogged = rows.contains {
+            DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
+        }
+        if partiallyLogged { return .partial }
+
         if dayStart < today { return .missed }
         return .future
     }
@@ -92,6 +101,7 @@ struct WeekDotRow: View {
     private func circleColor(_ status: DayStatus) -> Color {
         switch status {
         case .complete: return Color.green.opacity(0.8)
+        case .partial: return Color.yellow.opacity(0.85)
         case .missed: return Color.red.opacity(0.5)
         case .noDose: return AscendancyTheme.surfaceRaised
         case .future: return AscendancyTheme.surfaceRaised
