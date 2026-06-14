@@ -238,6 +238,13 @@ enum BackupService {
             }
 
             try context.save()
+
+            // Invalidate all caches — restored data replaces everything
+            PharmacokineticsEngine.clearCache()
+            DoseScheduleDayHelper.clearCache()
+            for protocol_ in protocolsByID.values {
+                protocol_.clearStableLevelCache()
+            }
         } catch {
             context.rollback()
             throw error

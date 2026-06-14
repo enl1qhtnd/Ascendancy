@@ -256,4 +256,32 @@ final class DoseScheduleDayHelperTests: XCTestCase {
         let rows = DoseScheduleDayHelper.mergedRows(protocols: [], logs: [], on: Date())
         XCTAssertTrue(rows.isEmpty)
     }
+
+    func test_clearCache_causesRecomputationAfterDoseMutation() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let noon = cal.date(byAdding: .hour, value: 12, to: today)!
+
+        let p = makeProtocol(schedule: .daily)
+
+        // Populate cache with no logs
+        let rowsBeforeLog = DoseScheduleDayHelper.mergedRows(protocols: [p], logs: [], on: today)
+        XCTAssertEqual(rowsBeforeLog.count, 1) // scheduled, not logged
+
+        // Add a log (simulating a dose mutation)
+        let log = makeLog(for: p, on: noon)
+
+        // Clear cache as production code does after a mutation
+        DoseScheduleDayHelper.clearCache()
+
+        // Recompute — should now reflect the logged dose
+        let rowsAfterLog = DoseScheduleDayHelper.mergedRows(protocols: [p], logs: [log], on: today)
+        XCTAssertEqual(rowsAfterLog.count, 1) // still one row (merged, not duplicated)
+
+        // Verify the protocol is now reported as logged for today
+        XCTAssertTrue(
+            DoseScheduleDayHelper.isLogged(p, on: today, logs: [log]),
+            "After clearing cache and re-querying with the new log, the protocol should be logged"
+        )
+    }
 }

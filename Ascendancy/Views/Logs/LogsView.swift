@@ -136,6 +136,11 @@ struct LogsView: View {
         }
         context.delete(log)
         try? context.save()
+
+        // Invalidate caches so subsequent reads reflect the deleted log
+        PharmacokineticsEngine.clearCache()
+        DoseScheduleDayHelper.clearCache()
+        log.protocol_?.clearStableLevelCache()
     }
     
     private var emptyState: some View {

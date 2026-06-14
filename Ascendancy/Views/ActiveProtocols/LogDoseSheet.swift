@@ -183,7 +183,12 @@ struct LogDoseSheetContent: View {
             Haptics.error()
             return
         }
-        
+
+        // Invalidate caches so subsequent reads reflect the new log
+        PharmacokineticsEngine.clearCache()
+        DoseScheduleDayHelper.clearCache()
+        protocol_.clearStableLevelCache()
+
         // Low inventory notification (fire-and-forget on MainActor)
         if case .some(let w) = warning {
             if case .low = w {
@@ -343,6 +348,11 @@ struct EditDoseSheet: View {
             Haptics.error()
             return
         }
+
+        // Invalidate caches so subsequent reads reflect the edited log
+        PharmacokineticsEngine.clearCache()
+        DoseScheduleDayHelper.clearCache()
+        protocol_.clearStableLevelCache()
 
         if case .some(let w) = warning, case .low = w {
             Task { @MainActor in
