@@ -180,9 +180,9 @@ struct ProfileSettingsView: View {
                         // App info
                         settingsSection("About") {
                             VStack(spacing: 10) {
-                                infoRow(label: "Version", value: "1.7")
+                                infoRow(label: "Version", value: Bundle.main.appVersion)
                                 AscendancyDivider()
-                                infoRow(label: "Build", value: "8")
+                                infoRow(label: "Build", value: Bundle.main.buildNumber)
                             }
                         }
                         
@@ -588,6 +588,18 @@ private struct BackupAlert: Identifiable {
     let id = UUID()
     let title: String
     let message: String
+}
+
+extension Bundle {
+    /// Marketing version from Info.plist (`$(MARKETING_VERSION)`), e.g. "1.8".
+    var appVersion: String {
+        infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+    }
+
+    /// Build number from Info.plist (`$(CURRENT_PROJECT_VERSION)`), e.g. "10".
+    var buildNumber: String {
+        infoDictionary?["CFBundleVersion"] as? String ?? "—"
+    }
 }
 
 #Preview {
