@@ -63,6 +63,31 @@ enum DoseScheduleDayHelper {
         }
     }
 
+    // MARK: - Log index
+
+    /// Pre-buckets logs by (protocolId, day) so callers can answer
+    /// "is this protocol logged on this day?" in O(1) instead of O(L).
+    private struct LogIndex {
+        /// protocolId → sorted timestamps of logs on the target day
+        let byProtocolAndDay: [UUID: [Date]]
+
+        init(logs: [DoseLog], on day: Date) {
+            let cal = Calendar.current
+            let dayStart = cal.startOfDay(for: day)
+            let dayEnd = cal.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+
+            var bucketed: [UUID: [Date]] = [:]
+            for log in logs where log.timestamp >= dayStart && log.timestamp < dayEnd {
+                guard let pid = log.protocol_?.id else { continue }
+                bucketed[pid, default: []].append(log.timestamp)
+            }
+            for key in bucketed.keys {
+                bucketed[key]?.sort()
+            }
+            self.byProtocolAndDay = bucketed
+        }
+    }
+
     // MARK: - Public API
 
     static func scheduledRows(protocols: [CompoundProtocol], on day: Date) -> [(CompoundProtocol, Date)] {
@@ -98,18 +123,13 @@ enum DoseScheduleDayHelper {
 
         let scheduled = scheduledRows(protocols: protocols, on: day)
         let scheduledIds = Set(scheduled.map { $0.0.id })
-        let cal = Calendar.current
-        let dayStart = cal.startOfDay(for: day)
 
-        // Pre-filter logs to only those on the target day
-        let relevantLogs = logs.filter { cal.isDate($0.timestamp, inSameDayAs: dayStart) }
+        // Pre-bucket logs by (protocolId, day) so the extras loop is O(P) instead of O(P×L).
+        let index = LogIndex(logs: logs, on: day)
 
         let extras: [(CompoundProtocol, Date)] = protocols.compactMap { p in
             guard !scheduledIds.contains(p.id) else { return nil }
-            guard let latest = relevantLogs
-                .filter({ $0.protocol_?.id == p.id })
-                .map(\.timestamp)
-                .max() else { return nil }
+            guard let latest = index.byProtocolAndDay[p.id]?.last else { return nil }
             return (p, latest)
         }
 
@@ -121,11 +141,8 @@ enum DoseScheduleDayHelper {
     }
 
     static func isLogged(_ p: CompoundProtocol, on day: Date, logs: [DoseLog]) -> Bool {
-        let cal = Calendar.current
-        let dayStart = cal.startOfDay(for: day)
-        return logs.contains { log in
-            log.protocol_?.id == p.id && cal.isDate(log.timestamp, inSameDayAs: dayStart)
-        }
+        let index = LogIndex(logs: logs, on: day)
+        return index.byProtocolAndDay[p.id] != nil
     }
 
     /// Clear all caches (call when protocols or logs are modified)

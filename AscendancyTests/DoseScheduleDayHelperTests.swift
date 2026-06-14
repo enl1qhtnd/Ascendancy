@@ -284,4 +284,49 @@ final class DoseScheduleDayHelperTests: XCTestCase {
             "After clearing cache and re-querying with the new log, the protocol should be logged"
         )
     }
+
+    func test_mergedRows_performanceWithMultipleProtocols() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+
+        // 5 protocols spread across the day, 50 logs (10 per protocol) — exercises
+        // the LogIndex bucketing path that replaces the old O(P×L) filter.map.max.
+        let protocols = (0..<5).map { _ in makeProtocol(schedule: .daily) }
+        var allLogs: [DoseLog] = []
+        for (i, p) in protocols.enumerated() {
+            for j in 0..<10 {
+                let hour = (i + j) % 24
+                let timestamp = cal.date(bySettingHour: hour, minute: 0, second: 0, of: today)!
+                allLogs.append(makeLog(for: p, on: timestamp))
+            }
+        }
+
+        let rows = DoseScheduleDayHelper.mergedRows(protocols: protocols, logs: allLogs, on: today)
+
+        // Each protocol is scheduled once a day → 5 rows.
+        XCTAssertEqual(rows.count, 5)
+        let protocolIds = Set(rows.map { $0.0.id })
+        XCTAssertEqual(protocolIds, Set(protocols.map { $0.id }))
+    }
+
+    func test_isLogged_withIndex() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let noon = cal.date(byAdding: .hour, value: 12, to: today)!
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: today)!
+
+        let pLogged = makeProtocol(schedule: .daily)
+        let pNotLogged = makeProtocol(schedule: .daily)
+        let pLoggedOnOtherDay = makeProtocol(schedule: .daily)
+
+        _ = makeLog(for: pLogged, on: noon)
+        _ = makeLog(for: pLoggedOnOtherDay, on: tomorrow)
+
+        let allLogs = (pLogged.doseLogs ?? []) + (pLoggedOnOtherDay.doseLogs ?? [])
+
+        XCTAssertTrue(DoseScheduleDayHelper.isLogged(pLogged, on: today, logs: allLogs))
+        XCTAssertFalse(DoseScheduleDayHelper.isLogged(pNotLogged, on: today, logs: allLogs))
+        XCTAssertFalse(DoseScheduleDayHelper.isLogged(pLoggedOnOtherDay, on: today, logs: allLogs))
+        XCTAssertTrue(DoseScheduleDayHelper.isLogged(pLoggedOnOtherDay, on: tomorrow, logs: allLogs))
+    }
 }
