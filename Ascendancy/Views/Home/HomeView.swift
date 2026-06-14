@@ -668,20 +668,20 @@ struct CompactBodyweightTile: View {
 
             if let w = healthKit.latestWeight {
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(w.formatted(.number.precision(.fractionLength(1))))
+                    Text(healthKit.displayWeight(w).formatted(.number.precision(.fractionLength(1))))
                         .font(.system(size: 26, weight: .semibold))
                         .foregroundStyle(.white)
-                    Text("kg")
+                    Text(healthKit.weightUnitIsLbs ? "lbs" : "kg")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.white.opacity(0.45))
                 }
 
                 HStack(spacing: 4) {
-                    let trend = healthKit.weightTrend7Day
+                    let trend = healthKit.weightTrend7DayDisplay
                     Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(trend >= 0 ? Color.orange : Color.green)
-                    Text(String(format: String(localized: "%1$+.1f kg"), locale: .current, trend))
+                    Text(String(format: healthKit.weightUnitIsLbs ? String(localized: "%1$+.1f lbs") : String(localized: "%1$+.1f kg"), locale: .current, trend))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.45))
                     Text("7d")

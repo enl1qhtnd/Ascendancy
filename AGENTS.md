@@ -83,12 +83,13 @@ From the repo root:
      -destination "generic/platform=iOS" \
      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
    ```
-3. Unit tests on an installed simulator:
+3. Unit tests on the default simulator (iPhone 17 Pro / OS 26.5):
    ```bash
    xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
-     -destination "platform=iOS Simulator,name=<installed iPhone>,OS=<installed OS>" \
+     -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5" \
      CODE_SIGNING_ALLOWED=NO
    ```
+   If that simulator is not installed, substitute another installed iPhone/OS pair (`xcodebuild -showdestinations -scheme Ascendancy` lists them).
 4. IPA packaging: `Scripts/build_ipa.sh` writes an unsigned IPA to `build/`.
 
 ## Working Rules For Agents

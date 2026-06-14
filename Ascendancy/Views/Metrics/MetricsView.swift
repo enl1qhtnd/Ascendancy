@@ -29,6 +29,13 @@ struct MetricsView: View {
     var weightSlice: [HealthMetricPoint] {
         Array(healthKit.bodyWeightSamples.suffix(periodDays))
     }
+    /// Weight slice converted to the user's preferred display unit.
+    var weightSliceDisplay: [HealthMetricPoint] {
+        guard healthKit.weightUnitIsLbs else { return weightSlice }
+        return weightSlice.map {
+            HealthMetricPoint(date: $0.date, value: healthKit.displayWeight($0.value))
+        }
+    }
     var hrSlice: [HealthMetricPoint] {
         Array(healthKit.heartRateSamples.suffix(periodDays))
     }
@@ -209,9 +216,9 @@ struct MetricsView: View {
                         // Body Weight
                         metricCard(title: "Body Weight", icon: "scalemass.fill", color: .blue) {
                             HealthMetricChart(
-                                dataPoints: weightSlice,
+                                dataPoints: weightSliceDisplay,
                                 title: "Weight",
-                                unit: "kg",
+                                unit: healthKit.weightUnit,
                                 lineColor: .blue,
                                 days: periodDays
                             )

@@ -16,7 +16,7 @@ final class HealthKitService: ObservableObject {
     @Published var heightSamples: [HealthMetricPoint] = []
     @Published var bmiSamples: [HealthMetricPoint] = []
     @Published var latestWeight: Double? = nil
-    @Published var weightUnit: String = "kg"
+    @Published var weightUnit: String = Locale.current.usesMetricSystem ? "kg" : "lbs"
 
     // Cached computed properties
     private var cachedWeightTrend: (samplesCount: Int, trend: Double)?
@@ -40,6 +40,25 @@ final class HealthKitService: ObservableObject {
 
         cachedWeightTrend = (currentCount, trend)
         return trend
+    }
+
+    /// 7-day weight trend converted to the user's preferred unit.
+    var weightTrend7DayDisplay: Double {
+        Self.convert(kg: weightTrend7Day, toUnit: weightUnit)
+    }
+
+    var weightUnitIsLbs: Bool {
+        weightUnit == "lbs"
+    }
+
+    /// Convert a kilogram value to the user's preferred display unit.
+    func displayWeight(_ kgValue: Double) -> Double {
+        Self.convert(kg: kgValue, toUnit: weightUnit)
+    }
+
+    /// Convert a kilogram value to the chosen unit. Pure function for tests.
+    static func convert(kg value: Double, toUnit unit: String) -> Double {
+        unit == "lbs" ? value * 2.2046226218 : value
     }
 
     // MARK: - Authorization

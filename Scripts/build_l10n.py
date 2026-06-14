@@ -303,6 +303,8 @@ KEYS = [
     "e.g. 1",
     "%1$+.1f kg (7d)",
     "%1$+.1f kg",
+    "%1$+.1f lbs",
+    "lbs",
     # Keys below must appear here to be emitted into Localizable.xcstrings (overrides alone are not enough).
     "Active Levels",
     "This Week",
@@ -1734,6 +1736,8 @@ IDENTITY_TRANSLATIONS = {
     key: key
     for key in [
         "kg",
+        "lbs",
+        "%1$+.1f lbs",
         "mg",
         "mL",
         "IU",

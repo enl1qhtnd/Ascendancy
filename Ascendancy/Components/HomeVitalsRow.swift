@@ -23,7 +23,9 @@ struct HomeVitalsRow: View {
 
     private var weightText: String {
         guard let v = healthKit.latestWeight else { return "–" }
-        return v.formatted(.number.precision(.fractionLength(0)))
+        let value = healthKit.displayWeight(v).formatted(.number.precision(.fractionLength(0)))
+        let unit = healthKit.weightUnitIsLbs ? String(localized: "lbs") : String(localized: "kg")
+        return "\(value) \(unit)"
     }
 
     private var bodyFatText: String {
