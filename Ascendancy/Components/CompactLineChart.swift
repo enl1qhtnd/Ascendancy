@@ -24,7 +24,7 @@ struct CompactLineChart: View {
 
     var body: some View {
         if dataPoints.isEmpty {
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 6)
                 .fill(AscendancyTheme.surfaceInset)
                 .frame(height: height)
                 .overlay(
@@ -80,6 +80,30 @@ struct CompactLineChart: View {
 
 // MARK: - Health Metric Chart
 
+struct HealthMetricChartStyle {
+    let values: [Double]
+
+    var minValue: Double {
+        values.min() ?? 0
+    }
+
+    var maxValue: Double {
+        values.max() ?? 1
+    }
+
+    var yDomain: ClosedRange<Double> {
+        let range = maxValue - minValue
+        let padding = range > 0 ? range * 0.1 : max(maxValue * 0.1, 1)
+        let lower = max(0, minValue - padding)
+        let upper = maxValue + padding
+        return lower...upper
+    }
+
+    var barBaseline: Double {
+        yDomain.lowerBound
+    }
+}
+
 struct HealthMetricChart: View {
     let dataPoints: [HealthMetricPoint]
     let title: String
@@ -88,17 +112,25 @@ struct HealthMetricChart: View {
     var days: Int = 30
     
     var latestValue: Double? { dataPoints.last?.value }
-    var minValue: Double { dataPoints.map(\.value).min() ?? 0 }
-    var maxValue: Double { dataPoints.map(\.value).max() ?? 1 }
-    
-    var yDomain: ClosedRange<Double> {
-        let range = maxValue - minValue
-        let padding = range > 0 ? range * 0.1 : max(maxValue * 0.1, 1)
-        let lower = max(0, minValue - padding)
-        let upper = maxValue + padding
-        return lower...upper
+    var chartStyle: HealthMetricChartStyle {
+        HealthMetricChartStyle(values: dataPoints.map(\.value))
     }
-    
+
+    private var latestPointID: HealthMetricPoint.ID? {
+        dataPoints.last?.id
+    }
+
+    private var barGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                lineColor.opacity(0.95),
+                lineColor.opacity(0.36)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
@@ -122,25 +154,35 @@ struct HealthMetricChart: View {
             }
             
             if dataPoints.isEmpty {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 6)
                     .fill(AscendancyTheme.surfaceInset)
                     .frame(height: 70)
                     .overlay(Text("No data").font(.system(size: 12)).foregroundStyle(.white.opacity(0.2)))
             } else {
                 Chart {
                     ForEach(dataPoints) { point in
-                        LineMark(
-                            x: .value("Date", point.date),
-                            y: .value(title, point.value)
+                        BarMark(
+                            x: .value("Date", point.date, unit: .day),
+                            yStart: .value("Baseline", chartStyle.barBaseline),
+                            yEnd: .value(title, point.value),
+                            width: .ratio(0.58)
                         )
-                        .foregroundStyle(lineColor)
-                        .lineStyle(StrokeStyle(lineWidth: 2))
-                        .interpolationMethod(.monotone)
+                        .foregroundStyle(barGradient)
+                        .opacity(point.id == latestPointID ? 1.0 : 0.58)
+                        .cornerRadius(2)
                     }
+                }
+                .chartLegend(.hidden)
+                .chartPlotStyle { plotArea in
+                    plotArea
+                        .background(AscendancyTheme.surfaceInset.opacity(0.45))
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day, count: max(1, days / 5))) { value in
                         if let date = value.as(Date.self) {
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.3))
+                                .foregroundStyle(.white.opacity(0.08))
                             AxisValueLabel {
                                 Text(date, format: .dateTime.month(.abbreviated).day())
                                     .font(.system(size: 9))
@@ -150,8 +192,8 @@ struct HealthMetricChart: View {
                     }
                 }
                 .chartYAxis {
-                    AxisMarks { value in
-                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.3, dash: [3]))
+                    AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.35, dash: [3]))
                             .foregroundStyle(Color.white.opacity(0.08))
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
@@ -162,7 +204,7 @@ struct HealthMetricChart: View {
                         }
                     }
                 }
-                .chartYScale(domain: yDomain)
+                .chartYScale(domain: chartStyle.yDomain)
                 .frame(height: 100)
             }
         }

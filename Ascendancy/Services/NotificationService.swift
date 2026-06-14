@@ -6,6 +6,19 @@ actor NotificationService {
     static let shared = NotificationService()
     private let center = UNUserNotificationCenter.current()
 
+    private static let globalNotificationsEnabledKey = "globalNotificationsEnabled"
+
+    // MARK: - Global Notifications Toggle
+
+    static var globalNotificationsEnabled: Bool {
+        get {
+            UserDefaults.standard.object(forKey: globalNotificationsEnabledKey) as? Bool ?? true
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: globalNotificationsEnabledKey)
+        }
+    }
+
     // MARK: - Authorization
 
     func requestAuthorization() async -> Bool {
@@ -102,6 +115,16 @@ actor NotificationService {
 
     func cancelAllReminders() {
         center.removeAllPendingNotificationRequests()
+    }
+
+    func cancelAllRemindersAsync() async {
+        center.removeAllPendingNotificationRequests()
+    }
+
+    func refreshRemindersIfNeeded() async {
+        guard Self.globalNotificationsEnabled else { return }
+        // This method is called when app comes to foreground to ensure reminders are current
+        // The actual refresh is handled by ContentView.scheduleAllReminders()
     }
 
     // MARK: - Low Inventory Alert

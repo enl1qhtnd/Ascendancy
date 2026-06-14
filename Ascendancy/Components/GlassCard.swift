@@ -174,9 +174,9 @@ struct InventoryBar: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 3)
+                RoundedRectangle(cornerRadius: 2)
                     .fill(Color.white.opacity(0.08))
-                RoundedRectangle(cornerRadius: 3)
+                RoundedRectangle(cornerRadius: 2)
                     .fill(barColor.opacity(0.8))
                     .frame(width: geo.size.width * fraction)
             }

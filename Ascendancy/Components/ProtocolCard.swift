@@ -116,7 +116,7 @@ struct ProtocolCard: View {
                 }
             }
         }
-        .glassCard(cornerRadius: 18, padding: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+        .glassCard(cornerRadius: 14, padding: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
     }
     
     private func relativeTime(_ date: Date) -> String {

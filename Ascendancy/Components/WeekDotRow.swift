@@ -41,12 +41,12 @@ struct WeekDotRow: View {
                                         .foregroundStyle(.white)
                                 } else if status == .partial {
                                     Image(systemName: "minus")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.system(size: 9, weight: .bold))
                                         .foregroundStyle(.white)
                                 } else if status == .missed {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 9, weight: .bold))
-                                        .foregroundStyle(.white.opacity(0.7))
+                                        .foregroundStyle(.white)
                                 } else if status == .noDose {
                                     Image(systemName: "minus")
                                         .font(.system(size: 9, weight: .medium))
@@ -89,19 +89,21 @@ struct WeekDotRow: View {
         }
         if allLogged { return .complete }
 
-        let partiallyLogged = rows.contains {
-            DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
+        if dayStart < today {
+            let partiallyLogged = rows.contains {
+                DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
+            }
+            if partiallyLogged { return .partial }
+            return .missed
         }
-        if partiallyLogged { return .partial }
 
-        if dayStart < today { return .missed }
         return .future
     }
     
     private func circleColor(_ status: DayStatus) -> Color {
         switch status {
         case .complete: return Color.green.opacity(0.8)
-        case .partial: return Color.yellow.opacity(0.85)
+        case .partial: return Color(red: 0.45, green: 0.78, blue: 1.0).opacity(0.85)
         case .missed: return Color.red.opacity(0.5)
         case .noDose: return AscendancyTheme.surfaceRaised
         case .future: return AscendancyTheme.surfaceRaised

@@ -53,11 +53,11 @@ struct StableLevelsRow: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     // Track
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(Color.white.opacity(0.07))
                     
                     // Fill
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(
                             LinearGradient(
                                 colors: [color.opacity(0.5), color],

@@ -10,7 +10,7 @@ struct ProfileSettingsView: View {
     @AppStorage("userGoal") private var userGoal = ""
     @AppStorage("profileImageData") private var profileImageData: Data?
     
-    @State private var notificationsEnabled = true
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @State private var showReconCalc = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showProfileImageOptions = false
@@ -265,6 +265,16 @@ struct ProfileSettingsView: View {
             .onAppear {
                 refreshWidgetContainerStatus()
             }
+            .onChange(of: notificationsEnabled) { _, newValue in
+                NotificationService.globalNotificationsEnabled = newValue
+                Task {
+                    if newValue {
+                        await NotificationService.shared.scheduleAll(protocols: fetchActiveProtocols())
+                    } else {
+                        await NotificationService.shared.cancelAllRemindersAsync()
+                    }
+                }
+            }
         }
     }
 
@@ -321,6 +331,14 @@ struct ProfileSettingsView: View {
             widgetSnapshotExists = refreshed.snapshotExists
             widgetSnapshotGeneratedAt = refreshed.snapshotGeneratedAt
         }
+    }
+
+    private func fetchActiveProtocols() -> [CompoundProtocol] {
+        let descriptor = FetchDescriptor<CompoundProtocol>(
+            predicate: #Predicate { $0.statusRaw == "Active" },
+            sortBy: CompoundProtocol.listSortDescriptors
+        )
+        return (try? context.fetch(descriptor)) ?? []
     }
     
     private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -536,15 +554,9 @@ struct ProfileSettingsView: View {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            let didStartAccess = url.startAccessingSecurityScopedResource()
-            defer {
-                if didStartAccess {
-                    url.stopAccessingSecurityScopedResource()
-                }
-            }
 
             do {
-                pendingImportData = try Data(contentsOf: url)
+                pendingImportData = try BackupService.dataFromImportedFile(at: url)
                 Haptics.warning()
                 showImportConfirmation = true
             } catch {

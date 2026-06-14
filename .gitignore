@@ -72,3 +72,4 @@ TestResults/
 *.mobileprovision
 *.provisionprofile
 ExportOptions.plist
+plans/

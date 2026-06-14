@@ -213,7 +213,7 @@ struct ProtocolDetailView: View {
                 }
             }
         }
-        .glassCardFilling(cornerRadius: 16, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
+        .glassCardFilling(cornerRadius: 12, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
     }
 
     private var scheduleTypeText: String {
@@ -274,10 +274,10 @@ struct ProtocolDetailView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
                     .background(Color.white.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
         }
-        .glassCardFilling(cornerRadius: 16, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
+        .glassCardFilling(cornerRadius: 12, padding: EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14))
     }
     
     // MARK: - Active Levels Graph
@@ -436,7 +436,7 @@ struct ProtocolDetailView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 15)
                     .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             
             if protocol_.category == .peptide {
@@ -450,7 +450,7 @@ struct ProtocolDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 13)
                         .background(Color.white.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
             }
         }
@@ -667,7 +667,7 @@ private struct RestockInventorySheet: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .background(hasChange ? Color.white : Color.white.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .disabled(!hasChange)
                 }

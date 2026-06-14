@@ -32,14 +32,21 @@ enum DoseScheduleDayHelper {
                 .map(ProtocolFingerprint.init)
                 .sorted { $0.id.uuidString < $1.id.uuidString }
 
+            let cal = Calendar.current
+            let dayStart = cal.startOfDay(for: day)
+            let dayEnd = cal.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
             var hasher = Hasher()
-            for log in logs.sorted(by: { $0.id.uuidString < $1.id.uuidString }) {
+            let dayLogs = logs
+                .filter { $0.timestamp >= dayStart && $0.timestamp < dayEnd }
+                .sorted { $0.id.uuidString < $1.id.uuidString }
+
+            for log in dayLogs {
                 hasher.combine(log.id)
                 hasher.combine(log.protocol_?.id)
                 hasher.combine(log.timestamp)
             }
             self.logsHash = hasher.finalize()
-            self.dayStart = Calendar.current.startOfDay(for: day)
+            self.dayStart = dayStart
         }
     }
 

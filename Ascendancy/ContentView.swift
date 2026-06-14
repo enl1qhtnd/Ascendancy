@@ -16,6 +16,9 @@ struct ContentView: View {
     @State private var selectedTab: AppTab = .home
     @State private var showLogDosePicker = false
     @State private var lastPrimaryTab: AppTab = .home
+    @State private var pendingOpenedBackupData: Data?
+    @State private var showOpenedBackupConfirmation = false
+    @State private var openedBackupAlert: OpenedBackupAlert?
     
     enum AppTab: Hashable {
         case home
@@ -55,7 +58,30 @@ struct ContentView: View {
         }
         .tint(.white)
         .sheet(isPresented: $showLogDosePicker) {
-            LogDoseFlowSheet(protocols: activeProtocols)
+            LogDoseFlowSheet(
+                doses: DoseScheduleDayHelper.scheduledRows(protocols: activeProtocols, on: Date()),
+                logs: allLogs
+            )
+        }
+        .alert("Import Backup?", isPresented: $showOpenedBackupConfirmation) {
+            Button("Cancel", role: .cancel) {
+                pendingOpenedBackupData = nil
+            }
+            Button("Replace Data", role: .destructive) {
+                restoreOpenedBackup()
+            }
+        } message: {
+            Text("This replaces protocols, logs, files, and profile settings. iCloud Sync may apply these changes on your other devices.")
+        }
+        .alert(item: $openedBackupAlert) { alert in
+            Alert(
+                title: Text(alert.title),
+                message: Text(alert.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        .onOpenURL { url in
+            readOpenedBackup(from: url)
         }
         .onChange(of: widgetSnapshotFingerprint) { _, _ in
             WidgetSnapshotService.publish(protocols: activeProtocols, logs: allLogs)
@@ -186,6 +212,7 @@ struct ContentView: View {
     
     private func scheduleAllReminders() {
         Task {
+            guard NotificationService.globalNotificationsEnabled else { return }
             let auth = await NotificationService.shared.requestAuthorization()
             guard auth else { return }
             await NotificationService.shared.scheduleAll(protocols: activeProtocols)
@@ -222,6 +249,40 @@ struct ContentView: View {
         tabBar.standardAppearance = appearance
         tabBar.scrollEdgeAppearance = appearance
     }
+
+    private func readOpenedBackup(from url: URL) {
+        do {
+            pendingOpenedBackupData = try BackupService.dataFromImportedFile(at: url)
+            Haptics.warning()
+            showOpenedBackupConfirmation = true
+        } catch {
+            pendingOpenedBackupData = nil
+            Haptics.error()
+            openedBackupAlert = OpenedBackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
+        }
+    }
+
+    private func restoreOpenedBackup() {
+        guard let pendingOpenedBackupData else { return }
+
+        do {
+            let summary = try BackupService.restore(from: pendingOpenedBackupData, into: context)
+            self.pendingOpenedBackupData = nil
+            WidgetSnapshotService.publish(from: context)
+            Haptics.success()
+            openedBackupAlert = OpenedBackupAlert(title: String(localized: "Backup Imported"), message: summary.message)
+        } catch {
+            self.pendingOpenedBackupData = nil
+            Haptics.error()
+            openedBackupAlert = OpenedBackupAlert(title: String(localized: "Import Failed"), message: error.localizedDescription)
+        }
+    }
+}
+
+private struct OpenedBackupAlert: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
 }
 
 #Preview {

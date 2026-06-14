@@ -109,9 +109,9 @@ struct ReconstitutionCalculatorView: View {
                                             .foregroundStyle(.white.opacity(0.4))
                                         GeometryReader { geo in
                                             ZStack(alignment: .leading) {
-                                                RoundedRectangle(cornerRadius: 4)
+                                                RoundedRectangle(cornerRadius: 3)
                                                     .fill(AscendancyTheme.surfaceRaised)
-                                                RoundedRectangle(cornerRadius: 4)
+                                                RoundedRectangle(cornerRadius: 3)
                                                     .fill(Color.teal.opacity(0.7))
                                                     .frame(width: geo.size.width * min(1, units / 100))
                                             }

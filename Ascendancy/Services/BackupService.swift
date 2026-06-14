@@ -7,6 +7,75 @@ extension UTType {
     static let ascendancyBackup = UTType(exportedAs: "de.enl1qhtnd.asce.backup", conformingTo: .json)
 }
 
+enum DocumentImportService {
+    static let mediaContentTypes: [UTType] = [
+        .pdf,
+        .image,
+        .text,
+        .plainText
+    ]
+
+    static func readData(from url: URL) throws -> Data {
+        let didStartAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        var coordinationError: NSError?
+        var readResult: Result<Data, Error>?
+
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordinationError) { readableURL in
+            readResult = Result {
+                try Data(contentsOf: readableURL)
+            }
+        }
+
+        if let readResult {
+            return try readResult.get()
+        }
+
+        if let coordinationError {
+            throw coordinationError
+        }
+
+        return try Data(contentsOf: url)
+    }
+
+    static func makeMediaDocument(from url: URL, dateAdded: Date = Date()) throws -> MediaDocument {
+        let data = try readData(from: url)
+        let title = titleFromURL(url)
+
+        return MediaDocument(
+            title: title,
+            imageData: data,
+            fileExtension: fileExtension(from: url),
+            dateAdded: dateAdded
+        )
+    }
+
+    private static func titleFromURL(_ url: URL) -> String {
+        let title = url.deletingPathExtension().lastPathComponent.trimmingCharacters(in: .whitespacesAndNewlines)
+        return title.isEmpty ? String(localized: "Imported File") : title
+    }
+
+    private static func fileExtension(from url: URL) -> String? {
+        let pathExtension = url.pathExtension.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !pathExtension.isEmpty {
+            return pathExtension
+        }
+
+        if let contentType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType,
+           let preferredExtension = contentType.preferredFilenameExtension?.lowercased(),
+           !preferredExtension.isEmpty {
+            return preferredExtension
+        }
+
+        return nil
+    }
+}
+
 struct AscendancyBackupDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.ascendancyBackup, .json] }
 
@@ -88,6 +157,14 @@ enum BackupService {
             throw BackupError.invalidPastedBackup
         }
 
+        return try validatedBackupData(data)
+    }
+
+    static func dataFromImportedFile(at url: URL) throws -> Data {
+        try validatedBackupData(DocumentImportService.readData(from: url))
+    }
+
+    private static func validatedBackupData(_ data: Data) throws -> Data {
         guard !data.isEmpty else { throw BackupError.emptyFile }
 
         let decoder = JSONDecoder()

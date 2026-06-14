@@ -156,6 +156,49 @@ final class BackupServiceTests: XCTestCase {
         XCTAssertEqual(parsed, data)
     }
 
+    func test_documentImportService_readsFileContents() throws {
+        let data = Data([1, 3, 5, 7])
+        let url = try writeTemporaryFile(named: "sample.txt", data: data)
+
+        XCTAssertEqual(try DocumentImportService.readData(from: url), data)
+    }
+
+    @MainActor
+    func test_documentImportService_makeMediaDocument_importsBytesAndFileMetadata() throws {
+        let data = Data([2, 4, 6, 8])
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        let url = try writeTemporaryFile(named: "Bloodwork.PDF", data: data)
+
+        let document = try DocumentImportService.makeMediaDocument(from: url, dateAdded: date)
+
+        XCTAssertEqual(document.title, "Bloodwork")
+        XCTAssertEqual(document.imageData, data)
+        XCTAssertEqual(document.fileExtension, "pdf")
+        XCTAssertEqual(document.dateAdded, date)
+    }
+
+    @MainActor
+    func test_dataFromImportedFile_readsAndValidatesBackupPayload() throws {
+        let backupData = """
+        {
+          "doseLogs": [],
+          "mediaDocuments": [],
+          "metadata": {
+            "createdAt": "2026-06-13T12:00:00Z",
+            "formatVersion": 1
+          },
+          "profile": {
+            "userGoal": "",
+            "userName": ""
+          },
+          "protocols": []
+        }
+        """.data(using: .utf8)!
+        let url = try writeTemporaryFile(named: "Ascendancy-Backup.ascendancybackup", data: backupData)
+
+        XCTAssertEqual(try BackupService.dataFromImportedFile(at: url), backupData)
+    }
+
     @MainActor
     func test_dataFromPastedString_rejectsInvalidContent() {
         XCTAssertThrowsError(try BackupService.dataFromPastedString("not backup data")) { error in
@@ -210,5 +253,18 @@ final class BackupServiceTests: XCTestCase {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
         defaults.removePersistentDomain(forName: suiteName)
         return (suiteName, defaults)
+    }
+
+    private func writeTemporaryFile(named fileName: String, data: Data) throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupServiceTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        addTeardownBlock {
+            try? FileManager.default.removeItem(at: directory)
+        }
+
+        let url = directory.appendingPathComponent(fileName)
+        try data.write(to: url)
+        return url
     }
 }

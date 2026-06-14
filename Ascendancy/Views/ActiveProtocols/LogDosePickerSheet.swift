@@ -3,7 +3,8 @@ import SwiftUI
 // MARK: - Log Dose Flow Sheet
 
 struct LogDoseFlowSheet: View {
-    let protocols: [CompoundProtocol]
+    let doses: [(CompoundProtocol, Date)]
+    let logs: [DoseLog]
     @Environment(\.dismiss) private var dismissFlow
     @State private var selectedProtocol: CompoundProtocol?
 
@@ -22,7 +23,7 @@ struct LogDoseFlowSheet: View {
                     )
                 }
             } else {
-                LogDosePickerContent(protocols: protocols) { protocol_ in
+                LogDosePickerContent(doses: doses, logs: logs) { protocol_ in
                     withAnimation(.snappy(duration: 0.2)) {
                         selectedProtocol = protocol_
                     }
@@ -37,8 +38,17 @@ struct LogDoseFlowSheet: View {
 // MARK: - Log Dose Picker Content
 
 struct LogDosePickerContent: View {
-    let protocols: [CompoundProtocol]
+    let doses: [(CompoundProtocol, Date)]
+    let logs: [DoseLog]
     let onSelect: (CompoundProtocol) -> Void
+
+    /// Most recent dose logged today for the protocol, if any.
+    private func loggedDose(for p: CompoundProtocol) -> DoseLog? {
+        let cal = Calendar.current
+        return logs
+            .filter { $0.protocol_?.id == p.id && cal.isDateInToday($0.timestamp) }
+            .max { $0.timestamp < $1.timestamp }
+    }
 
     var body: some View {
         ZStack {
@@ -60,21 +70,27 @@ struct LogDosePickerContent: View {
                 .padding(.top, 35)
                 .padding(.bottom, 20)
 
-                if protocols.isEmpty {
+                if doses.isEmpty {
                     Spacer()
-                    Text(catalogKey: "No active protocols")
+                    Text(catalogKey: "Nothing scheduled today")
                         .font(.system(size: 15))
                         .foregroundStyle(.white.opacity(0.35))
                     Spacer()
                 } else {
                     ScrollView(showsIndicators: false) {
                         VStack(spacing: 10) {
-                            ForEach(protocols) { p in
+                            ForEach(doses, id: \.0.id) { pair in
+                                let (p, scheduledDate) = pair
+                                let logEntry = loggedDose(for: p)
                                 Button {
                                     Haptics.tap()
                                     onSelect(p)
                                 } label: {
-                                    LogDoseProtocolRow(protocol_: p)
+                                    LogDoseProtocolRow(
+                                        protocol_: p,
+                                        time: logEntry?.timestamp ?? scheduledDate,
+                                        isLogged: logEntry != nil
+                                    )
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -92,6 +108,8 @@ struct LogDosePickerContent: View {
 
 private struct LogDoseProtocolRow: View {
     let protocol_: CompoundProtocol
+    let time: Date
+    let isLogged: Bool
 
     private var doseLabel: String {
         "\(protocol_.doseAmount.formatted(.number.precision(.fractionLength(0...2)))) \(protocol_.doseUnit.rawValue)"
@@ -112,16 +130,27 @@ private struct LogDoseProtocolRow: View {
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.25))
+            Text(time, format: .dateTime.hour().minute())
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+
+            if isLogged {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundStyle(Color.green.opacity(0.9))
+                    .symbolRenderingMode(.hierarchical)
+            } else {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.25))
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(AscendancyTheme.surfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .stroke(Color.white.opacity(0.07), lineWidth: 1)
         )
     }

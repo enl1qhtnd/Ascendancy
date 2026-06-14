@@ -1,8 +1,7 @@
 import SwiftUI
 
 enum AscendancyTheme {
-    static let cardFill = Color(white: 0.09)
-    static let cardStroke = Color.white.opacity(0.06)
+    static let cardFill = Color(white: 0.05)
     static let surfaceInset = Color(white: 0.07)
     static let surfaceRaised = Color(white: 0.11)
 
@@ -39,14 +38,10 @@ enum AscendancyTheme {
 }
 
 extension View {
-    func ascendancyCardBackground(cornerRadius: CGFloat = 16) -> some View {
+    func ascendancyCardBackground(cornerRadius: CGFloat = 12) -> some View {
         background(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(AscendancyTheme.cardFill)
-                .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(AscendancyTheme.cardStroke, lineWidth: 0.5)
-                )
         )
     }
 

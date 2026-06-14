@@ -9,8 +9,7 @@ struct HomeView: View {
     )
     private var activeProtocols: [CompoundProtocol]
 
-    @Query(sort: \DoseLog.timestamp, order: .reverse)
-    private var allLogs: [DoseLog]
+    @Query private var recentLogs: [DoseLog]
 
     @StateObject private var healthKit = HealthKitService.shared
     @State private var showProfile = false
@@ -24,6 +23,17 @@ struct HomeView: View {
 
     // Track data version to avoid unnecessary recalculations
     @State private var lastPKDataFingerprint: Int? = nil
+
+    init() {
+        let logStartDate = Self.homeLogFetchStartDate()
+        _recentLogs = Query(
+            filter: #Predicate<DoseLog> { log in
+                log.timestamp >= logStartDate
+            },
+            sort: \DoseLog.timestamp,
+            order: .reverse
+        )
+    }
 
     private var pkDataFingerprint: Int {
         PKDataFingerprint.combined(protocols: activeProtocols)
@@ -71,35 +81,80 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                
+            ZStack(alignment: .top) {
+                headerBackground
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 12) {
-                        headerView
-                        
-                        // 1. Active Protocols Tile
-                        ActiveProtocolsTile(protocols: activeProtocols)
-                        
-                        // 2. Next Dose + Bodyweight side-by-side
-                        HStack(spacing: 12) {
-                            CompactTodaysDoseTile(protocols: activeProtocols, logs: allLogs)
-                            CompactBodyweightTile(healthKit: healthKit)
+                    VStack(spacing: 0) {
+                        // Top summary section: greeting + at-a-glance vitals
+                        VStack(spacing: 20) {
+                            headerView
+                                .padding(.horizontal, 16)
+
+                            HomeVitalsRow(
+                                healthKit: healthKit,
+                                protocolCount: activeProtocols.count
+                            )
                         }
-                        
-                        // 3. Active Levels Graph Tile
-                        ActiveLevelsTile(dataPoints: combinedLevelData, protocols: activeProtocols)
-                        
-                        // 4. This Week Tile
-                        ThisWeekTile(logs: allLogs, protocols: Array(activeProtocols))
-                        
-                        // 5. Pictures & Documents Tile (bottom)
-                        PicturesDocumentsTile()
-                        
-                        Spacer(minLength: 24)
+                        .padding(.top, 8)
+                        .padding(.bottom, 44)
+
+                        // Cards — a black panel with rounded top corners, lifted to sit
+                        // "above" the gradient header for a smooth transition.
+                        VStack(spacing: 12) {
+                            // 1. Active Protocols Tile
+                            ActiveProtocolsTile(protocols: activeProtocols)
+
+                            // 2. Next Dose + Bodyweight side-by-side
+                            HStack(spacing: 12) {
+                                CompactTodaysDoseTile(protocols: activeProtocols, logs: recentLogs)
+                                CompactBodyweightTile(healthKit: healthKit)
+                            }
+
+                            // 3. Active Levels Graph Tile
+                            ActiveLevelsTile(dataPoints: combinedLevelData, protocols: activeProtocols)
+
+                            // 4. This Week Tile
+                            ThisWeekTile(logs: recentLogs, protocols: Array(activeProtocols))
+
+                            // 5. Pictures & Documents Tile (bottom)
+                            PicturesDocumentsTile()
+
+                            Spacer(minLength: 24)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 24)
+                        .padding(.bottom, 24)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.black)
+                        .clipShape(
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 28,
+                                bottomLeadingRadius: 0,
+                                bottomTrailingRadius: 0,
+                                topTrailingRadius: 28,
+                                style: .continuous
+                            )
+                        )
+                        // Seam lift: only a short top cap casts the shadow (the opaque
+                        // panel covers it), so the blur pass stays small instead of
+                        // rasterizing the full-height panel silhouette every layout.
+                        .background(alignment: .top) {
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 28,
+                                bottomLeadingRadius: 0,
+                                bottomTrailingRadius: 0,
+                                topTrailingRadius: 28,
+                                style: .continuous
+                            )
+                            .fill(Color.black)
+                            .frame(height: 60)
+                            .shadow(color: .black.opacity(0.45), radius: 14, y: -2)
+                        }
+                        .padding(.top, -28)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
                 }
             }
             .sheet(isPresented: $showProfile) {
@@ -117,7 +172,62 @@ struct HomeView: View {
             pkRecalcTask?.cancel()
         }
     }
+
+    private static func homeLogFetchStartDate(referenceDate: Date = Date(), calendar: Calendar = .current) -> Date {
+        let today = calendar.startOfDay(for: referenceDate)
+        return calendar.date(byAdding: .day, value: -8, to: today) ?? today
+    }
     
+    private var headerBackground: some View {
+        ZStack(alignment: .top) {
+            Color.black
+
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.05, green: 0.12, blue: 0.46),
+                        Color(red: 0.02, green: 0.05, blue: 0.18),
+                        .black
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.08, green: 0.26, blue: 0.70).opacity(0.6),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 0.22, y: -0.06),
+                    startRadius: 0,
+                    endRadius: 330
+                )
+
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.08, green: 0.16, blue: 0.58).opacity(0.48),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 1.04, y: 0.02),
+                    startRadius: 0,
+                    endRadius: 350
+                )
+
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.03, green: 0.18, blue: 0.45).opacity(0.32),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 0.52, y: 0.42),
+                    startRadius: 0,
+                    endRadius: 310
+                )
+            }
+            .frame(height: 380)
+            .clipped()
+        }
+    }
+
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -127,6 +237,8 @@ struct HomeView: View {
                 Text(greetingText)
                     .font(AscendancyTheme.display(size: 28))
                     .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
             Spacer()
 
@@ -143,12 +255,16 @@ struct HomeView: View {
                                 .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.75)
                         )
 
-                    if let data = profileImageData, let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
+                    if let data = profileImageData {
+                        ImageDataThumbnail(
+                            id: profileImageThumbnailID(for: data),
+                            data: data,
+                            size: CGSize(width: 40, height: 40),
+                            cornerRadius: 20
+                        ) {
+                            Color.clear
+                        }
+                        .clipShape(Circle())
                     } else {
                         Image(systemName: "person.fill")
                             .font(.system(size: 20, weight: .semibold))
@@ -166,12 +282,24 @@ struct HomeView: View {
         let hour = Calendar.current.component(.hour, from: Date())
         let base: String
         switch hour {
-        case 0..<12: base = String(localized: "Good morning")
-        case 12..<17: base = String(localized: "Good afternoon")
-        default: base = String(localized: "Good evening")
+        case 0..<12: base = String(localized: "Good Morning")
+        case 12..<17: base = String(localized: "Good Afternoon")
+        default: base = String(localized: "Good Evening")
         }
         let name = userName.trimmingCharacters(in: .whitespacesAndNewlines)
         return name.isEmpty ? base : "\(base), \(name)"
+    }
+
+    private func profileImageThumbnailID(for data: Data) -> Int {
+        var hasher = Hasher()
+        hasher.combine(data.count)
+        for byte in data.prefix(16) {
+            hasher.combine(byte)
+        }
+        for byte in data.suffix(16) {
+            hasher.combine(byte)
+        }
+        return hasher.finalize()
     }
 }
 
@@ -239,20 +367,9 @@ struct CompactTodaysDoseTile: View {
         DoseScheduleDayHelper.mergedRows(protocols: protocols, logs: logs, on: dayStart)
     }
 
-    private var doneCount: Int {
-        rows.filter { DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }.count
-    }
-
-    private var nextIncomplete: (CompoundProtocol, Date)? {
-        rows.first { !DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }
-    }
-
-    private var moreIncompleteCount: Int {
-        guard nextIncomplete != nil else { return 0 }
-        return rows.filter { !DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs) }.count - 1
-    }
-
     var body: some View {
+        let summary = todaySummary()
+
         Button {
             Haptics.tap()
             showDaySchedule = true
@@ -266,14 +383,14 @@ struct CompactTodaysDoseTile: View {
                         .foregroundStyle(.white.opacity(0.3))
                 }
 
-                if rows.isEmpty {
+                if summary.rows.isEmpty {
                     Text("–")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.25))
                     Text("No doses today")
                         .font(.system(size: 11))
                         .foregroundStyle(.white.opacity(0.3))
-                } else if let (p, time) = nextIncomplete {
+                } else if let (p, time) = summary.nextIncomplete {
                     HStack(spacing: 8) {
                         CategoryIcon(category: p.category, size: 28)
                         VStack(alignment: .leading, spacing: 2) {
@@ -284,8 +401,8 @@ struct CompactTodaysDoseTile: View {
                             Text(String(
                                 format: String(localized: "%@ · %lld/%lld"),
                                 "\(p.doseAmount.formatted(.number.precision(.fractionLength(0...1)))) \(p.doseUnit.rawValue)",
-                                doneCount,
-                                rows.count
+                                summary.doneCount,
+                                summary.rows.count
                             ))
                                 .font(.system(size: 11))
                                 .foregroundStyle(.white.opacity(0.5))
@@ -299,8 +416,8 @@ struct CompactTodaysDoseTile: View {
                         Text("next")
                             .font(.system(size: 11))
                             .foregroundStyle(.white.opacity(0.4))
-                        if moreIncompleteCount > 0 {
-                            Text(String(format: String(localized: "(+%lld more)"), moreIncompleteCount))
+                        if summary.moreIncompleteCount > 0 {
+                            Text(String(format: String(localized: "(+%lld more)"), summary.moreIncompleteCount))
                                 .font(.system(size: 10))
                                 .foregroundStyle(.white.opacity(0.35))
                         }
@@ -315,7 +432,7 @@ struct CompactTodaysDoseTile: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
-                            Text(String(format: String(localized: "%lld/%lld today"), rows.count, rows.count))
+                            Text(String(format: String(localized: "%lld/%lld today"), summary.rows.count, summary.rows.count))
                                 .font(.system(size: 11))
                                 .foregroundStyle(.white.opacity(0.5))
                         }
@@ -338,8 +455,40 @@ struct CompactTodaysDoseTile: View {
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $showDaySchedule) {
-            DayScheduleSheet(protocols: protocols, logs: logs, initialDay: dayStart)
+            DayScheduleSheet(protocols: protocols, initialDay: dayStart)
         }
+    }
+
+    private func todaySummary() -> TodaysDoseSummary {
+        let currentRows = rows
+        var doneCount = 0
+        var incompleteCount = 0
+        var nextIncomplete: (CompoundProtocol, Date)?
+
+        for row in currentRows {
+            if DoseScheduleDayHelper.isLogged(row.0, on: dayStart, logs: logs) {
+                doneCount += 1
+            } else {
+                incompleteCount += 1
+                if nextIncomplete == nil {
+                    nextIncomplete = row
+                }
+            }
+        }
+
+        return TodaysDoseSummary(
+            rows: currentRows,
+            doneCount: doneCount,
+            nextIncomplete: nextIncomplete,
+            moreIncompleteCount: max(0, incompleteCount - 1)
+        )
+    }
+
+    private struct TodaysDoseSummary {
+        let rows: [(CompoundProtocol, Date)]
+        let doneCount: Int
+        let nextIncomplete: (CompoundProtocol, Date)?
+        let moreIncompleteCount: Int
     }
 }
 
@@ -347,13 +496,12 @@ struct CompactTodaysDoseTile: View {
 
 struct DayScheduleSheet: View {
     let protocols: [CompoundProtocol]
-    let logs: [DoseLog]
+    @Query(sort: \DoseLog.timestamp, order: .reverse) private var logs: [DoseLog]
     @Environment(\.dismiss) private var dismiss
     @State private var selectedDay: Date
 
-    init(protocols: [CompoundProtocol], logs: [DoseLog], initialDay: Date) {
+    init(protocols: [CompoundProtocol], initialDay: Date) {
         self.protocols = protocols
-        self.logs = logs
         _selectedDay = State(initialValue: Calendar.current.startOfDay(for: initialDay))
     }
 
@@ -490,9 +638,9 @@ struct DayScheduleSheet: View {
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 14)
                                 .background(AscendancyTheme.surfaceRaised)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .stroke(Color.white.opacity(0.07), lineWidth: 1)
                                 )
                             }
@@ -671,9 +819,9 @@ struct PicturesDocumentsTile: View {
                                 id: "\(doc.id.uuidString)-\(data.count)",
                                 data: data,
                                 size: CGSize(width: 54, height: 54),
-                                cornerRadius: 8
+                                cornerRadius: 6
                             ) {
-                                RoundedRectangle(cornerRadius: 8)
+                                RoundedRectangle(cornerRadius: 6)
                                     .fill(AscendancyTheme.surfaceInset)
                                     .overlay(
                                         Image(systemName: "doc.fill")
@@ -682,7 +830,7 @@ struct PicturesDocumentsTile: View {
                                     )
                             }
                         } else {
-                            RoundedRectangle(cornerRadius: 8)
+                            RoundedRectangle(cornerRadius: 6)
                                 .fill((doc.fileExtension == "pdf" ? Color.red : Color.white).opacity(0.08))
                                 .frame(width: 54, height: 54)
                                 .overlay(
@@ -695,7 +843,7 @@ struct PicturesDocumentsTile: View {
                     
                     if documents.count < 4 {
                         ForEach(0..<(4 - min(documents.count, 4)), id: \.self) { _ in
-                            RoundedRectangle(cornerRadius: 8)
+                            RoundedRectangle(cornerRadius: 6)
                                 .fill(AscendancyTheme.surfaceInset)
                                 .frame(width: 54, height: 54)
                                 .overlay(

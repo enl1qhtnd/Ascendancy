@@ -192,7 +192,7 @@ struct NewProtocolView: View {
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(isValid ? Color.white : Color.white.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .disabled(!isValid)
                         .padding(.bottom, 32)

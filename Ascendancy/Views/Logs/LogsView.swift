@@ -214,7 +214,7 @@ struct LogEntryRow: View {
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
         .background(AscendancyTheme.surfaceInset)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

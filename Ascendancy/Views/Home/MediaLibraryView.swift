@@ -111,7 +111,7 @@ struct MediaLibraryView: View {
             .background(
                 MediaDocumentPicker(
                     isPresented: $showFileImporter,
-                    allowedContentTypes: [.pdf, .jpeg, .png, .text, .plainText]
+                    allowedContentTypes: DocumentImportService.mediaContentTypes
                 ) { url in
                     importFile(from: url)
                 }
@@ -154,7 +154,7 @@ struct MediaLibraryView: View {
                 // Leading Icon / Thumbnail
                 ZStack {
                     if isPDF {
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 8)
                             .fill(Color.red.opacity(0.15))
                             .frame(width: iconSize, height: iconSize)
                             .overlay(
@@ -167,9 +167,9 @@ struct MediaLibraryView: View {
                             id: "\(doc.id.uuidString)-\(data.count)",
                             data: data,
                             size: CGSize(width: iconSize, height: iconSize),
-                            cornerRadius: 10
+                            cornerRadius: 8
                         ) {
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: 8)
                                 .fill(Color.white.opacity(0.1))
                                 .overlay(
                                     Image(systemName: "doc.fill")
@@ -179,7 +179,7 @@ struct MediaLibraryView: View {
                         }
                     } else {
                         // Fallback generic doc
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 8)
                             .fill(Color.white.opacity(0.1))
                             .frame(width: iconSize, height: iconSize)
                             .overlay(
@@ -340,13 +340,8 @@ struct MediaLibraryView: View {
     /// Reads the file at `url` into a `MediaDocument` and saves it.
     /// Must be called on the main thread (UIDocumentPickerDelegate callbacks are main-thread).
     private func importFile(from url: URL) {
-        let didStart = url.startAccessingSecurityScopedResource()
-        defer { if didStart { url.stopAccessingSecurityScopedResource() } }
         do {
-            let data = try Data(contentsOf: url)
-            let title = url.deletingPathExtension().lastPathComponent
-            let ext = url.pathExtension.lowercased()
-            let doc = MediaDocument(title: title, imageData: data, fileExtension: ext)
+            let doc = try DocumentImportService.makeMediaDocument(from: url)
             context.insert(doc)
             try context.save()
             Haptics.success()
@@ -464,7 +459,7 @@ private struct MediaDocumentPicker: UIViewControllerRepresentable {
         DispatchQueue.main.async {
             guard context.coordinator.activePicker == nil else { return }
 
-            let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes)
+            let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes, asCopy: true)
             picker.allowsMultipleSelection = false
             picker.delegate = context.coordinator
 
