@@ -52,12 +52,12 @@
 		ADA97C66C505A722EB128C28 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E13013A319611BDDBCBC28 /* HomeView.swift */; };
 		B70FD61CBBB7740AC2C5B5C4 /* ProtocolCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38183C22CFB8F2B9AABBCBB9 /* ProtocolCard.swift */; };
 		BC2116C17DF473527B482566 /* StableLevelsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CC2E4AF72A85A70858AFBE /* StableLevelsRow.swift */; };
-		A1B2C3D4E5F60718293A4B5C /* HomeVitalsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1E2D3C4B5A69788796A5B4 /* HomeVitalsRow.swift */; };
 		BEB3E1FC229C8EE830140804 /* HealthMetricChartStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252CAC1ED2BFDF08A4073A76 /* HealthMetricChartStyleTests.swift */; };
 		C342B4DF0B540296A3E33267 /* NumericInputParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55635D5336458AE2E4ACBA28 /* NumericInputParserTests.swift */; };
 		C493D31283F9C8CB9FEA8D9D /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FE28E9CCD47FACD9715D659 /* LogsView.swift */; };
 		C4D99B0D86FED9683818C28F /* AscendancyWidgetShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD8139D9478266EBC5D7C40 /* AscendancyWidgetShared.swift */; };
 		C81AAAD75D7D8407EB7F9DB8 /* CompoundProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DACB7D32AF388822C44CBA2A /* CompoundProtocolTests.swift */; };
+		C8DEB52B3DEBF3B3F76B8BFE /* HomeVitalsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A558ED9EFE1932B20EAAF65E /* HomeVitalsRow.swift */; };
 		DB395041AA1DF932A7F85CE8 /* ReconstitutionCalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B456CAA284E6491C885BD03D /* ReconstitutionCalculatorView.swift */; };
 		DD9D8B84FD1603C4589C6E24 /* AppGroupSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2BFE70B7AC813F15CCA82A /* AppGroupSupportTests.swift */; };
 		DE566F0208C7CCBFD6E1ECBE /* WidgetSnapshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA964F074837636F39938D6 /* WidgetSnapshotService.swift */; };
@@ -142,7 +142,6 @@
 		816CCA34E38C239825FB06C9 /* ProtocolDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolDetailView.swift; sourceTree = "<group>"; };
 		832B19363D9860314C846AFB /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		86CC2E4AF72A85A70858AFBE /* StableLevelsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StableLevelsRow.swift; sourceTree = "<group>"; };
-		0F1E2D3C4B5A69788796A5B4 /* HomeVitalsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeVitalsRow.swift; sourceTree = "<group>"; };
 		86E13013A319611BDDBCBC28 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		8B2E063B5D552E426D1DB65F /* MetricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsView.swift; sourceTree = "<group>"; };
 		8D2BFE70B7AC813F15CCA82A /* AppGroupSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSupportTests.swift; sourceTree = "<group>"; };
@@ -151,6 +150,7 @@
 		9A17A7B64CCF5912F712A327 /* AppGroupSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupSupport.swift; sourceTree = "<group>"; };
 		9DF0B30B9BDF831137152559 /* ProtocolSortMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolSortMigrationTests.swift; sourceTree = "<group>"; };
 		9FE28E9CCD47FACD9715D659 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
+		A558ED9EFE1932B20EAAF65E /* HomeVitalsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeVitalsRow.swift; sourceTree = "<group>"; };
 		A5E687B55949AB305F50D6D9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A7023DB9310CC4807E12747E /* ActiveProtocolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveProtocolsView.swift; sourceTree = "<group>"; };
 		A89B0BD57D843CD85E9D767F /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
@@ -383,7 +383,7 @@
 			children = (
 				C28E51458BC63FCB1DB7D9D4 /* CompactLineChart.swift */,
 				2D0D23A0F822E0EDF55949A5 /* GlassCard.swift */,
-				0F1E2D3C4B5A69788796A5B4 /* HomeVitalsRow.swift */,
+				A558ED9EFE1932B20EAAF65E /* HomeVitalsRow.swift */,
 				EC4C6FFF68F9CF75874E285D /* ImageDataThumbnail.swift */,
 				6B657FA70E8B06FCB7712BF8 /* PDFKitView.swift */,
 				38183C22CFB8F2B9AABBCBB9 /* ProtocolCard.swift */,
@@ -540,6 +540,7 @@
 				17B6B7C7E401DD8B58720F73 /* Haptics.swift in Sources */,
 				EFE8B23DF21641B0BFDE0817 /* HealthKitService.swift in Sources */,
 				ADA97C66C505A722EB128C28 /* HomeView.swift in Sources */,
+				C8DEB52B3DEBF3B3F76B8BFE /* HomeVitalsRow.swift in Sources */,
 				945C91F4A7013143885774C6 /* ImageDataThumbnail.swift in Sources */,
 				380C9AD3DEC0D1750BCB3F18 /* InventoryService.swift in Sources */,
 				87DD71F104E954B7C47C0C41 /* LocalizedStringKey+Catalog.swift in Sources */,
@@ -562,7 +563,6 @@
 				DB395041AA1DF932A7F85CE8 /* ReconstitutionCalculatorView.swift in Sources */,
 				EA5AEF0C13ECA24026A7E1D9 /* SampleData.swift in Sources */,
 				BC2116C17DF473527B482566 /* StableLevelsRow.swift in Sources */,
-				A1B2C3D4E5F60718293A4B5C /* HomeVitalsRow.swift in Sources */,
 				F143965C11C560355E108698 /* WeekDotRow.swift in Sources */,
 				DE566F0208C7CCBFD6E1ECBE /* WidgetSnapshotService.swift in Sources */,
 			);
@@ -693,7 +693,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
@@ -814,7 +814,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 11;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

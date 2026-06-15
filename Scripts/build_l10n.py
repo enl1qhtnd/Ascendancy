@@ -10,8 +10,8 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Must match project.yml MARKETING_VERSION / CURRENT_PROJECT_VERSION.
-APP_MARKETING_VERSION = "1.7"
-APP_BUILD_NUMBER = "8"
+APP_MARKETING_VERSION = "1.8"
+APP_BUILD_NUMBER = "11"
 
 LOCALES = [
     "de",

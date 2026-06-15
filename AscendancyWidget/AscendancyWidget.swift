@@ -53,19 +53,53 @@ struct AscendancyWidgetEntryView: View {
                 MediumDoseWidget(snapshot: entry.snapshot, now: entry.date)
             }
         }
+        .contentMargins(0, for: .automatic)
         .containerBackground(for: .widget) {
-            ZStack {
-                LinearGradient(
-                    colors: [Color(red: 0.04, green: 0.05, blue: 0.08), Color.black],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                RadialGradient(
-                    colors: [Color.white.opacity(0.16), Color.clear],
-                    center: .topTrailing,
-                    startRadius: 12,
-                    endRadius: 180
-                )
+            ZStack(alignment: .top) {
+                Color.black
+
+                ZStack {
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.05, green: 0.12, blue: 0.46),
+                            Color(red: 0.02, green: 0.05, blue: 0.18),
+                            .black
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color(red: 0.08, green: 0.26, blue: 0.70).opacity(0.6),
+                            .clear
+                        ],
+                        center: UnitPoint(x: 0.22, y: -0.06),
+                        startRadius: 0,
+                        endRadius: 160
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color(red: 0.08, green: 0.16, blue: 0.58).opacity(0.48),
+                            .clear
+                        ],
+                        center: UnitPoint(x: 1.04, y: 0.02),
+                        startRadius: 0,
+                        endRadius: 170
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color(red: 0.03, green: 0.18, blue: 0.45).opacity(0.32),
+                            .clear
+                        ],
+                        center: UnitPoint(x: 0.52, y: 0.42),
+                        startRadius: 0,
+                        endRadius: 150
+                    )
+                }
+                .clipped()
             }
         }
     }
@@ -82,6 +116,7 @@ struct AscendancyWidget: Widget {
         .configurationDisplayName("Next Dose")
         .description("Track your next scheduled dose, today's progress, and low inventory from the Home Screen.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .contentMarginsDisabled()
     }
 }
 
@@ -314,13 +349,46 @@ private struct WidgetCard<Content: View>: View {
     let size: WidgetSize
     @ViewBuilder var content: Content
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: size.blockSpacing) {
-            content
+    private var cardCornerRadius: CGFloat {
+        switch size {
+        case .small: return 14
+        case .medium: return 18
+        case .large: return 22
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(size.padding)
-        .foregroundStyle(.white)
+    }
+
+    private func outerMargin(in widgetSize: CGSize) -> CGFloat {
+        let base = min(widgetSize.width, widgetSize.height) * 0.075
+        switch size {
+        case .small, .medium:
+            return max(12, base)
+        case .large:
+            return max(14, base)
+        }
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            let margin = outerMargin(in: geo.size)
+            let cardWidth = geo.size.width - (margin * 2)
+            let cardHeight = geo.size.height - (margin * 2)
+
+            VStack(alignment: .leading, spacing: size.blockSpacing) {
+                content
+            }
+            .padding(size.padding)
+            .frame(width: cardWidth, height: cardHeight, alignment: .topLeading)
+            .foregroundStyle(.white)
+            .background {
+                RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                    .fill(Color(white: 0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.07), lineWidth: 0.5)
+                    )
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
     }
 }
 
