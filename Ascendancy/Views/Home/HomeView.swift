@@ -9,6 +9,15 @@ struct HomeView: View {
     )
     private var activeProtocols: [CompoundProtocol]
 
+    // Protocols contributing to the PK global active levels graph.
+    // Includes active, paused, and completed — only archived is excluded,
+    // so recently paused/completed compounds still appear in the decay curve.
+    @Query(
+        filter: #Predicate<CompoundProtocol> { $0.statusRaw != "Archived" },
+        sort: CompoundProtocol.listSortDescriptors
+    )
+    private var levelProtocols: [CompoundProtocol]
+
     @Query private var recentLogs: [DoseLog]
 
     @StateObject private var healthKit = HealthKitService.shared
@@ -36,11 +45,11 @@ struct HomeView: View {
     }
 
     private var pkDataFingerprint: Int {
-        PKDataFingerprint.combined(protocols: activeProtocols)
+        PKDataFingerprint.combined(protocols: levelProtocols)
     }
 
     private func recalculateCombinedLevels() {
-        let snapshots = activeProtocols.map { protocol_ in
+        let snapshots = levelProtocols.map { protocol_ in
             PKProtocolSnapshot(
                 startDate: protocol_.startDate,
                 halfLifeHours: protocol_.halfLifeInHours,
@@ -114,7 +123,7 @@ struct HomeView: View {
                             }
 
                             // 3. Active Levels Graph Tile
-                            ActiveLevelsTile(dataPoints: combinedLevelData, protocols: activeProtocols)
+                            ActiveLevelsTile(dataPoints: combinedLevelData, protocols: levelProtocols)
 
                             // 4. This Week Tile
                             ThisWeekTile(logs: recentLogs, protocols: Array(activeProtocols))
@@ -719,7 +728,7 @@ struct ActiveLevelsTile: View {
             TileHeader(icon: "waveform.path.ecg", title: "Active Levels")
 
             if protocols.isEmpty {
-                Text("No active protocols")
+                Text("No compounds to display")
                     .font(.system(size: 13))
                     .foregroundStyle(.white.opacity(0.3))
                     .frame(maxWidth: .infinity, alignment: .center)

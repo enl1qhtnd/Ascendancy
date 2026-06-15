@@ -8,6 +8,15 @@ struct MetricsView: View {
         sort: CompoundProtocol.listSortDescriptors
     )
     private var activeProtocols: [CompoundProtocol]
+
+    // Protocols contributing to the PK global active levels graph.
+    // Includes active, paused, and completed — only archived is excluded,
+    // so recently paused/completed compounds still appear in the decay curve.
+    @Query(
+        filter: #Predicate<CompoundProtocol> { $0.statusRaw != "Archived" },
+        sort: CompoundProtocol.listSortDescriptors
+    )
+    private var levelProtocols: [CompoundProtocol]
     
     enum MetricPeriod: String, CaseIterable {
         case week = "7D"
@@ -61,13 +70,13 @@ struct MetricsView: View {
     @State private var lastPKDataFingerprint: Int? = nil
 
     private var pkDataFingerprint: Int {
-        PKDataFingerprint.combined(protocols: activeProtocols, periodDays: periodDays)
+        PKDataFingerprint.combined(protocols: levelProtocols, periodDays: periodDays)
     }
-    
+
     private func recalculateCombinedLevels() {
         let periodDays = periodDays
         let startDate = Calendar.current.date(byAdding: .day, value: -periodDays, to: Date())
-        let snapshots = activeProtocols.map { protocol_ in
+        let snapshots = levelProtocols.map { protocol_ in
             PKProtocolSnapshot(
                 startDate: protocol_.startDate,
                 halfLifeHours: protocol_.halfLifeInHours,
@@ -151,7 +160,7 @@ struct MetricsView: View {
                         }
                         
                         // Active Levels
-                        if !activeProtocols.isEmpty {
+                        if !levelProtocols.isEmpty {
                             metricCard(title: "Active Compound Levels", icon: "waveform.path.ecg", color: Color(white: 0.85)) {
                                 CompactLineChart(
                                     dataPoints: combinedLevelData,
@@ -182,7 +191,7 @@ struct MetricsView: View {
                                 .buttonStyle(.plain)
                                 
                                 VStack(spacing: 12) {
-                                    ForEach(activeProtocols) { p in
+                                    ForEach(levelProtocols) { p in
                                         let logs = p.doseLogs ?? []
                                         let level = PharmacokineticsEngine.currentLevel(for: p, logs: logs)
                                         let stable = PharmacokineticsEngine.stableLevelInfo(for: p, logs: logs)

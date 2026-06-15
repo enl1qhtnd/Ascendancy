@@ -17070,6 +17070,9 @@
         }
       }
     },
+    "No compounds to display" : {
+
+    },
     "No data" : {
       "extractionState" : "manual",
       "localizations" : {
