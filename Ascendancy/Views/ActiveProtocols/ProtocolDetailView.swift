@@ -130,7 +130,7 @@ struct ProtocolDetailView: View {
             LogDoseSheet(protocol_: protocol_)
         }
         .sheet(isPresented: $showReconCalc) {
-            ReconstitutionCalculatorView(prefillName: protocol_.name)
+            ReconstitutionCalculatorView()
         }
         .sheet(isPresented: $showEditProtocol) {
             NewProtocolView(protocol_: protocol_)

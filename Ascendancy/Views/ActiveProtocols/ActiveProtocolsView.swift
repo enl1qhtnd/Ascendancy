@@ -7,6 +7,7 @@ struct ActiveProtocolsView: View {
     @Environment(\.modelContext) private var context
     
     @State private var showNewProtocol = false
+    @State private var showReconCalc = false
     @AppStorage("protocolListFilter") private var selectedFilter: FilterOption = .all
     @State private var protocolToLog: CompoundProtocol? = nil
     @State private var navPath: [UUID] = []
@@ -84,6 +85,17 @@ struct ActiveProtocolsView: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.white)
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        Haptics.tap()
+                        showReconCalc = true
+                    } label: {
+                        Image(systemName: "flask.fill")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .accessibilityLabel(Text(catalogKey: "Reconstitution Calculator"))
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         Haptics.tap()
@@ -99,6 +111,9 @@ struct ActiveProtocolsView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $showNewProtocol) {
                 NewProtocolView()
+            }
+            .sheet(isPresented: $showReconCalc) {
+                ReconstitutionCalculatorView()
             }
             .sheet(item: $protocolToLog) { p in
                 LogDoseSheet(protocol_: p)
