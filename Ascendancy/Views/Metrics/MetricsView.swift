@@ -213,28 +213,6 @@ struct MetricsView: View {
                             }
                         }
                         
-                        // Body Weight
-                        metricCard(title: "Body Weight", icon: "scalemass.fill", color: .blue) {
-                            HealthMetricChart(
-                                dataPoints: weightSliceDisplay,
-                                title: "Weight",
-                                unit: healthKit.weightUnit,
-                                lineColor: .blue,
-                                days: periodDays
-                            )
-                        }
-                        
-                        // Resting Heart Rate
-                        metricCard(title: "Resting Heart Rate", icon: "heart.fill", color: .red) {
-                            HealthMetricChart(
-                                dataPoints: hrSlice,
-                                title: "HR",
-                                unit: "bpm",
-                                lineColor: .red,
-                                days: periodDays
-                            )
-                        }
-                        
                         // Steps
                         metricCard(title: "Steps", icon: "figure.walk", color: .green) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -255,7 +233,7 @@ struct MetricsView: View {
                                 )
                             }
                         }
-                        
+
                         // Active Energy (Calories)
                         metricCard(title: "Active Energy", icon: "flame.fill", color: .orange) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -276,7 +254,29 @@ struct MetricsView: View {
                                 )
                             }
                         }
-                        
+
+                        // Resting Heart Rate
+                        metricCard(title: "Resting Heart Rate", icon: "heart.fill", color: .red) {
+                            HealthMetricChart(
+                                dataPoints: hrSlice,
+                                title: "HR",
+                                unit: "bpm",
+                                lineColor: .red,
+                                days: periodDays
+                            )
+                        }
+
+                        // Body Weight
+                        metricCard(title: "Body Weight", icon: "scalemass.fill", color: .blue) {
+                            HealthMetricChart(
+                                dataPoints: weightSliceDisplay,
+                                title: "Weight",
+                                unit: healthKit.weightUnit,
+                                lineColor: .blue,
+                                days: periodDays
+                            )
+                        }
+
                         // Body Fat Percentage
                         metricCard(title: "Body Fat", icon: "percent", color: .cyan) {
                             HealthMetricChart(
@@ -287,7 +287,7 @@ struct MetricsView: View {
                                 days: periodDays
                             )
                         }
-                        
+
                         // BMI
                         metricCard(title: "Body Mass Index", icon: "scalemass", color: .indigo) {
                             HealthMetricChart(
@@ -298,7 +298,7 @@ struct MetricsView: View {
                                 days: periodDays
                             )
                         }
-                        
+
                         // Height
                         if let h = heightSlice.last {
                             metricCard(title: "Height", icon: "arrow.up.and.down", color: .teal) {
