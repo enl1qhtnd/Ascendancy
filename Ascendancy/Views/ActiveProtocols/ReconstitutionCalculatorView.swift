@@ -35,6 +35,7 @@ struct ReconstitutionCalculatorView: View {
     @State private var peptideUnit: DoseUnit = .mg
     @State private var diluentAmount: Double = 1       // mL
     @State private var targetDoseStr = ""              // in peptideUnit (same unit as peptide amount)
+    @FocusState private var isTargetDoseFocused: Bool
 
     // Wheel step values
     private let diluentStep: Double = 0.5
@@ -181,6 +182,7 @@ struct ReconstitutionCalculatorView: View {
                                     HStack {
                                         TextField("e.g. 2.5", text: $targetDoseStr)
                                             .keyboardType(.decimalPad)
+                                            .focused($isTargetDoseFocused)
                                             .font(.system(size: 16))
                                             .foregroundStyle(.white)
 
@@ -277,6 +279,7 @@ struct ReconstitutionCalculatorView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
