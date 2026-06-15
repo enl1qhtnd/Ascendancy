@@ -10,7 +10,7 @@ struct ProfileSettingsView: View {
     @AppStorage("userGoal") private var userGoal = ""
     @AppStorage("profileImageData") private var profileImageData: Data?
     
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @AppStorage("globalNotificationsEnabled") private var notificationsEnabled = true
     @State private var showReconCalc = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showProfileImageOptions = false
@@ -266,7 +266,6 @@ struct ProfileSettingsView: View {
                 refreshWidgetContainerStatus()
             }
             .onChange(of: notificationsEnabled) { _, newValue in
-                NotificationService.globalNotificationsEnabled = newValue
                 Task {
                     if newValue {
                         await NotificationService.shared.scheduleAll(protocols: fetchActiveProtocols())
