@@ -18,14 +18,20 @@ struct WeekDotRow: View {
     }
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(weekDays, id: \.self) { day in
+        let days = weekDays
+        // Bucket the week's logs into [dayStart: Set<protocolID>] in a single O(L)
+        // pass, so dayStatus answers "is this protocol logged on this day?" with a
+        // set lookup instead of rebuilding a full LogIndex over every log for each
+        // protocol on each of the 7 days.
+        let loggedByDay = loggedProtocolIDsByDay(in: days)
+        return HStack(spacing: 0) {
+            ForEach(days, id: \.self) { day in
                 VStack(spacing: 5) {
                     Text(dayLabel(day))
                         .font(.system(size: 9, weight: .medium))
                         .foregroundStyle(.white.opacity(0.35))
-                    
-                    let status = dayStatus(day)
+
+                    let status = dayStatus(day, loggedIDs: loggedByDay[calendar.startOfDay(for: day)] ?? [])
                     Circle()
                         .fill(circleColor(status))
                         .frame(width: 24, height: 24)
@@ -68,31 +74,42 @@ struct WeekDotRow: View {
         case complete, partial, missed, noDose, future
     }
     
-    private func dayStatus(_ day: Date) -> DayStatus {
+    /// Maps each day in the week to the set of protocol IDs that have at least one
+    /// log on that day. Mirrors `DoseScheduleDayHelper.isLogged` (logged == a log
+    /// exists for the protocol on that day) but computes the whole week in one pass.
+    private func loggedProtocolIDsByDay(in days: [Date]) -> [Date: Set<UUID>] {
+        let dayStarts = Set(days.map { calendar.startOfDay(for: $0) })
+        var result: [Date: Set<UUID>] = [:]
+        for log in logs {
+            guard let pid = log.protocol_?.id else { continue }
+            let dayStart = calendar.startOfDay(for: log.timestamp)
+            guard dayStarts.contains(dayStart) else { continue }
+            result[dayStart, default: []].insert(pid)
+        }
+        return result
+    }
+
+    private func dayStatus(_ day: Date, loggedIDs: Set<UUID>) -> DayStatus {
         let today = calendar.startOfDay(for: Date())
         let dayStart = calendar.startOfDay(for: day)
-        
+
         if dayStart > today { return .future }
-        
+
         let activeForDay = protocols.filter { p in
             guard p.status == .active, p.startDate <= day else { return false }
             if let end = p.endDate, calendar.startOfDay(for: end) < dayStart { return false }
             return true
         }
         if activeForDay.isEmpty { return .noDose }
-        
+
         let rows = DoseScheduleDayHelper.mergedRows(protocols: activeForDay, logs: logs, on: day)
         if rows.isEmpty { return .noDose }
 
-        let allLogged = rows.allSatisfy {
-            DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
-        }
+        let allLogged = rows.allSatisfy { loggedIDs.contains($0.0.id) }
         if allLogged { return .complete }
 
         if dayStart < today {
-            let partiallyLogged = rows.contains {
-                DoseScheduleDayHelper.isLogged($0.0, on: dayStart, logs: logs)
-            }
+            let partiallyLogged = rows.contains { loggedIDs.contains($0.0.id) }
             if partiallyLogged { return .partial }
             return .missed
         }
