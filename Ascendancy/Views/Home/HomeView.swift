@@ -145,8 +145,13 @@ struct HomeView: View {
                         .padding(.top, 24)
                         .padding(.bottom, 24)
                         .frame(maxWidth: .infinity)
-                        .background(Color.black)
-                        .clipShape(
+                        // Rounded-top panel painted as a filled shape rather than a
+                        // clipShape. The cards live inside 16pt horizontal / 24pt top
+                        // padding, so they never reach the 28pt corner curve — nothing
+                        // needs clipping. A clipShape on this (taller-than-screen) panel
+                        // forced a full-panel offscreen mask pass on every scroll frame;
+                        // a plain rounded fill is pixel-identical without that cost.
+                        .background {
                             UnevenRoundedRectangle(
                                 topLeadingRadius: 28,
                                 bottomLeadingRadius: 0,
@@ -154,7 +159,8 @@ struct HomeView: View {
                                 topTrailingRadius: 28,
                                 style: .continuous
                             )
-                        )
+                            .fill(Color.black)
+                        }
                         // Seam lift: only a short top cap casts the shadow (the opaque
                         // panel covers it), so the blur pass stays small instead of
                         // rasterizing the full-height panel silhouette every layout.
@@ -242,6 +248,10 @@ struct HomeView: View {
             }
             .frame(height: 380)
             .clipped()
+            // Flatten the linear + three radial gradients into one rasterized layer
+            // so the per-pixel gradient shading is computed once instead of being a
+            // candidate for re-shading as content scrolls over this static backdrop.
+            .drawingGroup()
         }
     }
 
