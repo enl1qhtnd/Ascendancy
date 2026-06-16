@@ -20,7 +20,15 @@ struct HomeView: View {
 
     @Query private var recentLogs: [DoseLog]
 
-    @StateObject private var healthKit = HealthKitService.shared
+    // Held as a plain reference, not @StateObject/@ObservedObject: HomeView's body
+    // never reads HealthKit's @Published values (it only passes the singleton down
+    // and calls requestAuthorization()). Observing it here would invalidate the
+    // entire HomeView tree on every HealthKit publish — and fetchAll() publishes
+    // many properties in sequence — forcing a full re-render of the unrelated dose
+    // tiles (WeekDotRow, Today's Dose) and the PK fingerprint hash. The two tiles
+    // that actually show HealthKit data observe it themselves via @ObservedObject,
+    // so they still update without dragging the rest of the page along.
+    private let healthKit = HealthKitService.shared
     @State private var showProfile = false
 
     @AppStorage("profileImageData") private var profileImageData: Data?
