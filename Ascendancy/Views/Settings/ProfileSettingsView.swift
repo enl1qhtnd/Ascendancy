@@ -31,7 +31,7 @@ struct ProfileSettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
@@ -214,7 +214,7 @@ struct ProfileSettingsView: View {
                     .foregroundStyle(.white)
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $showReconCalc) {
                 ReconstitutionCalculatorView()
@@ -280,7 +280,7 @@ struct ProfileSettingsView: View {
     @ViewBuilder
     private var expandedProfileImageView: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
 
             if let data = profileImageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)

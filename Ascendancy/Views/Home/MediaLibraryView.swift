@@ -32,7 +32,7 @@ struct MediaLibraryView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
                 
                 if documents.isEmpty {
                     emptyState
@@ -51,7 +51,7 @@ struct MediaLibraryView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             // Rename alert
             .alert("Rename", isPresented: Binding(
@@ -376,7 +376,7 @@ struct ImagePreviewSheet: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
 
             if let data = document.imageData {
                 if document.fileExtension == "pdf" {

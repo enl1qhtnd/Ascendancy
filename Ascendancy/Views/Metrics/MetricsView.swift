@@ -128,7 +128,7 @@ struct MetricsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
@@ -340,7 +340,7 @@ struct MetricsView: View {
                         .foregroundStyle(.white)
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
         .task {

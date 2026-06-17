@@ -39,7 +39,7 @@ struct LogDoseSheetContent: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
 
             VStack(spacing: 20) {
                     // Protocol info header
@@ -155,7 +155,7 @@ struct LogDoseSheetContent: View {
                     }
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
     }
 
@@ -223,7 +223,7 @@ struct EditDoseSheet: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
 
                 VStack(spacing: 20) {
                     if let p = log.protocol_ {
@@ -312,7 +312,7 @@ struct EditDoseSheet: View {
                     .foregroundStyle(.white.opacity(0.6))
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
         .presentationDetents([.height(580)])

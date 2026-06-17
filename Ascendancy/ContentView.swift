@@ -223,7 +223,7 @@ struct ContentView: View {
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
         appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
-        appearance.backgroundColor = UIColor.black.withAlphaComponent(0.08)
+        appearance.backgroundColor = UIColor(red: 8.0 / 255.0, green: 9.0 / 255.0, blue: 11.0 / 255.0, alpha: 0.08)
 
         let normalAttribs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor(white: 0.5, alpha: 1)

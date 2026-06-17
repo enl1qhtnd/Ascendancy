@@ -42,7 +42,7 @@ struct LogsView: View {
 
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     // Protocol filter scroll
@@ -100,7 +100,7 @@ struct LogsView: View {
                         }
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
-                        .background(Color.black)
+                        .background(AscendancyTheme.appBackground)
                     }
                 }
             }
@@ -122,7 +122,7 @@ struct LogsView: View {
                         .clipShape(Capsule())
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .sheet(item: $selectedLogForEdit) { log in
                 EditDoseSheet(log: log)

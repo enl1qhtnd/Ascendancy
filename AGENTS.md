@@ -95,17 +95,17 @@ From the repo root:
    ```bash
    python3 Scripts/build_l10n.py
    ```
-3. Debug app/widget build without signing, matching CI's simulator style:
+3. Debug app/widget build without signing. The local default simulator is iPhone 17 Pro:
    ```bash
    xcodebuild build -project Ascendancy.xcodeproj -scheme Ascendancy \
-     -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+     -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
      -derivedDataPath build \
      CODE_SIGNING_ALLOWED=NO
    ```
 4. Unit tests:
    ```bash
    xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
-     -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+     -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
      -derivedDataPath build \
      CODE_SIGNING_ALLOWED=NO
    ```
@@ -123,7 +123,7 @@ Use targeted tests for focused changes before falling back to the full suite:
 
 ```bash
 xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
-  -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
   -only-testing:AscendancyTests/InventoryServiceTests
 ```

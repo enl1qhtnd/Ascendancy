@@ -169,6 +169,6 @@ private struct InfoBit: View {
         ProtocolCard(protocol_: SampleData.makeSampleProtocols()[0]) {}
             .padding()
     }
-    .background(Color.black)
+    .background(AscendancyTheme.appBackground)
     .preferredColorScheme(.dark)
 }

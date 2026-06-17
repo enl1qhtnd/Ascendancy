@@ -63,7 +63,7 @@ struct ProtocolDetailView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
@@ -124,7 +124,7 @@ struct ProtocolDetailView: View {
                 }
             }
         }
-        .toolbarBackground(Color.black, for: .navigationBar)
+        .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $showLogDose) {
             LogDoseSheet(protocol_: protocol_)
@@ -547,7 +547,7 @@ private struct RestockInventorySheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
 
                 VStack(spacing: 20) {
 
@@ -689,7 +689,7 @@ private struct RestockInventorySheet: View {
                     .foregroundStyle(.white.opacity(0.6))
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
     }

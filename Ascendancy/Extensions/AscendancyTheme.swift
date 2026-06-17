@@ -1,7 +1,8 @@
 import SwiftUI
 
 enum AscendancyTheme {
-    static let cardFill = Color(white: 0.05)
+    static let appBackground = Color(red: 8.0 / 255.0, green: 9.0 / 255.0, blue: 11.0 / 255.0)
+    static let cardFill = Color(red: 16.0 / 255.0, green: 17.0 / 255.0, blue: 19.0 / 255.0)
     static let surfaceInset = Color(white: 0.07)
     static let surfaceRaised = Color(white: 0.11)
 

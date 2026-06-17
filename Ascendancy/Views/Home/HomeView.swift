@@ -159,7 +159,7 @@ struct HomeView: View {
                                 topTrailingRadius: 28,
                                 style: .continuous
                             )
-                            .fill(Color.black)
+                            .fill(AscendancyTheme.appBackground)
                         }
                         // Seam lift: only a short top cap casts the shadow (the opaque
                         // panel covers it), so the blur pass stays small instead of
@@ -172,7 +172,7 @@ struct HomeView: View {
                                 topTrailingRadius: 28,
                                 style: .continuous
                             )
-                            .fill(Color.black)
+                            .fill(AscendancyTheme.appBackground)
                             .frame(height: 60)
                             .shadow(color: .black.opacity(0.45), radius: 14, y: -2)
                         }
@@ -202,15 +202,24 @@ struct HomeView: View {
     }
     
     private var headerBackground: some View {
-        ZStack(alignment: .top) {
-            Color.black
+        let visibleHeight: CGFloat = 380
+        let fadeHeight: CGFloat = 88
+        let extendedHeight = visibleHeight + fadeHeight
+        let scale = visibleHeight / extendedHeight
+        let fadeStart = (visibleHeight - 72) / extendedHeight
+        let fadeMid = (visibleHeight + 28) / extendedHeight
+        func scaledLocation(_ location: CGFloat) -> CGFloat { location * scale }
+
+        return ZStack(alignment: .top) {
+            AscendancyTheme.appBackground
 
             ZStack {
                 LinearGradient(
-                    colors: [
-                        Color(red: 0.05, green: 0.12, blue: 0.46),
-                        Color(red: 0.02, green: 0.05, blue: 0.18),
-                        .black
+                    stops: [
+                        .init(color: Color(red: 0.02, green: 0.14, blue: 0.58), location: 0),
+                        .init(color: Color(red: 0.00, green: 0.025, blue: 0.14), location: scaledLocation(0.42)),
+                        .init(color: Color(red: 0.00, green: 0.006, blue: 0.04), location: scaledLocation(0.76)),
+                        .init(color: AscendancyTheme.appBackground, location: 1)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -218,37 +227,60 @@ struct HomeView: View {
 
                 RadialGradient(
                     colors: [
-                        Color(red: 0.08, green: 0.26, blue: 0.70).opacity(0.6),
+                        Color(red: 0.00, green: 0.34, blue: 1.00).opacity(0.96),
+                        Color(red: 0.02, green: 0.16, blue: 0.76).opacity(0.48),
                         .clear
                     ],
-                    center: UnitPoint(x: 0.22, y: -0.06),
+                    center: UnitPoint(x: 0.15, y: scaledLocation(-0.12)),
+                    startRadius: 0,
+                    endRadius: 390
+                )
+
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.00, green: 0.27, blue: 1.00).opacity(0.70),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 1.12, y: scaledLocation(0.28)),
                     startRadius: 0,
                     endRadius: 330
                 )
 
                 RadialGradient(
                     colors: [
-                        Color(red: 0.08, green: 0.16, blue: 0.58).opacity(0.48),
+                        Color(red: 0.00, green: 0.32, blue: 1.00).opacity(0.88),
+                        Color(red: 0.00, green: 0.12, blue: 0.58).opacity(0.34),
                         .clear
                     ],
-                    center: UnitPoint(x: 1.04, y: 0.02),
+                    center: UnitPoint(x: 1.03, y: scaledLocation(0.82)),
                     startRadius: 0,
-                    endRadius: 350
+                    endRadius: 310
                 )
 
                 RadialGradient(
                     colors: [
-                        Color(red: 0.03, green: 0.18, blue: 0.45).opacity(0.32),
+                        Color.black.opacity(0.50),
                         .clear
                     ],
-                    center: UnitPoint(x: 0.52, y: 0.42),
-                    startRadius: 0,
-                    endRadius: 310
+                    center: UnitPoint(x: 0.62, y: scaledLocation(0.20)),
+                    startRadius: 70,
+                    endRadius: 330
+                )
+
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: fadeStart),
+                        .init(color: AscendancyTheme.appBackground.opacity(0.48), location: fadeMid),
+                        .init(color: AscendancyTheme.appBackground.opacity(0.90), location: 0.94),
+                        .init(color: AscendancyTheme.appBackground, location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
             }
-            .frame(height: 380)
+            .frame(height: extendedHeight)
             .clipped()
-            // Flatten the linear + three radial gradients into one rasterized layer
+            // Flatten the extended gradient field into one rasterized layer
             // so the per-pixel gradient shading is computed once instead of being a
             // candidate for re-shading as content scrolls over this static backdrop.
             .drawingGroup()
@@ -553,7 +585,7 @@ struct DayScheduleSheet: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Handle
@@ -680,7 +712,7 @@ struct DayScheduleSheet: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
-        .presentationBackground(Color.black)
+        .presentationBackground(AscendancyTheme.appBackground)
     }
 }
 

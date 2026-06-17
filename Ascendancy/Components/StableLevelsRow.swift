@@ -127,6 +127,6 @@ struct StableLevelsRow: View {
         )
     }
     .padding()
-    .background(Color.black)
+    .background(AscendancyTheme.appBackground)
     .preferredColorScheme(.dark)
 }

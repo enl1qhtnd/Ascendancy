@@ -52,7 +52,7 @@ struct LogDosePickerContent: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            AscendancyTheme.appBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 HStack(alignment: .top) {

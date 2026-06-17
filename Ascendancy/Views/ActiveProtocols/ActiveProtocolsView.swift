@@ -35,7 +35,7 @@ struct ActiveProtocolsView: View {
     var body: some View {
         NavigationStack(path: $navPath) {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     // Filter chips
@@ -107,7 +107,7 @@ struct ActiveProtocolsView: View {
                     }
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .sheet(isPresented: $showNewProtocol) {
                 NewProtocolView()

@@ -55,52 +55,74 @@ struct AscendancyWidgetEntryView: View {
         }
         .contentMargins(0, for: .automatic)
         .containerBackground(for: .widget) {
+            WidgetBackdropGradient()
+        }
+    }
+}
+
+private struct WidgetBackdropGradient: View {
+    var body: some View {
+        GeometryReader { proxy in
+            let radius = max(proxy.size.width, proxy.size.height)
+
             ZStack(alignment: .top) {
-                Color.black
+                AscendancyTheme.appBackground
 
-                ZStack {
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.05, green: 0.12, blue: 0.46),
-                            Color(red: 0.02, green: 0.05, blue: 0.18),
-                            .black
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+                LinearGradient(
+                    stops: [
+                        .init(color: Color(red: 0.02, green: 0.14, blue: 0.58), location: 0),
+                        .init(color: Color(red: 0.00, green: 0.025, blue: 0.14), location: 0.42),
+                        .init(color: Color(red: 0.00, green: 0.006, blue: 0.04), location: 0.76),
+                        .init(color: AscendancyTheme.appBackground, location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
 
-                    RadialGradient(
-                        colors: [
-                            Color(red: 0.08, green: 0.26, blue: 0.70).opacity(0.6),
-                            .clear
-                        ],
-                        center: UnitPoint(x: 0.22, y: -0.06),
-                        startRadius: 0,
-                        endRadius: 160
-                    )
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.00, green: 0.34, blue: 1.00).opacity(0.88),
+                        Color(red: 0.02, green: 0.16, blue: 0.76).opacity(0.42),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 0.14, y: -0.16),
+                    startRadius: 0,
+                    endRadius: radius * 1.04
+                )
 
-                    RadialGradient(
-                        colors: [
-                            Color(red: 0.08, green: 0.16, blue: 0.58).opacity(0.48),
-                            .clear
-                        ],
-                        center: UnitPoint(x: 1.04, y: 0.02),
-                        startRadius: 0,
-                        endRadius: 170
-                    )
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.00, green: 0.27, blue: 1.00).opacity(0.60),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 1.12, y: 0.24),
+                    startRadius: 0,
+                    endRadius: radius * 0.92
+                )
 
-                    RadialGradient(
-                        colors: [
-                            Color(red: 0.03, green: 0.18, blue: 0.45).opacity(0.32),
-                            .clear
-                        ],
-                        center: UnitPoint(x: 0.52, y: 0.42),
-                        startRadius: 0,
-                        endRadius: 150
-                    )
-                }
-                .clipped()
+                RadialGradient(
+                    colors: [
+                        Color(red: 0.00, green: 0.32, blue: 1.00).opacity(0.68),
+                        Color(red: 0.00, green: 0.12, blue: 0.58).opacity(0.28),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 1.02, y: 0.92),
+                    startRadius: 0,
+                    endRadius: radius * 0.84
+                )
+
+                RadialGradient(
+                    colors: [
+                        Color.black.opacity(0.44),
+                        .clear
+                    ],
+                    center: UnitPoint(x: 0.60, y: 0.26),
+                    startRadius: radius * 0.18,
+                    endRadius: radius * 0.92
+                )
             }
+            .clipped()
+            .drawingGroup()
         }
     }
 }
@@ -381,7 +403,7 @@ private struct WidgetCard<Content: View>: View {
             .foregroundStyle(.white)
             .background {
                 RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-                    .fill(Color(white: 0.05))
+                    .fill(AscendancyTheme.cardFill)
                     .overlay(
                         RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
                             .strokeBorder(Color.white.opacity(0.07), lineWidth: 0.5)

@@ -97,7 +97,7 @@ struct ReconstitutionCalculatorView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                AscendancyTheme.appBackground.ignoresSafeArea()
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 20) {
@@ -298,7 +298,7 @@ struct ReconstitutionCalculatorView: View {
                     .foregroundStyle(.white.opacity(0.6))
                 }
             }
-            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(AscendancyTheme.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .onChange(of: peptideUnit) { oldUnit, newUnit in
                 // Switching to/from mcg resets the value; mg ↔ IU preserves it

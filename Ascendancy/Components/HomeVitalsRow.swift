@@ -89,7 +89,7 @@ private struct VitalCircle: View {
 #Preview {
     ZStack {
         LinearGradient(
-            colors: [Color(red: 0.05, green: 0.12, blue: 0.32), .black],
+            colors: [Color(red: 0.05, green: 0.12, blue: 0.32), AscendancyTheme.appBackground],
             startPoint: .top,
             endPoint: .bottom
         )
