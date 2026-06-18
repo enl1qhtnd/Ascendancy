@@ -13,17 +13,17 @@ python3 Scripts/build_l10n.py
 
 # Build for simulator (unsigned, matches CI)
 xcodebuild build -project Ascendancy.xcodeproj -scheme Ascendancy \
-  -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO
 
 # Run all unit tests
 xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
-  -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO
 
 # Run a single test class
 xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
-  -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
   -only-testing:AscendancyTests/InventoryServiceTests
 
@@ -31,7 +31,7 @@ xcodebuild test -project Ascendancy.xcodeproj -scheme Ascendancy \
 Scripts/build_ipa.sh
 ```
 
-If the iPhone 16 simulator is unavailable, run `xcrun simctl list devices available` and substitute an installed iPhone simulator.
+If the iPhone 17 Pro simulator is unavailable, run `xcrun simctl list devices available` and substitute an installed iPhone simulator.
 
 ## Architecture
 
