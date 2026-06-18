@@ -145,13 +145,6 @@ private struct LogDoseProtocolRow: View {
                     .foregroundStyle(.white.opacity(0.25))
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(AscendancyTheme.surfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
-        )
+        .glassCard(cornerRadius: 12, padding: EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
     }
 }
